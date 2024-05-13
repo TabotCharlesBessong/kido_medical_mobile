@@ -10,7 +10,6 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
 
-import { useColorScheme } from "@/components/useColorScheme";
 import { Text, TouchableOpacity, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
@@ -53,24 +52,23 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
   const router = useRouter()
 
   return (
     <>
       <StatusBar style="auto" />
       <Stack>
-        <Stack.Screen name="(tabs)" options={{headerShown:false}} />
-        <Stack.Screen name="index" options={{ headerShown: false }} />
+        {/* <Stack.Screen name="(tabs)" options={{headerShown:false}} />
+        <Stack.Screen name="index" options={{ headerShown: false }} /> */}
         <Stack.Screen
           name="register"
           options={{
-            title: "",
+            title: "Register",
             headerBackTitle: "",
             headerShadowVisible: false,
             headerStyle: {},
             headerLeft: () => (
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => router.back()} >
                 <Ionicons name="arrow-back" size={36} color="black" />
               </TouchableOpacity>
             ),
