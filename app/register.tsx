@@ -1,4 +1,4 @@
-import { AuthInputField, PasswordVisibilityIcon } from '@/components'
+import { AuthInputField, PasswordVisibilityIcon, SubmitButton } from '@/components'
 import React, { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 
@@ -30,6 +30,7 @@ const register = () => {
           setSecureTextEntry(!secureTextEntry)
         }}
       />
+      <SubmitButton title='Register now' />
     </View>
   );
 }
