@@ -1,10 +1,12 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { AuthInputField } from '@/components'
 import React from 'react'
+import { StyleSheet, Text, View } from 'react-native'
 
 const register = () => {
   return (
     <View style={styles.container} >
       <Text>register</Text>
+      <AuthInputField name='name' placeholder='Charles Tabot' label='Name' containerStyle={{marginBottom:16}} />
     </View>
   )
 }
@@ -17,5 +19,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flex: 1,
+    width:"100%"
   },
 });
