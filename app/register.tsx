@@ -1,12 +1,38 @@
+import { AuthInputField, PasswordVisibilityIcon, SubmitButton } from '@/components'
+import React, { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
 
 const register = () => {
+  const [secureTextEntry, setSecureTextEntry] = useState<boolean>(false)
   return (
-    <View style={styles.container} >
+    <View style={styles.container}>
       <Text>register</Text>
+      <AuthInputField
+        name="name"
+        placeholder="Charles Tabot"
+        label="Name"
+        containerStyle={{ marginBottom: 16 }}
+      />
+      <AuthInputField
+        name="email"
+        placeholder="ebezebeatrice@gmail.com"
+        label="Email Address"
+        containerStyle={{ marginBottom: 16 }}
+      />
+      <AuthInputField
+        name="password"
+        placeholder="*************"
+        label="Password"
+        containerStyle={{ marginBottom: 16 }}
+        secureTextEntry={!secureTextEntry}
+        rightIcon={<PasswordVisibilityIcon privateIcon={secureTextEntry} />}
+        onRightIconPress={() => {
+          setSecureTextEntry(!secureTextEntry)
+        }}
+      />
+      <SubmitButton title='Register now' />
     </View>
-  )
+  );
 }
 
 export default register
@@ -17,5 +43,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flex: 1,
+    width:"100%"
   },
 });
