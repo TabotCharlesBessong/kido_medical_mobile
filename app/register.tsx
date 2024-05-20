@@ -1,9 +1,15 @@
-import { AuthInputField, PasswordVisibilityIcon, SubmitButton } from '@/components'
-import React, { useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import {
+  AppSelect,
+  AuthInputField,
+  AuthSelectField,
+  PasswordVisibilityIcon,
+  SubmitButton,
+} from "@/components";
+import React, { useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
 
 const register = () => {
-  const [secureTextEntry, setSecureTextEntry] = useState<boolean>(false)
+  const [secureTextEntry, setSecureTextEntry] = useState<boolean>(false);
   return (
     <View style={styles.container}>
       <Text>register</Text>
@@ -27,15 +33,26 @@ const register = () => {
         secureTextEntry={!secureTextEntry}
         rightIcon={<PasswordVisibilityIcon privateIcon={secureTextEntry} />}
         onRightIconPress={() => {
-          setSecureTextEntry(!secureTextEntry)
+          setSecureTextEntry(!secureTextEntry);
         }}
       />
-      <SubmitButton title='Register now' />
+      {/* <AppSelect /> */}
+      <AuthSelectField
+        name="role"
+        label="Select User Role"
+        options={[
+          { label: "Option 1", value: "option1" },
+          { label: "Option 2", value: "option2" },
+          { label: "Option 3", value: "option3" },
+        ]}
+        containerStyle={{ marginBottom: 16 }}
+      />
+      <SubmitButton title="Register now" />
     </View>
   );
-}
+};
 
-export default register
+export default register;
 
 const styles = StyleSheet.create({
   container: {
@@ -43,6 +60,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flex: 1,
-    width:"100%"
+    width: "100%",
   },
 });

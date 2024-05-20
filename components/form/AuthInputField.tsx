@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import React, { FC, ReactNode } from "react";
 import colors from "@/constants/Colors";
-import AppInput from "../ui/AppInput";
+import AppInput from "../ui/form/AppInput";
 
 interface AuthInputFieldProps {
   name: string;
@@ -36,7 +36,7 @@ const AuthInputField: FC<AuthInputFieldProps> = (props) => {
     onRightIconPress,
   } = props;
   return (
-    <View style={[containerStyle,{width:"90%"}]}>
+    <View style={[containerStyle, { width: "90%" }]}>
       <View style={styles.labelContainer}>
         <Text style={styles.label}>{label}</Text>
       </View>

@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { StyleSheet } from "react-native";
-import AppButton from "../ui/AppButton";
+import AppButton from "../ui/form/AppButton";
 
 interface SubmitButtonProps {
   title: string;
