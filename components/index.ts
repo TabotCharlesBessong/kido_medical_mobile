@@ -5,3 +5,4 @@ export { default as SubmitButton } from "./form/SubmitButton";
 export { default as PasswordVisibilityIcon } from "./ui/form/PasswordVisibilityIcon";
 export { default as AppSelect } from "./ui/form/AppSelect";
 export { default as AuthSelectField } from "./form/AuthSelectField";
+export { default as AuthCheckbox } from "./form/AuthCheckbox";

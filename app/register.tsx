@@ -1,5 +1,6 @@
 import {
   AppSelect,
+  AuthCheckbox,
   AuthInputField,
   AuthSelectField,
   PasswordVisibilityIcon,
@@ -10,6 +11,10 @@ import { StyleSheet, Text, View } from "react-native";
 
 const register = () => {
   const [secureTextEntry, setSecureTextEntry] = useState<boolean>(false);
+  const [music, setMusic] = useState(false);
+  const [dancing, setDancing] = useState(false);
+  const [reading, setReading] = useState(false); 
+  
   return (
     <View style={styles.container}>
       <Text>register</Text>
@@ -47,6 +52,24 @@ const register = () => {
         ]}
         containerStyle={{ marginBottom: 16 }}
       />
+      <View style={{display:"flex",flexDirection:"row", justifyContent:"space-around",alignItems:"center",marginBottom:16,width:"90%",left:4}} >
+
+      <AuthCheckbox
+        onPress={() => setMusic(!music)}
+        title="Music"
+        isChecked={music}
+      />
+      <AuthCheckbox
+        onPress={() => setDancing(!dancing)}
+        title="Dancing"
+        isChecked={dancing}
+      />
+      <AuthCheckbox
+        onPress={() => setReading(!reading)}
+        title="Reading"
+        isChecked={reading}
+      />
+      </View>
       <SubmitButton title="Register now" />
     </View>
   );
