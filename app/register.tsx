@@ -41,9 +41,9 @@ const register = () => {
         name="role"
         label="Select User Role"
         options={[
-          { label: "Option 1", value: "option1" },
-          { label: "Option 2", value: "option2" },
-          { label: "Option 3", value: "option3" },
+          { label: "Doctor", value: "option1" },
+          { label: "Patient", value: "option2" },
+          { label: "Nurse", value: "option3" },
         ]}
         containerStyle={{ marginBottom: 16 }}
       />
