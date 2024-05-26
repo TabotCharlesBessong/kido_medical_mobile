@@ -3,7 +3,7 @@ import React from 'react'
 
 const doctor = () => {
   return (
-    <View>
+    <View style={styles.container} >
       <Text>doctor</Text>
     </View>
   )
@@ -11,4 +11,11 @@ const doctor = () => {
 
 export default doctor
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+  },
+});

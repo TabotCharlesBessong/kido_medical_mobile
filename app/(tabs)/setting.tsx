@@ -3,7 +3,7 @@ import React from 'react'
 
 const setting = () => {
   return (
-    <View>
+    <View style={styles.container} >
       <Text>setting</Text>
     </View>
   )
@@ -11,4 +11,11 @@ const setting = () => {
 
 export default setting
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+  },
+});
