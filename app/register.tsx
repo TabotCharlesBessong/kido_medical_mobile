@@ -7,6 +7,7 @@ import {
   PasswordVisibilityIcon,
   SubmitButton,
 } from "@/components";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -19,6 +20,7 @@ const register = () => {
   const handleRadioButtonChange = (label:string) => {
     setActiveButton(label)
   }
+  const router = useRouter()
   
   return (
     <View style={styles.container}>
@@ -97,7 +99,7 @@ const register = () => {
         labelStyle={{ marginLeft: 8 }}
         radioSize={24}
       />
-      <SubmitButton title="Register now" />
+      <SubmitButton onPress={() => router.push("login")} title="Register now" />
     </View>
   );
 };

@@ -57,17 +57,17 @@ function RootLayoutNav() {
     <>
       <StatusBar style="auto" />
       <Stack>
-        {/* <Stack.Screen name="(tabs)" options={{headerShown:false}} />
-        <Stack.Screen name="index" options={{ headerShown: false }} /> */}
+        <Stack.Screen name="(tabs)" options={{headerShown:false}} />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen
           name="register"
           options={{
-            title: "Register",
+            title: "Register Screen",
             headerBackTitle: "",
             headerShadowVisible: false,
             headerStyle: {},
             headerLeft: () => (
-              <TouchableOpacity onPress={() => router.back()} >
+              <TouchableOpacity onPress={() => router.back()}>
                 <Ionicons name="arrow-back" size={36} color="black" />
               </TouchableOpacity>
             ),
@@ -76,12 +76,12 @@ function RootLayoutNav() {
         <Stack.Screen
           name="login"
           options={{
-            title: "",
+            title: "Login Screen",
             headerBackTitle: "",
             headerShadowVisible: false,
             headerStyle: {},
             headerLeft: () => (
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => router.back()}>
                 <Ionicons name="arrow-back" size={36} color="black" />
               </TouchableOpacity>
             ),
@@ -95,7 +95,7 @@ function RootLayoutNav() {
             headerShadowVisible: false,
             headerStyle: {},
             headerLeft: () => (
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => router.back()}>
                 <Ionicons name="arrow-back" size={36} color="black" />
               </TouchableOpacity>
             ),

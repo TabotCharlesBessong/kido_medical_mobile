@@ -3,7 +3,7 @@ import React from 'react'
 
 const patient = () => {
   return (
-    <View>
+    <View style={styles.container} >
       <Text>patient</Text>
     </View>
   )
@@ -11,4 +11,11 @@ const patient = () => {
 
 export default patient
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+  },
+});

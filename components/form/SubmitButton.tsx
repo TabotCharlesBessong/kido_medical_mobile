@@ -4,10 +4,11 @@ import AppButton from "../ui/form/AppButton";
 
 interface SubmitButtonProps {
   title: string;
+  onPress:() => void
 }
 
-const SubmitButton: FC<SubmitButtonProps> = ({ title }) => {
-  return <AppButton onPress={() => {}} title={title} />;
+const SubmitButton: FC<SubmitButtonProps> = ({ title,onPress }) => {
+  return <AppButton onPress={onPress} title={title} />;
 };
 
 export default SubmitButton;
