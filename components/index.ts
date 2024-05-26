@@ -6,3 +6,4 @@ export { default as PasswordVisibilityIcon } from "./ui/form/PasswordVisibilityI
 export { default as AppSelect } from "./ui/form/AppSelect";
 export { default as AuthSelectField } from "./form/AuthSelectField";
 export { default as AuthCheckbox } from "./form/AuthCheckbox";
+export {default as AuthRadioButton} from "./form/AuthRadioButton"
