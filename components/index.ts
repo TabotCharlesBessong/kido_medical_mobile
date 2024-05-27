@@ -8,3 +8,4 @@ export { default as AuthSelectField } from "./form/AuthSelectField";
 export { default as AuthCheckbox } from "./form/AuthCheckbox";
 export { default as AuthRadioButton } from "./form/AuthRadioButton";
 export { default as Notificationcard } from "./card/NotificationCard";
+export { default as Pharmaciecard } from "./card/PharmacieCard";
