@@ -1,8 +1,8 @@
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React from "react";
+import { Notificationcard, PharmacieCard } from "@/components";
 import { useRouter } from "expo-router";
-import { Notificationcard, Pharmaciecard } from "@/components";
 import { StatusBar } from "expo-status-bar";
+import React from "react";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const index = () => {
   const router = useRouter();
@@ -36,10 +36,11 @@ const index = () => {
         time="11:15 AM"
       />
       <View>
-        <Pharmaciecard />
-        <Pharmaciecard />
-        <Pharmaciecard />
-        <Pharmaciecard />
+        <PharmacieCard />
+        <PharmacieCard />
+        <PharmacieCard />
+        <PharmacieCard />
+
       </View>
       <StatusBar style="auto" />
     </ScrollView>
