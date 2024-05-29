@@ -1,42 +1,49 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React from "react";
+import { Notificationcard, PharmacieCard } from "@/components";
 import { useRouter } from "expo-router";
-import { Notificationcard } from "@/components";
 import { StatusBar } from "expo-status-bar";
+import React from "react";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const index = () => {
   const router = useRouter();
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <TouchableOpacity onPress={() => router.push("register")}>
-        <Notificationcard
-          image="../../assets/images/doctor.jpeg"
-          title="Upcoming appointment with Dr Smith"
-          subject="You want to talk about your gastritis situation"
-          time="11:15 AM"
-        />
-        <Notificationcard
-          image="../../assets/images/doctor.jpeg"
-          title="Upcoming appointment with Dr Smith"
-          subject="You want to talk about your gastritis situation"
-          time="10:30 AM"
-        />
-        <Notificationcard
-          image="../../assets/images/doctor.jpeg"
-          title="Visiting the lab technician today"
-          subject="You want to talk about your gastritis situation"
-          time="2:45 PM"
-        />
-        <Notificationcard
-          image="../../assets/images/doctor.jpeg"
-          title="Upcoming appointment with Dr Smith"
-          subject="You want to talk about your gastritis situation"
-          time="11:15 AM"
-        />
         <Text>Home Alone</Text>
       </TouchableOpacity>
+      <Notificationcard
+        image="../../assets/images/doctor.jpeg"
+        title="Upcoming appointment with Dr Smith"
+        subject="You want to talk about your gastritis situation"
+        time="11:15 AM"
+      />
+      <Notificationcard
+        image="../../assets/images/doctor.jpeg"
+        title="Upcoming appointment with Dr Smith"
+        subject="You want to talk about your gastritis situation"
+        time="10:30 AM"
+      />
+      <Notificationcard
+        image="../../assets/images/doctor.jpeg"
+        title="Visiting the lab technician today"
+        subject="You want to talk about your gastritis situation"
+        time="2:45 PM"
+      />
+      <Notificationcard
+        image="../../assets/images/doctor.jpeg"
+        title="Upcoming appointment with Dr Smith"
+        subject="You want to talk about your gastritis situation"
+        time="11:15 AM"
+      />
+      <View>
+        <PharmacieCard />
+        <PharmacieCard />
+        <PharmacieCard />
+        <PharmacieCard />
+
+      </View>
       <StatusBar style="auto" />
-    </View>
+    </ScrollView>
   );
 };
 
