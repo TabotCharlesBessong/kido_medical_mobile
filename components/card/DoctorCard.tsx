@@ -1,17 +1,7 @@
 import { Button, Image, StyleSheet, Text, View } from "react-native";
 import React, { FC } from "react";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
-
-interface DoctorCardProps {
-  image: string;
-  name: string;
-  rating: number;
-  location: string;
-  experience: number;
-  speciality: string;
-  language: string[];
-  fee: number;
-}
+import { DoctorCardProps } from "@/constants/types";
 
 const DoctorCard: FC<DoctorCardProps> = ({
   image,
@@ -33,7 +23,7 @@ const DoctorCard: FC<DoctorCardProps> = ({
           />
         </View>
         <View>
-          <Text>Dr James Smith</Text>
+          <Text>{name}</Text>
           <View
             style={{
               display: "flex",
@@ -47,15 +37,15 @@ const DoctorCard: FC<DoctorCardProps> = ({
             <AntDesign name="star" size={30} color="gold" />
             <FontAwesome name="star-half" size={30} color="gold" />
           </View>
-          <Text>Douala. Cameroon</Text>
-          <Text>5+ years experience</Text>
+          <Text>{location}</Text>
+          <Text>{experience}+ years experience</Text>
           <Text>Pediatrician</Text>
         </View>
       </View>
       <View style={styles.lowerContainer}>
         <View>
-          <Text>Language: English French</Text>
-          <Text>Consultation Fee: 3000XAF</Text>
+          <Text>Language: {language}</Text>
+          <Text>Consultation Fee: {fee}XAF</Text>
         </View>
         <View>
           <Text style={styles.outlineButton}>View Profile</Text>
