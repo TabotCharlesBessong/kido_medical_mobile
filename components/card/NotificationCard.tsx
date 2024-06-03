@@ -1,6 +1,7 @@
 import { Button, Image, StyleSheet, Text, View } from "react-native";
 import React, { FC } from "react";
 import { Entypo } from "@expo/vector-icons";
+import { COLORS,FONTS } from "@/constants/theme";
 
 interface NotificationCardProps {
   image: string;
@@ -37,7 +38,7 @@ const NotificationCard: FC<NotificationCardProps> = ({
         >
           <View style={{display:"flex",alignItems:"center",flexDirection:"row",justifyContent:"space-around"}} >
             <Entypo name="back-in-time" size={32} color="black" />
-            <Text style={{marginLeft:12}} >{time}</Text>
+            <Text style={{marginLeft:12,color:COLORS.black,...FONTS.h3}} >{time}</Text>
           </View>
 
           <Button title="View" />
