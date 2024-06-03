@@ -1,4 +1,4 @@
-import { Notificationcard, PharmacieCard } from "@/components";
+import { CustomText, Notificationcard, PharmacieCard } from "@/components";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
@@ -9,7 +9,7 @@ const index = () => {
   return (
     <ScrollView style={styles.container}>
       <TouchableOpacity onPress={() => router.push("register")}>
-        <Text>Home Alone</Text>
+        <CustomText type="larger" >Home Alone</CustomText>
       </TouchableOpacity>
       <Notificationcard
         image="../../assets/images/doctor.jpeg"

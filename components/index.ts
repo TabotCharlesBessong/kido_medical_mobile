@@ -10,3 +10,4 @@ export { default as AuthRadioButton } from "./form/AuthRadioButton";
 export { default as Notificationcard } from "./card/NotificationCard";
 export { default as PharmacieCard } from "./card/PharmacieCard";
 export { default as DoctorCard } from "./card/DoctorCard";
+export {default as CustomText} from "./texts/CustomText"
