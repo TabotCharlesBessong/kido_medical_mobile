@@ -1,6 +1,8 @@
 import { Button, Image, StyleSheet, Text, View } from "react-native";
 import React, { FC } from "react";
 import { Entypo } from "@expo/vector-icons";
+import { COLORS,FONTS } from "@/constants/theme";
+import CustomText from "../texts/CustomText";
 
 interface NotificationCardProps {
   image: string;
@@ -24,8 +26,8 @@ const NotificationCard: FC<NotificationCardProps> = ({
         />
       </View>
       <View style={styles.textContainer}>
-        <Text>{title}</Text>
-        <Text>{subject}</Text>
+        <CustomText type="body4">{title}</CustomText>
+        <CustomText type="body3">{subject}</CustomText>
         <View
           style={{
             display: "flex",
@@ -35,9 +37,18 @@ const NotificationCard: FC<NotificationCardProps> = ({
             width: "100%",
           }}
         >
-          <View style={{display:"flex",alignItems:"center",flexDirection:"row",justifyContent:"space-around"}} >
+          <View
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flexDirection: "row",
+              justifyContent: "space-around",
+            }}
+          >
             <Entypo name="back-in-time" size={32} color="black" />
-            <Text style={{marginLeft:12}} >{time}</Text>
+            <Text style={{ marginLeft: 12, color: COLORS.black, ...FONTS.h3 }}>
+              {time}
+            </Text>
           </View>
 
           <Button title="View" />
