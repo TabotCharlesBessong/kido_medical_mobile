@@ -20,6 +20,7 @@ const TabLayout = () => {
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => <TabBarIcons name="home" color={color} />,
+          headerShown:false
         }}
       />
       <Tabs.Screen

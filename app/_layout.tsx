@@ -105,6 +105,7 @@ function RootLayoutNav() {
           }}
         />
       </Stack>
+      <StatusBar style="auto" />
     </>
   );
 }
