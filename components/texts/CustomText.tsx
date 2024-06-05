@@ -47,7 +47,7 @@ const CustomText: FC<CustomTextProps> = ({ type, children }) => {
 
 const styles = StyleSheet.create({
   larger: {
-    color: COLORS.black,
+    color: COLORS.primary,
     ...FONTS.largeTitle,
   },
   h1: {
@@ -71,15 +71,15 @@ const styles = StyleSheet.create({
     ...FONTS.body1,
   },
   body2: {
-    color: COLORS.black,
+    color: COLORS.secondaryGray,
     ...FONTS.body2,
   },
   body3: {
-    color: COLORS.black,
+    color: COLORS.secondaryGray,
     ...FONTS.body3,
   },
   body4: {
-    color: COLORS.black,
+    color: COLORS.secondaryGray,
     ...FONTS.body4,
   },
 });

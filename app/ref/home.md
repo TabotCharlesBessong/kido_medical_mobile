@@ -146,5 +146,46 @@ const styles = StyleSheet.create({
 
 export default HomeScreen;
 
+import React from "react";
+import { FlatList, StyleSheet, View } from "react-native";
+import PharmacieCard from "@/components/PharmacieCard"; // Adjust the import based on your file structure
+import generateRandomPharmaciesData from "../../utils/generateRandomPharmaciesData"; // Adjust the import based on your file structure
+
+const PharmaciesScreen = () => {
+  const pharmacyData = generateRandomPharmaciesData();
+  console.log(pharmacyData);
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={pharmacyData}
+        renderItem={({ item }) => (
+          <PharmacieCard
+            key={item.id}
+            image={item.image}
+            name={item.name}
+            location={item.location}
+          />
+        )}
+        keyExtractor={(item) => item.id.toString()}
+        horizontal={true}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.flatListContent}
+      />
+    </View>
+  );
+};
+
+export default PharmaciesScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 8,
+  },
+  flatListContent: {
+    paddingHorizontal: 8,
+  },
+});
 
 ```

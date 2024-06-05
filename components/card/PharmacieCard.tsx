@@ -1,5 +1,6 @@
 import { Image, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { FC } from "react";
+import CustomText from "../texts/CustomText";
 
 interface PharmacieCardProps {
   image:string
@@ -7,15 +8,15 @@ interface PharmacieCardProps {
   location:string
 }
 
-const PharmacieCard = () => {
+const PharmacieCard:FC<PharmacieCardProps> = ({image,name,location}) => {
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
-        <Image source={require("../../assets/images/pharmacie.jpeg")} style={{width:"100%",height:"100%"}} />
+        <Image source={{uri:image}} style={styles.image} />
       </View>
       <View style={styles.textContainer} >
-        <Text>PharmacieCard, hello </Text>
-        <Text>PharmacieCard</Text>
+        <CustomText type="body2">{name}</CustomText>
+        <CustomText type="body4">{location}</CustomText>
       </View>
     </View>
   );
@@ -26,14 +27,15 @@ export default PharmacieCard;
 const styles = StyleSheet.create({
   container: {
     display: "flex",
-    height: 200,
-    width: 200,
+    height: 220,
+    width: 250,
     borderRadius: 16,
     paddingBottom:16,
     marginVertical:24,
     borderWidth:2,
     borderColor:"black",
-    marginHorizontal:8
+    marginHorizontal:8,
+    maxHeight:"auto",
   },
   imageContainer: {
     width:"100%",
@@ -43,5 +45,11 @@ const styles = StyleSheet.create({
     display:"flex",
     justifyContent:"center",
     alignItems:"center"
-  }
+  },
+  image:{
+    width:"100%",
+    height:"100%",
+    borderTopLeftRadius:16,
+    borderTopRightRadius:16
+  },
 });

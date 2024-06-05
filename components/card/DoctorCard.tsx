@@ -69,12 +69,14 @@ const styles = StyleSheet.create({
   container: {
     display: "flex",
     padding: 8,
-    width: "95%",
-    marginHorizontal: "auto",
+    width: 350,
+    marginHorizontal: 12,
     borderWidth:1,
     borderColor:"black",
     borderRadius:16,
-    marginBottom:12
+    marginBottom:12,
+    height:320,
+    maxHeight:"auto",
   },
   upperContainer: {
     display: "flex",
