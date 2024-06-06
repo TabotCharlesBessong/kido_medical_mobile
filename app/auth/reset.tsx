@@ -4,18 +4,16 @@ import {
   AuthInputField,
   AuthRadioButton,
   AuthSelectField,
+  CustomText,
   PasswordVisibilityIcon,
   SubmitButton,
 } from "@/components";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const login = () => {
   const [secureTextEntry, setSecureTextEntry] = useState<boolean>(false);
-  const [music, setMusic] = useState(false);
-  const [dancing, setDancing] = useState(false);
-  const [reading, setReading] = useState(false);
   const [activeButton, setActiveButton] = useState<string>("");
   const handleRadioButtonChange = (label: string) => {
     setActiveButton(label);
@@ -24,12 +22,7 @@ const login = () => {
 
   return (
     <View style={styles.container}>
-      <AuthInputField
-        name="email"
-        placeholder="ebezebeatrice@gmail.com"
-        label="Email Address"
-        containerStyle={{ marginBottom: 16 }}
-      />
+      <CustomText type="larger">Create your new password</CustomText>
       <AuthInputField
         name="password"
         placeholder="*************"
@@ -41,7 +34,18 @@ const login = () => {
           setSecureTextEntry(!secureTextEntry);
         }}
       />
-      <SubmitButton onPress={() => router.push("(tabs)")} title="Login now" />
+      <AuthInputField
+        name="cpassword"
+        placeholder="*************"
+        label="Confirm Password"
+        containerStyle={{ marginBottom: 16 }}
+        secureTextEntry={!secureTextEntry}
+        rightIcon={<PasswordVisibilityIcon privateIcon={secureTextEntry} />}
+        onRightIconPress={() => {
+          setSecureTextEntry(!secureTextEntry);
+        }}
+      />
+      <SubmitButton onPress={() => router.push("(tabs)")} title="Create New Password" />
     </View>
   );
 };
