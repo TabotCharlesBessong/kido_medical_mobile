@@ -8,7 +8,7 @@ export const COLORS = {
   white: "#FFFFFF",
   black: "#000000",
   gray: "rgba(36,39,96,0.05)",
-  secondaryGray: "rgba(84,76,76,0.14)",
+  secondaryGray: "rgba(104,96,96,0.34)",
 };
 
 export const SIZES = {
