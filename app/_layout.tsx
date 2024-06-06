@@ -2,11 +2,12 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { TouchableOpacity } from "react-native";
+import { SplashScreenComponent } from "@/components";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -55,6 +56,17 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const router = useRouter()
+  const [showSplash, setShowSplash] = useState<boolean>(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setShowSplash(false);
+    }, 3000);
+  }, []);
+
+  if (showSplash) {
+    return <SplashScreenComponent />;
+  }
 
   return (
     <>
@@ -105,7 +117,6 @@ function RootLayoutNav() {
           }}
         />
       </Stack>
-      <StatusBar style="auto" />
     </>
   );
 }
