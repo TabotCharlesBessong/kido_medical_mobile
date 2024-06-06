@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { TouchableOpacity } from "react-native";
-import { SplashScreenComponent } from "@/components";
+import { OnboardingScreen, SplashScreenComponent } from "@/components";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -57,6 +57,7 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const router = useRouter()
   const [showSplash, setShowSplash] = useState<boolean>(true);
+  const [showOnboarding, setShowOnboarding] = useState<true>(true)
 
   useEffect(() => {
     setTimeout(() => {
@@ -67,6 +68,10 @@ function RootLayoutNav() {
   if (showSplash) {
     return <SplashScreenComponent />;
   }
+  if(showOnboarding){
+    return <OnboardingScreen />
+  }
+
 
   return (
     <>
