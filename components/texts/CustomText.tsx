@@ -12,11 +12,13 @@ interface CustomTextProps {
     | "body1"
     | "body2"
     | "body3"
-    | "body4";
+    | "body4"
+    | "body5"
   children: React.ReactNode;
+  textColor?: string;
 }
 
-const CustomText: FC<CustomTextProps> = ({ type, children }) => {
+const CustomText: FC<CustomTextProps> = ({ type, children, textColor }) => {
   const getStyle = (): any => {
     switch (type) {
       case "larger":
@@ -37,6 +39,8 @@ const CustomText: FC<CustomTextProps> = ({ type, children }) => {
         return styles.body3;
       case "body4":
         return styles.body4;
+      case "body5":
+        return styles.body5;
       default:
         return styles.body1;
     }
@@ -49,6 +53,7 @@ const styles = StyleSheet.create({
   larger: {
     color: COLORS.primary,
     ...FONTS.largeTitle,
+    textTransform: "capitalize",
   },
   h1: {
     color: COLORS.black,
@@ -81,6 +86,11 @@ const styles = StyleSheet.create({
   body4: {
     color: COLORS.secondaryGray,
     ...FONTS.body4,
+  },
+  body5: {
+    color: COLORS.primary,
+    ...FONTS.body5,
+    textAlign:"right"
   },
 });
 

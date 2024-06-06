@@ -36,7 +36,7 @@ const index = () => {
         </View>
         <View style={styles.headerRight}>
           <AntDesign name="bells" size={32} color={COLORS.primary} />
-          <TouchableOpacity onPress={() => {}}>
+          <TouchableOpacity onPress={() => router.push("auth/register")}>
             <Image
               source={{ uri: "https://via.placeholder.com/50" }}
               style={styles.profileImage}
