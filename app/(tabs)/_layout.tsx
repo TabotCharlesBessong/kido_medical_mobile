@@ -42,6 +42,7 @@ const TabLayout = () => {
         options={{
           title: "Setting",
           tabBarIcon: ({ color }) => <AntDesign name="setting" color={color} size={28} />,
+          headerShown:false
         }}
       />
     </Tabs>
