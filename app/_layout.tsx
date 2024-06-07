@@ -77,7 +77,7 @@ function RootLayoutNav() {
     <>
       <StatusBar style="auto" />
       <Stack>
-        <Stack.Screen name="(tabs)" options={{headerShown:false}} />
+        {/* <Stack.Screen name="(tabs)" options={{headerShown:false}} />
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen
           name="auth/register"
@@ -111,6 +111,20 @@ function RootLayoutNav() {
           name="auth/forgot"
           options={{
             title: "Forgot Screen",
+            headerBackTitle: "",
+            headerShadowVisible: false,
+            headerStyle: {},
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="arrow-back" size={36} color="black" />
+              </TouchableOpacity>
+            ),
+          }}
+        /> */}
+        <Stack.Screen
+          name="doctor/profile"
+          options={{
+            title: "Profile Screen",
             headerBackTitle: "",
             headerShadowVisible: false,
             headerStyle: {},

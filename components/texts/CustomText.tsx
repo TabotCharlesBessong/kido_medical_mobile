@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     ...FONTS.body1,
   },
   body2: {
-    color: COLORS.secondaryGray,
+    color: COLORS.black,
     ...FONTS.body2,
   },
   body3: {
