@@ -1,5 +1,5 @@
 import Colors from "@/constants/Colors";
-import { AntDesign, FontAwesome } from "@expo/vector-icons";
+import { AntDesign, FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { useColorScheme } from "react-native";
 
@@ -35,6 +35,13 @@ const TabLayout = () => {
         options={{
           title: "Patient",
           tabBarIcon: ({ color }) => <TabBarIcons name="home" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="appointment"
+        options={{
+          title: "Appointments",
+          tabBarIcon: ({ color }) => <FontAwesome5 name="book-medical" size={28} color={color} />,
         }}
       />
       <Tabs.Screen
