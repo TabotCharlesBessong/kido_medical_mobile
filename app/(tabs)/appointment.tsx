@@ -5,12 +5,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Button,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/theme";
 import { useRouter } from "expo-router";
-import { CustomText } from "@/components";
+import { AppButton, CustomText } from "@/components";
 import { generateRandomAppointments } from "@/constants/data/appointment";
 
 interface Appointment {
@@ -18,6 +19,7 @@ interface Appointment {
   doctor: string;
   date: string;
   time: string;
+  reason: string;
 }
 
 interface AppointmentsScreenProps {
@@ -59,6 +61,46 @@ const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
       <CustomText type="body4">
         {item.date} - {item.time}
       </CustomText>
+      <CustomText type="body4">{item.reason}</CustomText>
+      <View style={styles.buttonContainer}>
+        <View style={{ width: "40%" }}>
+          <AppButton title="start" onPress={() => {}} />
+        </View>
+        <View style={{ width: "40%" }}>
+          <AppButton
+            backgroundColor={COLORS.danger}
+            // textColor="white"
+            title="cancel"
+            onPress={() => {}}
+          />
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const renderPastAppointmentItem = ({ item }: RenderAppointmentItemProps) => (
+    <TouchableOpacity
+      style={styles.appointmentItem}
+      onPress={() => handleAppointmentDetails(item.id)}
+    >
+      <CustomText type="body3">{item.doctor}</CustomText>
+      <CustomText type="body4">
+        {item.date} - {item.time}
+      </CustomText>
+      <CustomText type="body4">{item.reason}</CustomText>
+      <View style={styles.buttonContainer}>
+        <View style={{ width: "40%" }}>
+          {/* <AppButton title="start" onPress={() => {}} /> */}
+        </View>
+        <View style={{ width: "40%" }}>
+          <AppButton
+            backgroundColor={COLORS.danger}
+            // textColor="white"
+            title="delete"
+            onPress={() => {}}
+          />
+        </View>
+      </View>
     </TouchableOpacity>
   );
 
@@ -87,7 +129,7 @@ const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
         <CustomText type="h2">Past Appointments</CustomText>
         <FlatList
           data={pastAppointments}
-          renderItem={renderAppointmentItem}
+          renderItem={renderPastAppointmentItem}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.appointmentList}
         />
@@ -116,6 +158,13 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray,
     borderRadius: 8,
     marginVertical: 5,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 10,
+    display: "flex",
+    gap: 16,
   },
 });
 

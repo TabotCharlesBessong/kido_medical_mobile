@@ -5,6 +5,7 @@ interface Appointment {
   doctor: string;
   date: string;
   time: string;
+  reason:string
 }
 
 interface AppointmentsScreenProps {
@@ -41,6 +42,7 @@ export const generateRandomAppointments = () => {
       doctor: doctors[Math.floor(Math.random() * doctors.length)],
       date: dates[Math.floor(Math.random() * dates.length)],
       time: times[Math.floor(Math.random() * times.length)],
+      reason : "Hello i have a pain in my stomach is like my liver is down"
     }));
   };
 
