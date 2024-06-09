@@ -31,10 +31,11 @@ const TabLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="patient"
+        name="chat"
         options={{
-          title: "Patient",
+          title: "Chat Screen",
           tabBarIcon: ({ color }) => <Entypo name="message" color={color} size={28} />,
+          headerShown:false
         }}
       />
       <Tabs.Screen
