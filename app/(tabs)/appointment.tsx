@@ -49,7 +49,7 @@ const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
   };
 
   const handleNewAppointment = () => {
-    router.push("/book-appointment");
+    router.push("/doctor/book-appointment");
   };
 
   const renderAppointmentItem = ({ item }: RenderAppointmentItemProps) => (
