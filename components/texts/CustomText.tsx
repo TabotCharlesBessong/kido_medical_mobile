@@ -80,11 +80,11 @@ const styles = StyleSheet.create({
     ...FONTS.body2,
   },
   body3: {
-    color: COLORS.secondaryGray,
+    color: COLORS.black,
     ...FONTS.body3,
   },
   body4: {
-    color: COLORS.secondaryGray,
+    color: COLORS.black,
     ...FONTS.body4,
   },
   body5: {

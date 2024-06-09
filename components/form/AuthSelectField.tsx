@@ -58,9 +58,9 @@ const styles = StyleSheet.create({
     padding: 10,
     textAlign: "center",
     alignItems: "center", // Center the content vertically,
-    // paddingBottom:32 
-  },
-  label: {
+    // paddingBottom:32 ,
+    },
+    label: {
     color: "green", // Set color to green
     width: 380,
     marginBottom: 16,
@@ -70,4 +70,10 @@ const styles = StyleSheet.create({
     color: "green", // Set color to green
     textAlign: "center",
   },
+  containerStyle:{
+    display:"flex",
+    alignItems:"center",
+    justifyContent:"center",
+    position:"relative"
+  }
 });

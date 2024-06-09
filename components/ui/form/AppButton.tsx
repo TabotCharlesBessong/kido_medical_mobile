@@ -1,33 +1,61 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
 import React, { FC } from "react";
-import colors from "@/constants/Colors";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  StyleProp,
+  ViewStyle,
+  TextStyle,
+} from "react-native";
 
 interface AppButtonProps {
   title: string;
-  onPress?(): void;
+  onPress?: () => void;
+  width?: number | string;
+  backgroundColor?: string;
+  textColor?: string;
+  containerStyle?: StyleProp<ViewStyle>;
+  titleStyle?: StyleProp<TextStyle>;
 }
 
-const AppButton: FC<AppButtonProps> = ({ title, onPress }) => {
+const AppButton: FC<AppButtonProps> = ({
+  title,
+  onPress,
+  width,
+  backgroundColor,
+  textColor,
+  containerStyle,
+  titleStyle,
+}) => {
+  const dynamicContainerStyle = {
+    width: width || "95%",
+    backgroundColor: backgroundColor || "#0F0F0F",
+  };
+
+  const dynamicTitleStyle = {
+    color: textColor || "#FBFBFB",
+  };
+
   return (
-    <Pressable onPress={onPress} style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
+    <Pressable
+      onPress={onPress}
+      style={[styles.container, dynamicContainerStyle, containerStyle]}
+    >
+      <Text style={[styles.title, dynamicTitleStyle, titleStyle]}>{title}</Text>
     </Pressable>
   );
 };
 
-export default AppButton;
-
 const styles = StyleSheet.create({
   container: {
-    width: "95%",
     height: 45,
-    backgroundColor: colors.SECONDARY,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 25,
   },
   title: {
-    color: "#FBFBFB",
     fontSize: 18,
   },
 });
+
+export default AppButton;
