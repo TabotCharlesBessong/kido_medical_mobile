@@ -1,190 +1,281 @@
-```TSX
-import React from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView } from 'react-native';
+Sure, let's update the code to include the time picker in the modal and use the `AuthCheckbox` component for the availability checkbox. Additionally, we'll generate random data with time slots formatted in HH:MM format and ensure the random data function generates data of a specified size.
 
-const SettingsScreen = () => {
-  const [isEnabled, setIsEnabled] = React.useState(false);
-  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+### 1. Time Slot Modal Component with Time Picker and Checkbox (TypeScript)
+
+First, let's update the `TimeSlotModal` component to include the time pickers and the availability checkbox using the `AuthCheckbox` component.
+
+```tsx
+// components/TimeSlotModal.tsx
+import React, { useState } from 'react';
+import { Modal, View, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import CustomText from '@/components/CustomText';
+import AuthCheckbox from '@/components/AuthCheckbox';
+import { COLORS } from '@/constants/theme';
+
+interface TimeSlotModalProps {
+  isVisible: boolean;
+  onClose: () => void;
+  onCreate: (startTime: string, endTime: string, isWeekly: boolean) => void;
+}
+
+const TimeSlotModal: React.FC<TimeSlotModalProps> = ({ isVisible, onClose, onCreate }) => {
+  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [endTime, setEndTime] = useState<Date | null>(null);
+  const [isWeekly, setIsWeekly] = useState(false);
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
+
+  const onStartTimeChange = (event: any, selectedDate?: Date) => {
+    setShowStartPicker(false);
+    if (selectedDate) {
+      setStartTime(selectedDate);
+    }
+  };
+
+  const onEndTimeChange = (event: any, selectedDate?: Date) => {
+    setShowEndPicker(false);
+    if (selectedDate) {
+      setEndTime(selectedDate);
+    }
+  };
+
+  const formatTime = (date: Date) => {
+    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.header}>Settings</Text>
+    <Modal
+      transparent={true}
+      animationType="slide"
+      visible={isVisible}
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <CustomText type="h3">Create Time Slot</CustomText>
 
-      <View style={styles.settingContainer}>
-        <Text style={styles.settingText}>Notifications</Text>
-        <Switch
-          trackColor={{ false: '#767577', true: '#81b0ff' }}
-          thumbColor={isEnabled ? '#007bff' : '#f4f3f4'}
-          onValueChange={toggleSwitch}
-          value={isEnabled}
-        />
+          <TouchableOpacity onPress={() => setShowStartPicker(true)} style={styles.timePickerButton}>
+            <CustomText type="body1">
+              {startTime ? formatTime(startTime) : 'Select Start Time'}
+            </CustomText>
+          </TouchableOpacity>
+          {showStartPicker && (
+            <DateTimePicker
+              value={startTime || new Date()}
+              mode="time"
+              display="default"
+              onChange={onStartTimeChange}
+            />
+          )}
+
+          <TouchableOpacity onPress={() => setShowEndPicker(true)} style={styles.timePickerButton}>
+            <CustomText type="body1">
+              {endTime ? formatTime(endTime) : 'Select End Time'}
+            </CustomText>
+          </TouchableOpacity>
+          {showEndPicker && (
+            <DateTimePicker
+              value={endTime || new Date()}
+              mode="time"
+              display="default"
+              onChange={onEndTimeChange}
+            />
+          )}
+
+          <AuthCheckbox
+            isChecked={isWeekly}
+            onPress={() => setIsWeekly(!isWeekly)}
+            title="Weekly Availability"
+          />
+
+          <Button
+            title="Create"
+            onPress={() => {
+              if (startTime && endTime) {
+                onCreate(formatTime(startTime), formatTime(endTime), isWeekly);
+                onClose();
+              }
+            }}
+          />
+          <Button title="Cancel" onPress={onClose} />
+        </View>
       </View>
-
-      <TouchableOpacity style={styles.settingContainer}>
-        <Text style={styles.settingText}>Account</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.settingContainer}>
-        <Text style={styles.settingText}>Privacy</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.settingContainer}>
-        <Text style={styles.settingText}>Help</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.settingContainer}>
-        <Text style={styles.settingText}>About</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.logoutButton}>
-        <Text style={styles.logoutButtonText}>Log Out</Text>
-      </TouchableOpacity>
-    </ScrollView>
+    </Modal>
   );
 };
 
-export default SettingsScreen;
-
 const styles = StyleSheet.create({
-  container: {
+  modalContainer: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  settingContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
-  settingText: {
-    fontSize: 18,
-  },
-  logoutButton: {
-    marginTop: 30,
-    backgroundColor: '#ff4d4d',
-    padding: 15,
+  modalContent: {
+    width: '80%',
+    padding: 20,
+    backgroundColor: COLORS.white,
     borderRadius: 10,
     alignItems: 'center',
   },
-  logoutButtonText: {
-    color: '#fff',
-    fontSize: 16,
+  timePickerButton: {
+    padding: 10,
+    marginVertical: 10,
+    backgroundColor: COLORS.lightGray,
+    borderRadius: 5,
   },
 });
 
-------------------------------------------------------------
-import React from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+export default TimeSlotModal;
+```
 
-const DoctorProfileScreen = ({ route, navigation }) => {
-  const { doctor } = route.params;
+### 2. Main Screen to Display and Create Time Slots (TypeScript)
+
+Next, update the `ManageTimeSlotsScreen` to include the modal and handle the creation of new time slots.
+
+```tsx
+// screens/ManageTimeSlotsScreen.tsx
+import React, { useState } from 'react';
+import { View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import CustomText from '@/components/CustomText';
+import TimeSlotModal from '@/components/TimeSlotModal';
+import { generateRandomTimeSlots, TimeSlot } from '@/utils/randomData';
+import { COLORS } from '@/constants/theme';
+
+const ManageTimeSlotsScreen: React.FC = () => {
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(generateRandomTimeSlots(5));
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const handleCreateTimeSlot = (startTime: string, endTime: string, isWeekly: boolean) => {
+    const newSlot: TimeSlot = {
+      id: Date.now().toString(),
+      startTime,
+      endTime,
+      isAvailable: true,
+      isWeekly,
+    };
+    setTimeSlots((prevSlots) => [...prevSlots, newSlot]);
+  };
+
+  const toggleModal = () => {
+    setIsModalVisible(!isModalVisible);
+  };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>Back</Text>
+    <SafeAreaView style={styles.container}>
+      <ScrollView style={styles.scrollView}>
+        <CustomText type="h3" style={styles.header}>Manage Time Slots</CustomText>
+        {timeSlots.map((slot) => (
+          <View key={slot.id} style={styles.timeSlotItem}>
+            <CustomText type="body1">
+              {`${slot.startTime} - ${slot.endTime}`}
+            </CustomText>
+            <CustomText type="body2" style={slot.isAvailable ? styles.available : styles.notAvailable}>
+              {slot.isAvailable ? 'Available' : 'Not Available'}
+            </CustomText>
+            {slot.isWeekly && <CustomText type="body2" style={styles.weekly}>Weekly</CustomText>}
+          </View>
+        ))}
+        <TouchableOpacity style={styles.addButton} onPress={toggleModal}>
+          <CustomText type="body1" style={styles.addButtonText}>+ Add Time Slot</CustomText>
         </TouchableOpacity>
-        <Text style={styles.headerText}>Doctor Profile</Text>
-      </View>
-      <Image source={{ uri: doctor.image }} style={styles.profileImage} />
-      <Text style={styles.name}>{doctor.name}</Text>
-      <Text style={styles.speciality}>{doctor.speciality}</Text>
-      <View style={styles.infoContainer}>
-        <Text style={styles.label}>Location:</Text>
-        <Text style={styles.value}>{doctor.location}</Text>
-      </View>
-      <View style={styles.infoContainer}>
-        <Text style={styles.label}>Experience:</Text>
-        <Text style={styles.value}>{doctor.experience} years</Text>
-      </View>
-      <View style={styles.infoContainer}>
-        <Text style={styles.label}>Languages:</Text>
-        <Text style={styles.value}>{doctor.language.join(', ')}</Text>
-      </View>
-      <View style={styles.infoContainer}>
-        <Text style={styles.label}>Consultation Fee:</Text>
-        <Text style={styles.value}>${doctor.fee}</Text>
-      </View>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Book Appointment</Text>
-      </TouchableOpacity>
-    </ScrollView>
+      </ScrollView>
+      <TimeSlotModal 
+        isVisible={isModalVisible} 
+        onClose={toggleModal} 
+        onCreate={handleCreateTimeSlot} 
+      />
+    </SafeAreaView>
   );
 };
-
-export default DoctorProfileScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.white,
+  },
+  scrollView: {
+    paddingHorizontal: 16,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
+    marginVertical: 20,
   },
-  backButton: {
-    color: '#007bff',
-    marginRight: 20,
-    fontSize: 16,
-  },
-  headerText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  profileImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-  name: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  speciality: {
-    fontSize: 18,
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  infoContainer: {
-    flexDirection: 'row',
-    marginBottom: 10,
-  },
-  label: {
-    fontWeight: 'bold',
-    marginRight: 10,
-  },
-  value: {
-    flex: 1,
-    flexWrap: 'wrap',
-  },
-  button: {
-    backgroundColor: '#007bff',
+  timeSlotItem: {
     padding: 15,
+    backgroundColor: COLORS.lightGray,
+    borderRadius: 10,
+    marginVertical: 5,
+  },
+  available: {
+    color: COLORS.green,
+  },
+  notAvailable: {
+    color: COLORS.red,
+  },
+  weekly: {
+    color: COLORS.blue,
+  },
+  addButton: {
+    padding: 15,
+    backgroundColor: COLORS.primary,
     borderRadius: 10,
     alignItems: 'center',
-    marginTop: 20,
+    marginVertical: 20,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
+  addButtonText: {
+    color: COLORS.white,
+    fontWeight: 'bold',
   },
 });
+
+export default ManageTimeSlotsScreen;
+```
+
+### 3. Utility Functions for Generating Random Data (TypeScript)
+
+Update the utility function to generate random time slots with the specified size.
+
+```tsx
+// utils/randomData.ts
+export interface TimeSlot {
+  id: string;
+  startTime: string;
+  endTime: string;
+  isAvailable: boolean;
+  isWeekly: boolean;
+}
+
+export const generateRandomTimeSlots = (size: number): TimeSlot[] => {
+  const slots: TimeSlot[] = [];
+  for (let i = 0; i < size; i++) {
+    const startHour = Math.floor(Math.random() * 24);
+    const startMinute = Math.floor(Math.random() * 60);
+    const endHour = Math.floor(Math.random() * 24);
+    const endMinute = Math.floor(Math.random() * 60);
+    
+    const startTime = `${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
+    const endTime = `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`;
+    
+    slots.push({
+      id: i.toString(),
+      startTime,
+      endTime,
+      isAvailable: Math.random() > 0.5,
+      isWeekly: Math.random() > 0.5,
+    });
+  }
+  return slots;
+};
 
 
 ```
+
+### Summary
+
+1. **TimeSlotModal** component includes a time picker for selecting start and end times, a checkbox for weekly availability, and a button to create a time slot.
+2. **ManageTimeSlotsScreen** displays a list of existing time slots and uses the modal to create new slots.
+3. **Random Data Generation** creates time slots with random start and end times, and random availability and weekly status.
+
+This code ensures that doctors can manage their available time slots easily and efficiently.
