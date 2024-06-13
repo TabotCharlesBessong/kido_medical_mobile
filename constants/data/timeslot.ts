@@ -11,8 +11,8 @@ export const generateRandomTimeSlots = (size: number): TimeSlot[] => {
   for (let i = 0; i < size; i++) {
     const startHour = Math.floor(Math.random() * 24);
     const startMinute = Math.floor(Math.random() * 60);
-    const endHour = Math.floor(Math.random() * 24);
-    const endMinute = Math.floor(Math.random() * 60);
+    const endHour = Math.floor(Math.random() * 2) + startHour
+    const endMinute = Math.floor(Math.random() * 30) + startMinute
 
     const startTime = `${startHour.toString().padStart(2, "0")}:${startMinute
       .toString()

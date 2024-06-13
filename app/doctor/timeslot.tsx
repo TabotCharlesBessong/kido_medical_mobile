@@ -39,7 +39,7 @@ const TimeSlotScreen: React.FC = () => {
           <View key={slot.id} style={styles.timeSlotItem}>
             <View style={{display:"flex",flexDirection:"row",alignItems:"center",justifyContent:"space-between"}} >
             <CustomText
-              type="body2"
+              type="body3"
               // style={slot.isAvailable ? styles.available : styles.notAvailable}
             >
               {slot.isAvailable ? "Available" : "Not Available"}
@@ -70,7 +70,7 @@ export default TimeSlotScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.gray,
   },
   scrollView: {
     paddingHorizontal: 16,
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   },
   timeSlotItem: {
     padding: 15,
-    backgroundColor: COLORS.gray,
+    backgroundColor: COLORS.white,
     borderRadius: 10,
     marginVertical: 5,
   },
