@@ -1,4 +1,9 @@
-import { CustomText, DoctorCard, Notificationcard, PharmacieCard } from "@/components";
+import {
+  CustomText,
+  DoctorCard,
+  Notificationcard,
+  PharmacieCard,
+} from "@/components";
 import { COLORS } from "@/constants/theme";
 import { AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -13,14 +18,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import doctorsData from "../../constants/data/doctorData"
+import doctorsData from "../../constants/data/doctorData";
 import generateRandomPharmaciesData from "@/constants/data/pharmacieData";
 
 const index = () => {
   const router = useRouter();
   const doctorData = doctorsData();
-  const pharmacyData = generateRandomPharmaciesData()
-  console.log(pharmacyData)
+  const pharmacyData = generateRandomPharmaciesData();
+  console.log(pharmacyData);
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
@@ -71,17 +76,21 @@ const index = () => {
         <FlatList
           data={doctorData}
           renderItem={({ item }) => (
-            <DoctorCard
+            <TouchableOpacity
+              onPress={() => router.push("doctor/profile")}
               key={item.id}
-              name={item.name}
-              location={item.location}
-              experience={item.experience}
-              speciality={item.speciality}
-              language={item.language}
-              fee={item.fee}
-              image={""}
-              rating={0}
-            />
+            >
+              <DoctorCard
+                name={item.name}
+                location={item.location}
+                experience={item.experience}
+                speciality={item.speciality}
+                language={item.language}
+                fee={item.fee}
+                image={""}
+                rating={0}
+              />
+            </TouchableOpacity>
           )}
           keyExtractor={(item) => item.name.toString()}
           horizontal={true}
@@ -194,7 +203,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   featureCard: {
-    flex: 1/2,
+    flex: 1 / 2,
     margin: 5,
     padding: 20,
     backgroundColor: COLORS.primary,
@@ -218,7 +227,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     // flexDirection: "row",
     justifyContent: "space-between",
-    flexWrap:"wrap"
+    flexWrap: "wrap",
   },
   activityItem: {
     padding: 15,
@@ -229,10 +238,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    flexBasis:"48%"
+    flexBasis: "48%",
   },
   activityText: {
     fontSize: 16,
-    color:COLORS.white
+    color: COLORS.white,
   },
 });
