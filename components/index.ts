@@ -13,4 +13,5 @@ export { default as DoctorCard } from "./card/DoctorCard";
 export { default as CustomText } from "./texts/CustomText";
 export { default as SplashScreenComponent } from "./extra/SplashScreen";
 export { default as OnboardingScreen } from "./extra/OnboardingScreen";
-export {default as TimeslotModal} from "./ui/modal/timeslot.modal"
+export { default as TimeslotModal } from "./ui/modal/timeslot.modal";
+export { default as MultiSelect } from "./form/MultiSelect";

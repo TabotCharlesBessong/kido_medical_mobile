@@ -62,13 +62,13 @@ const ProfileScreen = () => {
         <View style={styles.buttonContainer}>
           <AppButton
             title="Add Patient Information"
-            onPress={() => router.push("complete")}
+            onPress={() => router.push("/profile/complete")}
             backgroundColor={COLORS.primary}
             width={"45%"}
           />
           <AppButton
             title="Register as Doctor"
-            onPress={() => router.push("/register")}
+            onPress={() => router.push("/profile/register")}
             backgroundColor={COLORS.primary}
             width={"45%"}
           />
