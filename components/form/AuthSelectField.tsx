@@ -9,6 +9,7 @@ interface AuthSelectFieldProps {
   options: { label: string; value: string }[];
   containerStyle?: StyleProp<ViewStyle>;
   placeholder?: string;
+  multiple?: boolean; // Add multiple prop
 }
 
 const AuthSelectField: FC<AuthSelectFieldProps> = ({
@@ -17,8 +18,11 @@ const AuthSelectField: FC<AuthSelectFieldProps> = ({
   options,
   containerStyle,
   placeholder,
+  multiple,
 }) => {
-  const [selectedValue, setSelectedValue] = useState<string | null>(null);
+  const [selectedValue, setSelectedValue] = useState<string | string[] | null>(
+    null
+  ); // Update state type
 
   return (
     <View style={containerStyle}>
@@ -30,7 +34,7 @@ const AuthSelectField: FC<AuthSelectFieldProps> = ({
           placeholder={{
             label: placeholder,
             value: null,
-            color: "green", // Set color to green
+            color: "green",
           }}
           name={name}
           items={options}
@@ -39,6 +43,12 @@ const AuthSelectField: FC<AuthSelectFieldProps> = ({
           style={{
             inputIOS: styles.pickerInput,
             inputAndroid: styles.pickerInput,
+          }}
+          useNativeAndroidPickerStyle={false} // Use this to enable multi-select on Android
+          mode={multiple ? "multiple" : "default"} // Set mode to "multiple" if multiple prop is true
+          onOpen={() => {
+            // Reset selected value when the picker is opened
+            setSelectedValue(multiple ? [] : null);
           }}
         />
       </View>
@@ -56,18 +66,22 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     color: colors.CONTRAST,
     padding: 10,
-    textAlign: "center",
-    alignItems: "center", // Center the content vertically,
-    // paddingBottom:32 
+    textAlign: "left",
   },
   label: {
-    color: "green", // Set color to green
+    color: "green",
     width: 380,
     marginBottom: 16,
     left: 4,
   },
   pickerInput: {
-    color: "green", // Set color to green
-    textAlign: "center",
+    color: "green",
+    textAlign: "left",
+  },
+  containerStyle: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
   },
 });

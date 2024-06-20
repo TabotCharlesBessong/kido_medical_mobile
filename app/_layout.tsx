@@ -122,6 +122,34 @@ function RootLayoutNav() {
           }}
         />
         <Stack.Screen
+          name="doctor/profile"
+          options={{
+            title: "Profile Screen",
+            headerBackTitle: "",
+            headerShadowVisible: false,
+            headerStyle: {},
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="arrow-back" size={36} color="black" />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+        <Stack.Screen
+          name="doctor/book-appointment"
+          options={{
+            title: "Booking Screen",
+            headerBackTitle: "",
+            headerShadowVisible: false,
+            headerStyle: {},
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="arrow-back" size={36} color="black" />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+        <Stack.Screen
           name="home"
           options={{
             title: "",

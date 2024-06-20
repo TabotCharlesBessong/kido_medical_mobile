@@ -22,7 +22,7 @@ const CustomText: FC<CustomTextProps> = ({ type, children, textColor }) => {
   const getStyle = (): any => {
     switch (type) {
       case "larger":
-        return styles.larger;
+        return [styles.larger,textColor];
       case "h1":
         return styles.h1;
       case "h2":
@@ -34,7 +34,7 @@ const CustomText: FC<CustomTextProps> = ({ type, children, textColor }) => {
       case "body1":
         return styles.body1;
       case "body2":
-        return styles.body2;
+        return [styles.body2,textColor];
       case "body3":
         return styles.body3;
       case "body4":
@@ -76,15 +76,15 @@ const styles = StyleSheet.create({
     ...FONTS.body1,
   },
   body2: {
-    color: COLORS.secondaryGray,
+    color:  COLORS.black,
     ...FONTS.body2,
   },
   body3: {
-    color: COLORS.secondaryGray,
+    color: COLORS.primary,
     ...FONTS.body3,
   },
   body4: {
-    color: COLORS.secondaryGray,
+    color: COLORS.black,
     ...FONTS.body4,
   },
   body5: {
