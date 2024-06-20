@@ -7,8 +7,9 @@ export const COLORS = {
   secondary: "#544C4C",
   white: "#FFFFFF",
   black: "#000000",
-  gray: "rgba(36,39,96,0.05)",
+  gray: "#f5f5f5",
   secondaryGray: "rgba(104,96,96,0.34)",
+  danger: "#BC456A"
 };
 
 export const SIZES = {
@@ -22,11 +23,11 @@ export const SIZES = {
 
   // font sizes
   largeTitle: 50,
-  h1: 30,
-  h2: 20,
-  h3: 18,
+  h1: 32,
+  h2: 24,
+  h3: 20,
   h4: 16,
-  body1: 30,
+  body1: 24,
   body2: 20,
   body3: 18,
   body4: 14,
@@ -45,12 +46,13 @@ export const FONTS = {
   },
   h1: { fontFamily: "InterBold", fontSize: SIZES.h1, lineHeight: 36 },
   h2: { fontFamily: "InterBold", fontSize: SIZES.h2, lineHeight: 30 },
-  h3: { fontFamily: "InterBold", fontSize: SIZES.h3, lineHeight: 22 },
-  h4: { fontFamily: "InterBold", fontSize: SIZES.h4, lineHeight: 20 },
-  body1: { fontFamily: "InterRegular", fontSize: SIZES.body1, lineHeight: 36 },
-  body2: { fontFamily: "InterRegular", fontSize: SIZES.body2, lineHeight: 30 },
+  h3: { fontFamily: "InterRegular", fontSize: SIZES.h3, lineHeight: 22 },
+  h4: { fontFamily: "InterRegular", fontSize: SIZES.h4, lineHeight: 20 },
+  body1: { fontFamily: "InterBold", fontSize: SIZES.body1, lineHeight: 36 },
+  body2: { fontFamily: "InterBold", fontSize: SIZES.body2, lineHeight: 30 },
   body3: { fontFamily: "InterLight", fontSize: SIZES.body3, lineHeight: 22 },
   body4: { fontFamily: "InterLight", fontSize: SIZES.body4, lineHeight: 20 },
+  body5: { fontFamily: "InterLight", fontSize: SIZES.body5, lineHeight: 12 },
 };
 
 const appTheme = { FONTS, SIZES, COLORS };
