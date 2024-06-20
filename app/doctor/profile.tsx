@@ -54,8 +54,11 @@ const profile = () => {
           Dr. Smith is affiliated with Northeastern medicine laboratory
         </CustomText>
       </View>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={[styles.button,{marginBottom:24}]}>
         <Text style={styles.buttonText}>Book Appointment</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push("/doctor/timeslot")} style={styles.button}>
+        <Text style={styles.buttonText}>Time slot</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -112,7 +115,6 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
-    marginTop: 20,
   },
   buttonText: {
     color: "#fff",
