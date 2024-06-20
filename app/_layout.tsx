@@ -2,11 +2,12 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { TouchableOpacity } from "react-native";
+import { OnboardingScreen, SplashScreenComponent } from "@/components";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -55,6 +56,22 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const router = useRouter()
+  const [showSplash, setShowSplash] = useState<boolean>(true);
+  const [showOnboarding, setShowOnboarding] = useState<true>(true)
+
+  useEffect(() => {
+    setTimeout(() => {
+      setShowSplash(false);
+    }, 3000);
+  }, []);
+
+  // if (showSplash) {
+  //   return <SplashScreenComponent />;
+  // }
+  // if(showOnboarding){
+  //   return <OnboardingScreen />
+  // }
+
 
   return (
     <>
@@ -63,7 +80,7 @@ function RootLayoutNav() {
         <Stack.Screen name="(tabs)" options={{headerShown:false}} />
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen
-          name="register"
+          name="auth/register"
           options={{
             title: "Register Screen",
             headerBackTitle: "",
@@ -77,9 +94,51 @@ function RootLayoutNav() {
           }}
         />
         <Stack.Screen
-          name="login"
+          name="auth/login"
           options={{
             title: "Login Screen",
+            headerBackTitle: "",
+            headerShadowVisible: false,
+            headerStyle: {},
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="arrow-back" size={36} color="black" />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+        <Stack.Screen
+          name="auth/forgot"
+          options={{
+            title: "Forgot Screen",
+            headerBackTitle: "",
+            headerShadowVisible: false,
+            headerStyle: {},
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="arrow-back" size={36} color="black" />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+        <Stack.Screen
+          name="doctor/profile"
+          options={{
+            title: "Profile Screen",
+            headerBackTitle: "",
+            headerShadowVisible: false,
+            headerStyle: {},
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="arrow-back" size={36} color="black" />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+        <Stack.Screen
+          name="doctor/book-appointment"
+          options={{
+            title: "Booking Screen",
             headerBackTitle: "",
             headerShadowVisible: false,
             headerStyle: {},

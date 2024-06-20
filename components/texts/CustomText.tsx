@@ -12,15 +12,17 @@ interface CustomTextProps {
     | "body1"
     | "body2"
     | "body3"
-    | "body4";
+    | "body4"
+    | "body5"
   children: React.ReactNode;
+  textColor?: string;
 }
 
-const CustomText: FC<CustomTextProps> = ({ type, children }) => {
+const CustomText: FC<CustomTextProps> = ({ type, children, textColor }) => {
   const getStyle = (): any => {
     switch (type) {
       case "larger":
-        return styles.larger;
+        return [styles.larger,textColor];
       case "h1":
         return styles.h1;
       case "h2":
@@ -32,11 +34,13 @@ const CustomText: FC<CustomTextProps> = ({ type, children }) => {
       case "body1":
         return styles.body1;
       case "body2":
-        return styles.body2;
+        return [styles.body2,textColor];
       case "body3":
         return styles.body3;
       case "body4":
         return styles.body4;
+      case "body5":
+        return styles.body5;
       default:
         return styles.body1;
     }
@@ -47,8 +51,9 @@ const CustomText: FC<CustomTextProps> = ({ type, children }) => {
 
 const styles = StyleSheet.create({
   larger: {
-    color: COLORS.black,
+    color: COLORS.primary,
     ...FONTS.largeTitle,
+    textTransform: "capitalize",
   },
   h1: {
     color: COLORS.black,
@@ -71,16 +76,21 @@ const styles = StyleSheet.create({
     ...FONTS.body1,
   },
   body2: {
-    color: COLORS.black,
+    color:  COLORS.black,
     ...FONTS.body2,
   },
   body3: {
-    color: COLORS.black,
+    color: COLORS.primary,
     ...FONTS.body3,
   },
   body4: {
     color: COLORS.black,
     ...FONTS.body4,
+  },
+  body5: {
+    color: COLORS.primary,
+    ...FONTS.body5,
+    textAlign:"right"
   },
 });
 

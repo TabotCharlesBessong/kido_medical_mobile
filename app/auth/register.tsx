@@ -4,6 +4,7 @@ import {
   AuthInputField,
   AuthRadioButton,
   AuthSelectField,
+  CustomText,
   PasswordVisibilityIcon,
   SubmitButton,
 } from "@/components";
@@ -24,7 +25,7 @@ const register = () => {
   
   return (
     <View style={styles.container}>
-      <Text>register</Text>
+      <CustomText type="larger" >Create account</CustomText>
       <AuthInputField
         name="name"
         placeholder="Charles Tabot"
@@ -48,58 +49,19 @@ const register = () => {
           setSecureTextEntry(!secureTextEntry);
         }}
       />
-      {/* <AppSelect /> */}
-      <AuthSelectField
-        name="role"
-        label="Select User Role"
-        options={[
-          { label: "Doctor", value: "option1" },
-          { label: "Patient", value: "option2" },
-          { label: "Nurse", value: "option3" },
-        ]}
+      <AuthInputField
+        name="cpassword"
+        placeholder="*************"
+        label="Confirm Password"
         containerStyle={{ marginBottom: 16 }}
-      />
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-around",
-          alignItems: "center",
-          marginBottom: 16,
-          width: "90%",
-          left: 4,
+        secureTextEntry={!secureTextEntry}
+        rightIcon={<PasswordVisibilityIcon privateIcon={secureTextEntry} />}
+        onRightIconPress={() => {
+          setSecureTextEntry(!secureTextEntry);
         }}
-      >
-        <AuthCheckbox
-          onPress={() => setMusic(!music)}
-          title="Music"
-          isChecked={music}
-        />
-        <AuthCheckbox
-          onPress={() => setDancing(!dancing)}
-          title="Dancing"
-          isChecked={dancing}
-        />
-        <AuthCheckbox
-          onPress={() => setReading(!reading)}
-          title="Reading"
-          isChecked={reading}
-        />
-      </View>
-      <AuthRadioButton
-        options={["Option 1", "Option 2", "Option 3"]}
-        activeButton="Option 1"
-        onChange={handleRadioButtonChange}
-        containerOptions={{ style: { marginVertical: 16 ,display:"flex",flexDirection:"row",alignItems:"center",justifyContent:"space-between"} }}
-        buttonStyle={{
-          flexDirection: "row",
-          alignItems: "center",
-          marginVertical: 8,
-        }}
-        labelStyle={{ marginLeft: 8 }}
-        radioSize={24}
       />
-      <SubmitButton onPress={() => router.push("login")} title="Register now" />
+      
+      <SubmitButton onPress={() => router.push("auth/login")} title="Register now" />
     </View>
   );
 };
