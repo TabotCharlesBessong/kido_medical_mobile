@@ -24,33 +24,41 @@ const TabLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="doctor"
-        options={{
-          title: "Doctor",
-          tabBarIcon: ({ color }) => <TabBarIcons name="home" color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="chat"
         options={{
           title: "Chat Screen",
-          tabBarIcon: ({ color }) => <Entypo name="message" color={color} size={28} />,
-          headerShown:false
+          tabBarIcon: ({ color }) => (
+            <Entypo name="message" color={color} size={28} />
+          ),
+          headerShown: false,
         }}
       />
       <Tabs.Screen
         name="appointment"
         options={{
           title: "Appointments",
-          tabBarIcon: ({ color }) => <FontAwesome5 name="book-medical" size={28} color={color} />,
+          tabBarIcon: ({ color }) => (
+            <FontAwesome5 name="book-medical" size={28} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="setting"
         options={{
           title: "Setting",
-          tabBarIcon: ({ color }) => <AntDesign name="setting" color={color} size={28} />,
-          headerShown:false
+          tabBarIcon: ({ color }) => (
+            <AntDesign name="setting" color={color} size={28} />
+          ),
+          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color }) => (
+            <AntDesign name="user" color={color} size={28} />
+          ),
         }}
       />
     </Tabs>
