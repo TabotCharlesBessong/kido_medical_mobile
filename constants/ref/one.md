@@ -1,393 +1,316 @@
-Got it. We'll incorporate Redux Toolkit for state management, include all necessary API endpoints, and use Expo Router for navigation.
+The error `cannot read property "handleChange" of undefined` is likely due to the fact that `useFormikContext` is not correctly providing the context. This can happen if `AuthInputField` is used outside of a Formik context or if Formik is not properly set up.
 
-### Updated Project Structure
-1. **Screens**
-   - Dashboard
-   - Consultation List
-   - Consultation Details
-   - Create Consultation
-   - Patient Profile
-   - Messaging
-   - Notifications
-   - Auth (Login/Signup)
-   - Prescription
-   - Doctor Time Slot Creation
-2. **Redux Toolkit**
-   - Slices for authentication, consultations, prescriptions, etc.
-   - Redux store setup
-3. **API Integration with Axios**
-4. **Navigation using Expo Router**
+Here’s how you can fix this:
 
-### Redux Toolkit Setup
+1. Ensure that `AuthInputField` is wrapped in a Formik component.
+2. Make sure that `useFormikContext` is correctly utilized in `AuthInputField`.
 
-#### Store Setup
-First, let's set up the Redux store.
+I will update the `AuthInputField` and `register` components to ensure that Formik is correctly set up.
+
+### Updated `AuthInputField` Component
 
 ```tsx
-// src/store/index.ts
-import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './slices/authSlice';
-import consultationReducer from './slices/consultationSlice';
-import prescriptionReducer from './slices/prescriptionSlice';
-import doctorReducer from './slices/doctorSlice';
+// AuthInputField.tsx
+import { useFormikContext } from "formik";
+import React, { FC, ReactNode, useRef } from "react";
+import {
+  View,
+  StyleSheet,
+  Text,
+  TextInputProps,
+  StyleProp,
+  ViewStyle,
+  Pressable,
+} from "react-native";
+import { COLORS } from "@/constants/theme";
 
-export const store = configureStore({
-  reducer: {
-    auth: authReducer,
-    consultations: consultationReducer,
-    prescriptions: prescriptionReducer,
-    doctor: doctorReducer,
-  },
-});
-
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
-```
-
-#### Auth Slice
-```tsx
-// src/store/slices/authSlice.ts
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-interface AuthState {
-  user: any;
-  token: string | null;
-  loading: boolean;
-  error: string | null;
+interface Props {
+  name: string;
+  label?: string;
+  placeholder?: string;
+  keyboardType?: TextInputProps["keyboardType"];
+  autoCapitalize?: TextInputProps["autoCapitalize"];
+  secureTextEntry?: boolean;
+  containerStyle?: StyleProp<ViewStyle>;
+  rightIcon?: ReactNode;
+  onRightIconPress?(): void;
 }
 
-const initialState: AuthState = {
-  user: null,
-  token: null,
-  loading: false,
-  error: null,
-};
+const AuthInputField: FC<Props> = (props) => {
+  const { handleChange, handleBlur, values, errors, touched } = useFormikContext<{
+    [key: string]: string;
+  }>();
 
-export const login = createAsyncThunk('auth/login', async (credentials: { email: string; password: string }) => {
-  const response = await axios.post('/api/auth/login', credentials);
-  return response.data;
-});
+  const {
+    label,
+    placeholder,
+    autoCapitalize,
+    keyboardType,
+    secureTextEntry,
+    containerStyle,
+    name,
+    rightIcon,
+    onRightIconPress,
+  } = props;
 
-export const authSlice = createSlice({
-  name: 'auth',
-  initialState,
-  reducers: {
-    logout: (state) => {
-      state.user = null;
-      state.token = null;
-    },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(login.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(login.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
-      })
-      .addCase(login.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || 'Login failed';
-      });
-  },
-});
-
-export const { logout } = authSlice.actions;
-export default authSlice.reducer;
-```
-
-#### Consultation Slice
-```tsx
-// src/store/slices/consultationSlice.ts
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-interface ConsultationState {
-  consultations: any[];
-  loading: boolean;
-  error: string | null;
-}
-
-const initialState: ConsultationState = {
-  consultations: [],
-  loading: false,
-  error: null,
-};
-
-export const fetchConsultations = createAsyncThunk('consultations/fetchConsultations', async () => {
-  const response = await axios.get('/api/consultations');
-  return response.data;
-});
-
-export const consultationSlice = createSlice({
-  name: 'consultations',
-  initialState,
-  reducers: {},
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchConsultations.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchConsultations.fulfilled, (state, action) => {
-        state.loading = false;
-        state.consultations = action.payload;
-      })
-      .addCase(fetchConsultations.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || 'Failed to fetch consultations';
-      });
-  },
-});
-
-export default consultationSlice.reducer;
-```
-
-#### Prescription Slice
-```tsx
-// src/store/slices/prescriptionSlice.ts
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-interface PrescriptionState {
-  prescriptions: any[];
-  loading: boolean;
-  error: string | null;
-}
-
-const initialState: PrescriptionState = {
-  prescriptions: [],
-  loading: false,
-  error: null,
-};
-
-export const fetchPrescriptions = createAsyncThunk('prescriptions/fetchPrescriptions', async () => {
-  const response = await axios.get('/api/prescriptions');
-  return response.data;
-});
-
-export const prescriptionSlice = createSlice({
-  name: 'prescriptions',
-  initialState,
-  reducers: {},
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchPrescriptions.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchPrescriptions.fulfilled, (state, action) => {
-        state.loading = false;
-        state.prescriptions = action.payload;
-      })
-      .addCase(fetchPrescriptions.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || 'Failed to fetch prescriptions';
-      });
-  },
-});
-
-export default prescriptionSlice.reducer;
-```
-
-#### Doctor Slice
-```tsx
-// src/store/slices/doctorSlice.ts
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-interface DoctorState {
-  timeSlots: any[];
-  loading: boolean;
-  error: string | null;
-}
-
-const initialState: DoctorState = {
-  timeSlots: [],
-  loading: false,
-  error: null,
-};
-
-export const createTimeSlot = createAsyncThunk('doctor/createTimeSlot', async (timeSlot: any) => {
-  const response = await axios.post('/api/doctor/time-slots', timeSlot);
-  return response.data;
-});
-
-export const doctorSlice = createSlice({
-  name: 'doctor',
-  initialState,
-  reducers: {},
-  extraReducers: (builder) => {
-    builder
-      .addCase(createTimeSlot.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(createTimeSlot.fulfilled, (state, action) => {
-        state.loading = false;
-        state.timeSlots.push(action.payload);
-      })
-      .addCase(createTimeSlot.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || 'Failed to create time slot';
-      });
-  },
-});
-
-export default doctorSlice.reducer;
-```
-
-### API Integration with Axios
-
-Set up an Axios instance for making API requests.
-
-```tsx
-// src/api/axiosInstance.ts
-import axios from 'axios';
-import { store } from '../store';
-
-const axiosInstance = axios.create({
-  baseURL: 'https://your-api-base-url.com',
-});
-
-axiosInstance.interceptors.request.use((config) => {
-  const token = store.getState().auth.token;
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-export default axiosInstance;
-```
-
-### Navigation with Expo Router
-
-Install the necessary packages:
-```sh
-npm install @react-navigation/native @react-navigation/stack
-```
-
-Set up the navigation using Expo Router.
-
-```tsx
-// App.tsx
-import { registerRootComponent } from 'expo';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { Provider } from 'react-redux';
-import { store } from './src/store';
-import Dashboard from './src/screens/Dashboard';
-import ConsultationList from './src/screens/ConsultationList';
-import ConsultationDetails from './src/screens/ConsultationDetails';
-import CreateConsultation from './src/screens/CreateConsultation';
-import PatientProfile from './src/screens/PatientProfile';
-import Messaging from './src/screens/Messaging';
-import Notifications from './src/screens/Notifications';
-
-const Stack = createStackNavigator();
-
-const App = () => (
-  <Provider store={store}>
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Dashboard">
-        <Stack.Screen name="Dashboard" component={Dashboard} />
-        <Stack.Screen name="ConsultationList" component={ConsultationList} />
-        <Stack.Screen name="ConsultationDetails" component={ConsultationDetails} />
-        <Stack.Screen name="CreateConsultation" component={CreateConsultation} />
-        <Stack.Screen name="PatientProfile" component={PatientProfile} />
-        <Stack.Screen name="Messaging" component={Messaging} />
-        <Stack.Screen name="Notifications" component={Notifications} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  </Provider>
-);
-
-registerRootComponent(App);
-```
-
-### Screens
-
-#### Auth Screens (Login/Signup)
-
-```tsx
-// src/screens/Login.tsx
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../store/slices/authSlice';
-import { RootState } from '../store';
-
-const Login: React.FC = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const dispatch = useDispatch();
-  const { loading, error } = useSelector((state: RootState) => state.auth);
-
-  const handleLogin = () => {
-    dispatch(login({ email, password }));
-  };
+  const errorMsg = touched[name] && errors[name] ? errors[name] : "";
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</
-
-Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      {error && <Text style={styles.error}>{error}</Text>}
-      <Button title="Login" onPress={handleLogin} disabled={loading} />
-      <Button title="Sign Up" onPress={() => navigation.navigate('Signup')} />
+    <View style={[containerStyle, { width: "100%" }]}>
+      <View style={styles.labelContainer}>
+        <Text style={styles.label}>{label}</Text>
+        <Text style={styles.errorMsg}>{errorMsg}</Text>
+      </View>
+      <View>
+        <TextInput
+          style={styles.textInput}
+          placeholder={placeholder}
+          keyboardType={keyboardType}
+          autoCapitalize={autoCapitalize}
+          secureTextEntry={secureTextEntry}
+          onChangeText={handleChange(name)}
+          value={values[name]}
+          onBlur={handleBlur(name)}
+        />
+        {rightIcon ? (
+          <Pressable onPress={onRightIconPress} style={styles.rightIcon}>
+            {rightIcon}
+          </Pressable>
+        ) : null}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 16,
+  labelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 5,
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 16,
-    textAlign: 'center',
+  label: {
+    color: COLORS.primary,
   },
-  input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 8,
+  errorMsg: {
+    color: COLORS.danger,
   },
-  error: {
-    color: 'red',
-    marginBottom: 12,
-    textAlign: 'center',
+  textInput: {
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginTop: 8,
+  },
+  rightIcon: {
+    width: 45,
+    height: 45,
+    position: "absolute",
+    top: 0,
+    right: 0,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
-export default Login;
+export default AuthInputField;
 ```
 
-#### Other Screens
-Implement similar structures for other screens, following the pattern above. For instance, `ConsultationList`, `ConsultationDetails`, etc., each having their own components and styles.
+### Updated `register` Component
 
-### Conclusion
-You now have a structured approach using Redux Toolkit for state management, Axios for API requests, and Expo Router for navigation in a React Native app. This setup provides a solid foundation for further development, such as implementing additional screens, handling state changes, and consuming API endpoints. Let me know if you need further assistance with any specific part of the project.
+```tsx
+// register.tsx
+import {
+  AppButton,
+  AuthInputField,
+  PasswordVisibilityIcon,
+} from "@/components";
+import { COLORS } from "@/constants/theme";
+import { useRouter } from "expo-router";
+import { Formik, FormikHelpers } from "formik";
+import React, { useState } from "react";
+import {
+  KeyboardAvoidingView,
+  StyleSheet,
+  View,
+} from "react-native";
+import { useDispatch } from "react-redux";
+import * as yup from "yup";
+
+interface SignupValues {
+  email: string;
+  firstname: string;
+  lastname: string;
+  password: string;
+  confirmPassword: string;
+}
+
+const Register = () => {
+  const [secureTextEntry, setSecureTextEntry] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const initialValues: SignupValues = {
+    lastname: "",
+    firstname: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  };
+
+  const signupSchema = yup.object({
+    firstname: yup
+      .string()
+      .trim("First Name is missing!")
+      .min(3, "Invalid name!")
+      .required("First Name is required!"),
+    lastname: yup
+      .string()
+      .trim("Last Name is missing!")
+      .min(3, "Invalid name!")
+      .required("Last Name is required!"),
+    email: yup
+      .string()
+      .trim("Email is missing!")
+      .email("Invalid email!")
+      .required("Email is required!"),
+    password: yup
+      .string()
+      .trim("Password is missing!")
+      .min(8, "Password is too short!")
+      .matches(
+        /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])[a-zA-Z\d!@#\$%\^&\*]+$/,
+        "Password is too simple!"
+      )
+      .required("Password is required!"),
+    confirmPassword: yup
+      .string()
+      .oneOf([yup.ref("password")], "Passwords must match")
+      .required("Confirm Password is required!"),
+  });
+
+  const handleSubmit = async (
+    values: SignupValues,
+    actions: FormikHelpers<SignupValues>
+  ) => {
+    console.log(values);
+    try {
+      setLoading(true);
+      setErrorMessage("");
+      const res = await fetch("http://192.168.1.199:5001/api/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+      console.log(res);
+      const data = await res.json();
+      console.log(data);
+      if (!data.success) return setErrorMessage(data.message);
+      setLoading(false);
+      if (res.ok) router.push("auth/login");
+    } catch (error) {
+      console.log(error);
+      setErrorMessage((error as TypeError).message);
+      setLoading(false);
+    }
+  };
+
+  return (
+    <KeyboardAvoidingView style={styles.container}>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={signupSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ handleSubmit }) => (
+          <View style={styles.formContainer}>
+            <AuthInputField
+              name="firstname"
+              placeholder="Charles Bessong"
+              label="First Name"
+              containerStyle={{ marginBottom: 16 }}
+            />
+            <AuthInputField
+              name="lastname"
+              placeholder="Tabot"
+              label="Last Name"
+              containerStyle={{ marginBottom: 16 }}
+            />
+            <AuthInputField
+              name="email"
+              placeholder="ebezebeatrice@gmail.com"
+              label="Email Address"
+              containerStyle={{ marginBottom: 16 }}
+            />
+            <AuthInputField
+              name="password"
+              placeholder="*************"
+              label="Password"
+              containerStyle={{ marginBottom: 16 }}
+              secureTextEntry={!secureTextEntry}
+              rightIcon={
+                <PasswordVisibilityIcon privateIcon={secureTextEntry} />
+              }
+              onRightIconPress={() => {
+                setSecureTextEntry(!secureTextEntry);
+              }}
+            />
+            <AuthInputField
+              name="confirmPassword"
+              placeholder="*************"
+              label="Confirm Password"
+              containerStyle={{ marginBottom: 16 }}
+              secureTextEntry={!secureTextEntry}
+              rightIcon={
+                <PasswordVisibilityIcon privateIcon={secureTextEntry} />
+              }
+              onRightIconPress={() => {
+                setSecureTextEntry(!secureTextEntry);
+              }}
+            />
+            <AppButton
+              backgroundColor={COLORS.primary}
+              onPress={handleSubmit}
+              title="Register now"
+              loading={loading}
+              loadingText="Registering...."
+            />
+          </View>
+        )}
+      </Formik>
+    </KeyboardAvoidingView>
+  );
+};
+
+export default Register;
+
+const styles = StyleSheet.create({
+  container: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+    width: "100%",
+  },
+  formContainer: {
+    width: "90%",
+  },
+});
+```
+
+### Explanation
+
+1. **AuthInputField.tsx**:
+   - Correctly uses `useFormikContext` to get Formik's context.
+   - Handles `onChangeText`, `onBlur`, `value`, and error messages properly.
+
+2. **register.tsx**:
+   - Uses Formik to manage form state and validation.
+   - Passes the necessary props to `AuthInputField`.
+   - Handles form submission with `handleSubmit`.
+
+This should resolve the issue and ensure proper form handling with Formik and Yup.

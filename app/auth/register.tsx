@@ -116,13 +116,7 @@ const register = () => {
         onSubmit={handleSubmit}
       >
         {({
-          handleChange,
-          handleBlur,
           handleSubmit,
-          values,
-          errors,
-          touched,
-          handleReset,
         }) => (
 
           <KeyboardAvoidingView style={styles.container}>
@@ -174,6 +168,8 @@ const register = () => {
               backgroundColor={COLORS.primary}
               onPress={handleSubmit}
               title="Register now"
+              loading={loading}
+              loadingText="Registering...."
             />
           </KeyboardAvoidingView>
         )}

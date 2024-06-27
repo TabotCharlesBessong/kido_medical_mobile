@@ -16,6 +16,8 @@ interface AppButtonProps {
   textColor?: string;
   containerStyle?: StyleProp<ViewStyle>;
   titleStyle?: StyleProp<TextStyle>;
+  loading?:boolean
+  loadingText?:string
 }
 
 const AppButton: FC<AppButtonProps> = ({
@@ -26,6 +28,8 @@ const AppButton: FC<AppButtonProps> = ({
   textColor,
   containerStyle,
   titleStyle,
+  loading,
+  loadingText
 }) => {
   const dynamicContainerStyle = {
     width: width || "95%",
@@ -41,7 +45,7 @@ const AppButton: FC<AppButtonProps> = ({
       onPress={onPress}
       style={[styles.container, dynamicContainerStyle, containerStyle]}
     >
-      <Text style={[styles.title, dynamicTitleStyle, titleStyle]}>{title}</Text>
+      <Text style={[styles.title, dynamicTitleStyle, titleStyle]}>{loading ? loadingText : title}</Text>
     </Pressable>
   );
 };
