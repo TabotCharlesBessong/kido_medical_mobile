@@ -1,21 +1,17 @@
 import {
   AppButton,
-  AppSelect,
-  AuthCheckbox,
+  AppLink,
   AuthInputField,
-  AuthRadioButton,
-  AuthSelectField,
   CustomText,
-  PasswordVisibilityIcon,
-  SubmitButton,
+  PasswordVisibilityIcon
 } from "@/components";
 import { COLORS } from "@/constants/theme";
 import { useRouter } from "expo-router";
-import { Form, Formik, FormikHelpers } from "formik";
+import { Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
-import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { KeyboardAvoidingView, StyleSheet, View } from "react-native";
 import { useDispatch } from "react-redux";
-import * as yup from "yup"
+import * as yup from "yup";
 
 interface SignupValues {
   email: string;
@@ -27,10 +23,6 @@ interface SignupValues {
 
 const register = () => {
   const [secureTextEntry, setSecureTextEntry] = useState<boolean>(false);
-  const [activeButton, setActiveButton] = useState<string>("")
-  const handleRadioButtonChange = (label:string) => {
-    setActiveButton(label)
-  }
   const [loading, setLoading] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState("")
   const router = useRouter()
@@ -171,6 +163,10 @@ const register = () => {
               loading={loading}
               loadingText="Registering...."
             />
+            <View style={styles.bottomLinks} >
+              <CustomText type="body5" >do you already have an account?</CustomText>
+              <AppLink title="login" onPress={() => router.push("auth/login")} />
+            </View>
           </KeyboardAvoidingView>
         )}
       </Formik>
@@ -189,4 +185,12 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
   },
+  bottomLinks:{
+    display:"flex",
+    alignItems:"center",
+    justifyContent:"space-between",
+    marginVertical:16,
+    flexDirection:"row",
+    width:"90%"
+  }
 });

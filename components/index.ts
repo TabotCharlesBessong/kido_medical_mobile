@@ -15,3 +15,4 @@ export { default as SplashScreenComponent } from "./extra/SplashScreen";
 export { default as OnboardingScreen } from "./extra/OnboardingScreen";
 export { default as TimeslotModal } from "./ui/modal/timeslot.modal";
 export { default as MultiSelect } from "./form/MultiSelect";
+export {default as AppLink} from "./ui/AppLink"
