@@ -1,18 +1,18 @@
+import { useFormikContext } from "formik";
+import { FC, ReactNode, useEffect } from "react";
 import {
-  Pressable,
-  StyleProp,
+  View,
   StyleSheet,
   Text,
-  TextInput,
   TextInputProps,
-  View,
+  StyleProp,
   ViewStyle,
+  Pressable,
 } from "react-native";
-import React, { FC, ReactNode, useRef } from "react";
-import colors from "@/constants/Colors";
+import AppInput from "../ui/form/AppInput";
 import { COLORS } from "@/constants/theme";
 
-interface AuthInputFieldProps {
+interface Props {
   name: string;
   label?: string;
   placeholder?: string;
@@ -22,70 +22,47 @@ interface AuthInputFieldProps {
   containerStyle?: StyleProp<ViewStyle>;
   rightIcon?: ReactNode;
   onRightIconPress?(): void;
-  fileInput?: boolean; // Add fileInput prop
-  onFileSelect?(file: File): void; // Add onFileSelect prop
 }
 
-const AuthInputField: FC<AuthInputFieldProps> = (props) => {
+const AuthInputField: FC<Props> = (props) => {
+
+  const { handleChange, values, errors, handleBlur, touched } =
+    useFormikContext<{
+      [key: string]: string;
+    }>();
+
   const {
     label,
-    name,
     placeholder,
     autoCapitalize,
     keyboardType,
     secureTextEntry,
     containerStyle,
+    name,
     rightIcon,
     onRightIconPress,
-    fileInput,
-    onFileSelect,
   } = props;
 
-  const fileInputRef = useRef<TextInput>(null);
+  const errorMsg = touched[name] && errors[name] ? errors[name] : "";
 
-  const handleFileInputChange = (event: any) => {
-    const file =
-      event.nativeEvent.target.files && event.nativeEvent.target.files[0];
-    if (file && onFileSelect) {
-      onFileSelect(file);
-    }
-  };
-
-  const handleFileInputPress = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.focus();
-    }
-  };
 
   return (
-    <View style={[containerStyle, { width: "100%" }]}>
+    <View style={[containerStyle,{width:"100%"}]}>
       <View style={styles.labelContainer}>
         <Text style={styles.label}>{label}</Text>
+        <Text style={styles.errorMsg}>{errorMsg}</Text>
       </View>
       <View>
-        {!fileInput ? (
-          <TextInput
-            style={styles.textInput}
-            placeholder={placeholder}
-            keyboardType={keyboardType}
-            autoCapitalize={autoCapitalize}
-            secureTextEntry={secureTextEntry}
-          />
-        ) : (
-          <>
-            <TextInput
-              style={styles.textInput}
-              placeholder={placeholder}
-              onFocus={handleFileInputPress}
-              ref={fileInputRef}
-              editable={false}
-              onChange={handleFileInputChange}
-            />
-            <Pressable onPress={handleFileInputPress} style={styles.fileInput}>
-              <Text>Select File</Text>
-            </Pressable>
-          </>
-        )}
+        <AppInput
+          placeholder={placeholder}
+          keyboardType={keyboardType}
+          autoCapitalize={autoCapitalize}
+          secureTextEntry={secureTextEntry}
+          onChangeText={handleChange(name)}
+          value={values[name]}
+          onBlur={handleBlur(name)}
+        />
+
         {rightIcon ? (
           <Pressable onPress={onRightIconPress} style={styles.rightIcon}>
             {rightIcon}
@@ -96,8 +73,6 @@ const AuthInputField: FC<AuthInputFieldProps> = (props) => {
   );
 };
 
-export default AuthInputField;
-
 const styles = StyleSheet.create({
   labelContainer: {
     flexDirection: "row",
@@ -106,15 +81,10 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   label: {
-    color: colors.CONTRAST,
+    color: COLORS.primary,
   },
-  textInput: {
-    borderWidth: 2,
-    borderColor: COLORS.primary,
-    borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginTop: 8,
+  errorMsg: {
+    color: COLORS.danger,
   },
   rightIcon: {
     width: 45,
@@ -125,12 +95,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  fileInput: {
-    borderWidth: 2,
-    borderColor: COLORS.primary,
-    borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginTop: 8,
-  },
 });
+
+export default AuthInputField;
