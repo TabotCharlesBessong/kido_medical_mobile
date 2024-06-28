@@ -112,8 +112,8 @@ const login = () => {
             <View style={styles.bottomLinks}>
               <CustomText type="body5">forgot your password?</CustomText>
               <AppLink
-                title="reset password"
-                onPress={() => router.push("auth/register")}
+                title="forgot password"
+                onPress={() => router.push("auth/forgot")}
               />
             </View>
             <AppButton

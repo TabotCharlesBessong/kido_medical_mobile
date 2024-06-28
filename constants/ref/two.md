@@ -1,308 +1,292 @@
-Let's integrate the use of interfaces, form validation with Formik and Yup, Redux-Persist, and tokens for verification. We'll start by modifying the authentication screens to incorporate these components.
+To update the reset password functionality to check if the code matches the code received from the forgot password response before changing the password, you can follow these steps:
 
-## 1. Authentication Screens with Formik and Yup
+1. **Store the code received from the forgot password response.**
+2. **Compare the stored code with the entered code in the reset password form.**
+3. **Proceed with the password reset if the codes match.**
 
-### SignInScreen.tsx
+Here's how you can implement this:
 
-```tsx
-import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
-import { useDispatch } from 'react-redux';
-import AuthInputField from '@/components/AuthInputField';
-import AppButton from '@/components/AppButton';
-import { login } from '@/redux/authSlice';
+### Step 1: Store the Code
+- Modify the forgot password logic to store the received code.
 
-interface SignInValues {
+### Step 2: Compare Codes and Reset Password
+
+Here's the updated code for both `forgotpassword.tsx` and `reset.tsx`:
+
+#### `forgotpassword.tsx`
+
+```typescript
+import { AppButton, AuthInputField, CustomText } from "@/components";
+import { COLORS } from "@/constants/theme";
+import { useRouter } from "expo-router";
+import { Formik, FormikHelpers } from "formik";
+import React, { useState } from "react";
+import { KeyboardAvoidingView, StyleSheet } from "react-native";
+import { useDispatch } from "react-redux";
+import * as yup from "yup";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+interface ForgotValues {
   email: string;
-  password: string;
 }
 
-const SignInScreen: React.FC = () => {
+const forgot = () => {
+  const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const dispatch = useDispatch();
-
-  const initialValues: SignInValues = {
-    email: '',
-    password: '',
+  const initialValues: ForgotValues = {
+    email: "",
   };
 
-  const validationSchema = Yup.object({
-    email: Yup.string().email('Invalid email address').required('Email is required'),
-    password: Yup.string().required('Password is required'),
+  const signupSchema = yup.object({
+    email: yup
+      .string()
+      .trim("Email is missing!")
+      .email("Invalid email!")
+      .required("Email is required!"),
   });
 
-  const handleSubmit = (values: SignInValues) => {
-    dispatch(login(values));
+  const handleSubmit = async (
+    values: ForgotValues,
+    actions: FormikHelpers<ForgotValues>
+  ) => {
+    console.log(values);
+    try {
+      setLoading(true);
+      setErrorMessage("");
+      const res = await fetch(
+        "http:192.168.1.199:5001/api/user/forgot-password",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
+        }
+      );
+      console.log(res);
+      const data = await res.json();
+      console.log(data);
+      if (data.success === false) return setErrorMessage(data.message);
+
+      // Store the code in AsyncStorage
+      await AsyncStorage.setItem("resetCode", data.data.token.code);
+
+      setLoading(false);
+      if (res.ok) router.push("auth/reset");
+    } catch (error) {
+      console.log(error);
+      setErrorMessage((error as TypeError).message);
+      setLoading(false);
+    }
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView style={styles.container}>
+      <CustomText type="h2">
+        You forgot your password, no problem you can reset it
+      </CustomText>
       <Formik
         initialValues={initialValues}
-        validationSchema={validationSchema}
+        validationSchema={signupSchema}
         onSubmit={handleSubmit}
       >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-          <View>
+        {({ handleSubmit }) => (
+          <KeyboardAvoidingView style={styles.container}>
             <AuthInputField
               name="email"
-              label="Email"
-              placeholder="Enter your email"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              onChangeText={handleChange('email')}
-              onBlur={handleBlur('email')}
-              value={values.email}
-              error={touched.email && errors.email}
+              placeholder="ebezebeatrice@gmail.com"
+              label="Email Address"
+              containerStyle={{ marginBottom: 16 }}
             />
-            <AuthInputField
-              name="password"
-              label="Password"
-              placeholder="Enter your password"
-              secureTextEntry
-              onChangeText={handleChange('password')}
-              onBlur={handleBlur('password')}
-              value={values.password}
-              error={touched.password && errors.password}
+            <AppButton
+              backgroundColor={COLORS.primary}
+              onPress={handleSubmit}
+              title="Forgot Password"
+              loading={loading}
+              loadingText="Sending reset...."
             />
-            <AppButton title="Sign In" onPress={handleSubmit} />
-          </View>
+          </KeyboardAvoidingView>
         )}
       </Formik>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
+export default forgot;
+
 const styles = StyleSheet.create({
   container: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     flex: 1,
-    justifyContent: 'center',
-    padding: 16,
+    width: "100%",
   },
 });
-
-export default SignInScreen;
 ```
 
-### SignUpScreen.tsx
+#### `reset.tsx`
 
-```tsx
-import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
-import { useDispatch } from 'react-redux';
-import AuthInputField from '@/components/AuthInputField';
-import AppButton from '@/components/AppButton';
-import { register } from '@/redux/authSlice';
+```typescript
+import {
+  AppButton,
+  AuthInputField,
+  CustomText,
+  PasswordVisibilityIcon,
+} from "@/components";
+import { COLORS } from "@/constants/theme";
+import { useRouter } from "expo-router";
+import { Formik, FormikHelpers } from "formik";
+import React, { useState } from "react";
+import { KeyboardAvoidingView, StyleSheet } from "react-native";
+import * as yup from "yup";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-interface SignUpValues {
-  name: string;
-  email: string;
+interface ResetValues {
   password: string;
+  confirmPassword: string;
+  code: string;
 }
 
-const SignUpScreen: React.FC = () => {
-  const dispatch = useDispatch();
+const reset = () => {
+  const [secureTextEntry, setSecureTextEntry] = useState<boolean>(false);
+  const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const initialValues: SignUpValues = {
-    name: '',
-    email: '',
-    password: '',
+  const initialValues: ResetValues = {
+    password: "",
+    confirmPassword: "",
+    code: "",
   };
 
-  const validationSchema = Yup.object({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().email('Invalid email address').required('Email is required'),
-    password: Yup.string().min(6, 'Password must be at least 6 characters long').required('Password is required'),
+  const resetSchema = yup.object({
+    password: yup
+      .string()
+      .trim("Password is missing!")
+      .min(8, "Password is too short!")
+      .matches(
+        /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])[a-zA-Z\d!@#\$%\^&\*]+$/,
+        "Password is too simple!"
+      )
+      .required("Password is required!"),
+    confirmPassword: yup
+      .string()
+      .oneOf([yup.ref("password")], "Passwords must match")
+      .required("Confirm Password is required!"),
+    code: yup.string().required("Code is required"),
   });
 
-  const handleSubmit = (values: SignUpValues) => {
-    dispatch(register(values));
-  };
+  const handleSubmit = async (
+    values: ResetValues,
+    actions: FormikHelpers<ResetValues>
+  ) => {
+    console.log(values);
+    try {
+      setLoading(true);
+      setErrorMessage("");
 
-  return (
-    <View style={styles.container}>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-          <View>
-            <AuthInputField
-              name="name"
-              label="Name"
-              placeholder="Enter your name"
-              onChangeText={handleChange('name')}
-              onBlur={handleBlur('name')}
-              value={values.name}
-              error={touched.name && errors.name}
-            />
-            <AuthInputField
-              name="email"
-              label="Email"
-              placeholder="Enter your email"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              onChangeText={handleChange('email')}
-              onBlur={handleBlur('email')}
-              value={values.email}
-              error={touched.email && errors.email}
-            />
-            <AuthInputField
-              name="password"
-              label="Password"
-              placeholder="Enter your password"
-              secureTextEntry
-              onChangeText={handleChange('password')}
-              onBlur={handleBlur('password')}
-              value={values.password}
-              error={touched.password && errors.password}
-            />
-            <AppButton title="Sign Up" onPress={handleSubmit} />
-          </View>
-        )}
-      </Formik>
-    </View>
-  );
-};
+      // Retrieve the code from AsyncStorage
+      const storedCode = await AsyncStorage.getItem("resetCode");
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 16,
-  },
-});
+      if (storedCode !== values.code) {
+        setErrorMessage("The code you entered is incorrect.");
+        setLoading(false);
+        return;
+      }
 
-export default SignUpScreen;
-```
-
-### 2. Redux Persist Configuration
-
-To persist the Redux state, including authentication tokens, you need to configure Redux Persist.
-
-```tsx
-import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import { persistStore, persistReducer } from 'redux-persist';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import authReducer from './authSlice';
-
-const persistConfig = {
-  key: 'root',
-  storage: AsyncStorage,
-  whitelist: ['auth'], // Only persist the auth slice
-};
-
-const rootReducer = combineReducers({
-  auth: authReducer,
-});
-
-const persistedReducer = persistReducer(persistConfig, rootReducer);
-
-export const store = configureStore({
-  reducer: persistedReducer,
-});
-
-export const persistor = persistStore(store);
-```
-
-### 3. Redux Slice for Authentication
-
-Update your `authSlice` to handle token verification and storage.
-
-```tsx
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-interface AuthState {
-  token: string | null;
-  loading: boolean;
-  error: string | null;
-}
-
-const initialState: AuthState = {
-  token: null,
-  loading: false,
-  error: null,
-};
-
-export const login = createAsyncThunk('auth/login', async (credentials: { email: string; password: string }) => {
-  const response = await axios.post('/api/login', credentials);
-  return response.data.token;
-});
-
-export const register = createAsyncThunk('auth/register', async (credentials: { name: string; email: string; password: string }) => {
-  const response = await axios.post('/api/register', credentials);
-  return response.data.token;
-});
-
-const authSlice = createSlice({
-  name: 'auth',
-  initialState,
-  reducers: {
-    logout: (state) => {
-      state.token = null;
-    },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(login.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(login.fulfilled, (state, action) => {
-        state.token = action.payload;
-        state.loading = false;
-      })
-      .addCase(login.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || 'Failed to login';
-      })
-      .addCase(register.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(register.fulfilled, (state, action) => {
-        state.token = action.payload;
-        state.loading = false;
-      })
-      .addCase(register.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || 'Failed to register';
+      const res = await fetch("http:192.168.1.199:5001/api/user/reset-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
       });
-  },
-});
+      console.log(res);
+      const data = await res.json();
+      console.log(data);
+      if (data.success === false) return setErrorMessage(data.message);
+      setLoading(false);
+      if (res.ok) router.push("auth/login");
+    } catch (error) {
+      console.log(error);
+      setErrorMessage((error as TypeError).message);
+      setLoading(false);
+    }
+  };
 
-export const { logout } = authSlice.actions;
-
-export default authSlice.reducer;
-```
-
-### 4. Wrapping the App with Redux Provider and Persist Gate
-
-Finally, wrap your app component with `Provider` and `PersistGate`.
-
-```tsx
-import React from 'react';
-import { Provider } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
-import { store, persistor } from './redux/store';
-import MainNavigator from './navigation/MainNavigator';
-
-const App: React.FC = () => {
   return (
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <MainNavigator />
-      </PersistGate>
-    </Provider>
+    <KeyboardAvoidingView style={styles.container}>
+      <CustomText type="larger">Create your new password</CustomText>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={resetSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ handleSubmit }) => (
+          <KeyboardAvoidingView style={styles.container}>
+            <AuthInputField
+              name="code"
+              placeholder="XX4GBN"
+              label="Enter the code sent to your mail"
+              containerStyle={{ marginBottom: 16 }}
+            />
+            <AuthInputField
+              name="password"
+              placeholder="*************"
+              label="Password"
+              containerStyle={{ marginBottom: 16 }}
+              secureTextEntry={!secureTextEntry}
+              rightIcon={
+                <PasswordVisibilityIcon privateIcon={secureTextEntry} />
+              }
+              onRightIconPress={() => {
+                setSecureTextEntry(!secureTextEntry);
+              }}
+            />
+            <AuthInputField
+              name="confirmPassword"
+              placeholder="*************"
+              label="Confirm Password"
+              containerStyle={{ marginBottom: 16 }}
+              secureTextEntry={!secureTextEntry}
+              rightIcon={
+                <PasswordVisibilityIcon privateIcon={secureTextEntry} />
+              }
+              onRightIconPress={() => {
+                setSecureTextEntry(!secureTextEntry);
+              }}
+            />
+            <AppButton
+              backgroundColor={COLORS.primary}
+              onPress={handleSubmit}
+              title="Reset Password"
+              loading={loading}
+              loadingText="Resetting...."
+            />
+          </KeyboardAvoidingView>
+        )}
+      </Formik>
+    </KeyboardAvoidingView>
   );
 };
 
-export default App;
+export default reset;
+
+const styles = StyleSheet.create({
+  container: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+    width: "100%",
+  },
+});
 ```
 
-These modifications integrate TypeScript interfaces, form validation using Formik and Yup, token storage and verification with Redux Persist, and ensure the tokens are used for verification in the backend.
+In this code:
+- The code received from the forgot password API response is stored using `AsyncStorage`.
+- In the reset password screen, this code is retrieved and compared with the code entered by the user.
+- If the codes match, the password reset proceeds; otherwise, an error message is displayed.
