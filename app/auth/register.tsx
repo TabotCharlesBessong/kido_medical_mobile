@@ -66,10 +66,6 @@ const register = () => {
       .required("Confirm Password is required!"),
   });
 
-  // const handleSubmit = (values:SignupValues) => {
-  //   dispatch(register(values))
-  // }
-
   const handleSubmit = async (
     values: SignupValues,
     actions: FormikHelpers<SignupValues>
@@ -101,7 +97,6 @@ const register = () => {
   return (
     <KeyboardAvoidingView style={styles.container}>
       <CustomText type="larger">Create account</CustomText>
-      {/* <Form> */}
       <Formik
         initialValues={initialValues}
         validationSchema={signupSchema}
@@ -170,7 +165,6 @@ const register = () => {
           </KeyboardAvoidingView>
         )}
       </Formik>
-      {/* </Form> */}
     </KeyboardAvoidingView>
   );
 };
