@@ -1,176 +1,40 @@
-The error `cannot read property "handleChange" of undefined` is likely due to the fact that `useFormikContext` is not correctly providing the context. This can happen if `AuthInputField` is used outside of a Formik context or if Formik is not properly set up.
+To store the token and user information in AsyncStorage after a successful login, you can modify your `handleSubmit` function to save these details. You can also create a function to save the data in AsyncStorage and use it in your `handleSubmit` function. 
 
-Here’s how you can fix this:
+Here's the updated `login.tsx` code with these changes:
 
-1. Ensure that `AuthInputField` is wrapped in a Formik component.
-2. Make sure that `useFormikContext` is correctly utilized in `AuthInputField`.
-
-I will update the `AuthInputField` and `register` components to ensure that Formik is correctly set up.
-
-### Updated `AuthInputField` Component
-
-```tsx
-// AuthInputField.tsx
-import { useFormikContext } from "formik";
-import React, { FC, ReactNode, useRef } from "react";
-import {
-  View,
-  StyleSheet,
-  Text,
-  TextInputProps,
-  StyleProp,
-  ViewStyle,
-  Pressable,
-} from "react-native";
-import { COLORS } from "@/constants/theme";
-
-interface Props {
-  name: string;
-  label?: string;
-  placeholder?: string;
-  keyboardType?: TextInputProps["keyboardType"];
-  autoCapitalize?: TextInputProps["autoCapitalize"];
-  secureTextEntry?: boolean;
-  containerStyle?: StyleProp<ViewStyle>;
-  rightIcon?: ReactNode;
-  onRightIconPress?(): void;
-}
-
-const AuthInputField: FC<Props> = (props) => {
-  const { handleChange, handleBlur, values, errors, touched } = useFormikContext<{
-    [key: string]: string;
-  }>();
-
-  const {
-    label,
-    placeholder,
-    autoCapitalize,
-    keyboardType,
-    secureTextEntry,
-    containerStyle,
-    name,
-    rightIcon,
-    onRightIconPress,
-  } = props;
-
-  const errorMsg = touched[name] && errors[name] ? errors[name] : "";
-
-  return (
-    <View style={[containerStyle, { width: "100%" }]}>
-      <View style={styles.labelContainer}>
-        <Text style={styles.label}>{label}</Text>
-        <Text style={styles.errorMsg}>{errorMsg}</Text>
-      </View>
-      <View>
-        <TextInput
-          style={styles.textInput}
-          placeholder={placeholder}
-          keyboardType={keyboardType}
-          autoCapitalize={autoCapitalize}
-          secureTextEntry={secureTextEntry}
-          onChangeText={handleChange(name)}
-          value={values[name]}
-          onBlur={handleBlur(name)}
-        />
-        {rightIcon ? (
-          <Pressable onPress={onRightIconPress} style={styles.rightIcon}>
-            {rightIcon}
-          </Pressable>
-        ) : null}
-      </View>
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  labelContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 5,
-  },
-  label: {
-    color: COLORS.primary,
-  },
-  errorMsg: {
-    color: COLORS.danger,
-  },
-  textInput: {
-    borderWidth: 2,
-    borderColor: COLORS.primary,
-    borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginTop: 8,
-  },
-  rightIcon: {
-    width: 45,
-    height: 45,
-    position: "absolute",
-    top: 0,
-    right: 0,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
-
-export default AuthInputField;
-```
-
-### Updated `register` Component
-
-```tsx
-// register.tsx
+```typescript
 import {
   AppButton,
+  AppLink,
   AuthInputField,
+  CustomText,
   PasswordVisibilityIcon,
 } from "@/components";
 import { COLORS } from "@/constants/theme";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
-import {
-  KeyboardAvoidingView,
-  StyleSheet,
-  View,
-} from "react-native";
-import { useDispatch } from "react-redux";
+import { KeyboardAvoidingView, StyleSheet, View } from "react-native";
 import * as yup from "yup";
 
-interface SignupValues {
+interface SigninValues {
   email: string;
-  firstname: string;
-  lastname: string;
   password: string;
-  confirmPassword: string;
 }
 
-const Register = () => {
+const login = () => {
   const [secureTextEntry, setSecureTextEntry] = useState<boolean>(false);
+  const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const router = useRouter();
-  const dispatch = useDispatch();
-  const initialValues: SignupValues = {
-    lastname: "",
-    firstname: "",
+
+  const initialValues: SigninValues = {
     email: "",
     password: "",
-    confirmPassword: "",
   };
 
   const signupSchema = yup.object({
-    firstname: yup
-      .string()
-      .trim("First Name is missing!")
-      .min(3, "Invalid name!")
-      .required("First Name is required!"),
-    lastname: yup
-      .string()
-      .trim("Last Name is missing!")
-      .min(3, "Invalid name!")
-      .required("Last Name is required!"),
     email: yup
       .string()
       .trim("Email is missing!")
@@ -185,21 +49,26 @@ const Register = () => {
         "Password is too simple!"
       )
       .required("Password is required!"),
-    confirmPassword: yup
-      .string()
-      .oneOf([yup.ref("password")], "Passwords must match")
-      .required("Confirm Password is required!"),
   });
 
+  const saveUserData = async (data: any) => {
+    try {
+      await AsyncStorage.setItem("userToken", data.token);
+      await AsyncStorage.setItem("userData", JSON.stringify(data.user));
+    } catch (error) {
+      console.log("Error saving data", error);
+    }
+  };
+
   const handleSubmit = async (
-    values: SignupValues,
-    actions: FormikHelpers<SignupValues>
+    values: SigninValues,
+    actions: FormikHelpers<SigninValues>
   ) => {
     console.log(values);
     try {
       setLoading(true);
       setErrorMessage("");
-      const res = await fetch("http://192.168.1.199:5001/api/user/register", {
+      const res = await fetch("http:192.168.1.199:5001/api/user/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -209,9 +78,17 @@ const Register = () => {
       console.log(res);
       const data = await res.json();
       console.log(data);
-      if (!data.success) return setErrorMessage(data.message);
+      if (!data.status) {
+        setErrorMessage(data.message);
+        setLoading(false);
+        return;
+      }
+
+      await saveUserData(data.data);
       setLoading(false);
-      if (res.ok) router.push("auth/login");
+      if (res.ok) {
+        router.push("(tabs)");
+      }
     } catch (error) {
       console.log(error);
       setErrorMessage((error as TypeError).message);
@@ -221,25 +98,14 @@ const Register = () => {
 
   return (
     <KeyboardAvoidingView style={styles.container}>
+      <CustomText type="larger">Welcome back</CustomText>
       <Formik
         initialValues={initialValues}
         validationSchema={signupSchema}
         onSubmit={handleSubmit}
       >
         {({ handleSubmit }) => (
-          <View style={styles.formContainer}>
-            <AuthInputField
-              name="firstname"
-              placeholder="Charles Bessong"
-              label="First Name"
-              containerStyle={{ marginBottom: 16 }}
-            />
-            <AuthInputField
-              name="lastname"
-              placeholder="Tabot"
-              label="Last Name"
-              containerStyle={{ marginBottom: 16 }}
-            />
+          <KeyboardAvoidingView style={styles.container}>
             <AuthInputField
               name="email"
               placeholder="ebezebeatrice@gmail.com"
@@ -259,34 +125,40 @@ const Register = () => {
                 setSecureTextEntry(!secureTextEntry);
               }}
             />
-            <AuthInputField
-              name="confirmPassword"
-              placeholder="*************"
-              label="Confirm Password"
-              containerStyle={{ marginBottom: 16 }}
-              secureTextEntry={!secureTextEntry}
-              rightIcon={
-                <PasswordVisibilityIcon privateIcon={secureTextEntry} />
-              }
-              onRightIconPress={() => {
-                setSecureTextEntry(!secureTextEntry);
-              }}
-            />
+            <View style={styles.bottomLinks}>
+              <CustomText type="body5">forgot your password?</CustomText>
+              <AppLink
+                title="forgot password"
+                onPress={() => router.push("auth/forgot")}
+              />
+            </View>
             <AppButton
               backgroundColor={COLORS.primary}
               onPress={handleSubmit}
-              title="Register now"
+              title="Login"
               loading={loading}
-              loadingText="Registering...."
+              loadingText="Logging in...."
             />
-          </View>
+            <View style={styles.bottomLinks}>
+              <CustomText type="body5">don't yet have an account?</CustomText>
+              <AppLink
+                title="register"
+                onPress={() => router.push("auth/register")}
+              />
+            </View>
+          </KeyboardAvoidingView>
         )}
       </Formik>
+      {errorMessage ? (
+        <CustomText type="body4" style={{ color: "red", marginTop: 10 }}>
+          {errorMessage}
+        </CustomText>
+      ) : null}
     </KeyboardAvoidingView>
   );
 };
 
-export default Register;
+export default login;
 
 const styles = StyleSheet.create({
   container: {
@@ -296,21 +168,20 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
   },
-  formContainer: {
+  bottomLinks: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginVertical: 16,
+    flexDirection: "row",
     width: "90%",
   },
 });
 ```
 
-### Explanation
+### Changes Made:
+1. **AsyncStorage Imports**: Imported `AsyncStorage` for storing the token and user data.
+2. **saveUserData Function**: Added a helper function to save the token and user data to `AsyncStorage`.
+3. **handleSubmit Function**: Called the `saveUserData` function to save the token and user data after a successful login.
 
-1. **AuthInputField.tsx**:
-   - Correctly uses `useFormikContext` to get Formik's context.
-   - Handles `onChangeText`, `onBlur`, `value`, and error messages properly.
-
-2. **register.tsx**:
-   - Uses Formik to manage form state and validation.
-   - Passes the necessary props to `AuthInputField`.
-   - Handles form submission with `handleSubmit`.
-
-This should resolve the issue and ensure proper form handling with Formik and Yup.
+Now, the token and user information will be stored in `AsyncStorage` after a successful login, allowing you to access them when needed for authorization.

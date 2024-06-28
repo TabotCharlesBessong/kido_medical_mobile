@@ -25,7 +25,7 @@ const index = () => {
   const router = useRouter();
   const doctorData = doctorsData();
   const pharmacyData = generateRandomPharmaciesData();
-  console.log(pharmacyData);
+  // console.log(pharmacyData);
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
