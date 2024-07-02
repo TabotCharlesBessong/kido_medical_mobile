@@ -1,6 +1,8 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+// doctorSlice.ts
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { DoctorCardProps, RegisterDoctorValues } from "@/constants/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import api from "@/utils/api";
 
 interface DoctorState {
   doctors: DoctorCardProps[];
@@ -16,46 +18,60 @@ const initialState: DoctorState = {
   error: null,
 };
 
+export const registerDoctor = createAsyncThunk(
+  "doctor/registerDoctor",
+  async (doctorData: RegisterDoctorValues, { rejectWithValue }) => {
+    try {
+      const token = await AsyncStorage.getItem("userToken");
+      const userData: any = await AsyncStorage.getItem("userData");
+      if (!token || !userData) {
+        throw new Error("No token or user data found, please log in again.");
+      }
+
+      const user = JSON.parse(userData);
+
+      const requestBody = {
+        ...doctorData,
+        user: {
+          userId: user.id,
+        },
+      };
+
+      const response = await api.post("/doctor/create", requestBody);
+
+      if (response.data.success === false) {
+        return rejectWithValue(response.data.message);
+      }
+
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
 const doctorSlice = createSlice({
   name: "doctor",
   initialState,
-  reducers: {
-    registerDoctorStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    registerDoctorSuccess: (state, action) => {
-      state.doctorDetails = action.payload;
-      state.loading = false;
-      state.error = null;
-    },
-    registerDoctorFailure: (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
-    updateDoctorStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    updateDoctorSuccess: (state, action) => {
-      state.doctorDetails = action.payload;
-      state.loading = false;
-      state.error = null;
-    },
-    updateDoctorFailure: (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(registerDoctor.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        registerDoctor.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.loading = false;
+          state.doctorDetails = action.payload.doctor;
+        }
+      )
+      .addCase(registerDoctor.rejected, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.error = action.payload || "An error occurred";
+      });
   },
 });
-
-export const {
-  registerDoctorFailure,
-  registerDoctorStart,
-  registerDoctorSuccess,
-  updateDoctorFailure,
-  updateDoctorStart,
-  updateDoctorSuccess,
-} = doctorSlice.actions;
 
 export default doctorSlice.reducer;

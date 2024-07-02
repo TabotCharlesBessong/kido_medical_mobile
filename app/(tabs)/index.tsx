@@ -8,7 +8,7 @@ import { COLORS } from "@/constants/theme";
 import { AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   FlatList,
   Image,
@@ -20,12 +20,19 @@ import {
 } from "react-native";
 import doctorsData from "../../constants/data/doctorData";
 import generateRandomPharmaciesData from "@/constants/data/pharmacieData";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const index = () => {
   const router = useRouter();
   const doctorData = doctorsData();
   const pharmacyData = generateRandomPharmaciesData();
   // console.log(pharmacyData);
+
+  useEffect(() => {
+    const token = AsyncStorage.getItem("userToken");
+    const data = AsyncStorage.getItem("userData");
+    console.log({ token, data });
+  }, []);
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
@@ -69,7 +76,7 @@ const index = () => {
       </View>
 
       {/* Doctors */}
-      <View style={styles.doctors}>
+      {/* <View style={styles.doctors}>
         <View style={{ margin: 12 }}>
           <CustomText type="h1">Doctors near you</CustomText>
         </View>
@@ -97,10 +104,10 @@ const index = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.flatListContent}
         />
-      </View>
+      </View> */}
 
       {/* Pharmacies */}
-      <View style={styles.doctors}>
+      {/* <View style={styles.doctors}>
         <View style={{ margin: 12 }}>
           <CustomText type="h1">Doctors near you</CustomText>
         </View>
@@ -119,7 +126,7 @@ const index = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.flatListContent}
         />
-      </View>
+      </View> */}
       {/* Recent Activities Section */}
       <View>
         <View style={{ margin: 12 }}>
