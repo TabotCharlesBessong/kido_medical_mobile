@@ -10,6 +10,17 @@ export interface DoctorCardProps {
   id?:number
 }
 
+export interface RegisterDoctorValues {
+  name: string;
+  location: string;
+  experience: number;
+  specialization: string;
+  language: string;
+  fee: number;
+  id?: number
+  documents: string
+}
+
 export interface IUser {
   id: string;
   username: string;

@@ -1,4 +1,5 @@
 import colors from "@/constants/Colors";
+import { COLORS } from "@/constants/theme";
 import React, { FC, useState } from "react";
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
@@ -61,7 +62,7 @@ export default AuthSelectField;
 const styles = StyleSheet.create({
   input: {
     borderWidth: 2,
-    borderColor: colors.SECONDARY,
+    borderColor: COLORS.primary,
     height: 45,
     borderRadius: 25,
     color: colors.CONTRAST,
