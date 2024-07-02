@@ -38,7 +38,7 @@ const forgot = () => {
       setLoading(true);
       setErrorMessage("");
       const res = await fetch(
-        "http:192.168.1.199:5001/api/user/forgot-password",
+        "http:192.168.1.121:5000/api/user/forgot-password",
         {
           method: "POST",
           headers: {

@@ -7,6 +7,7 @@ import {
   SubmitButton
 } from "@/components";
 import { COLORS } from "@/constants/theme";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
@@ -48,6 +49,15 @@ const login = () => {
       .required("Password is required!"),
   });
 
+  // const saveUserData = async (data:any) => {
+  //   try {
+  //     await AsyncStorage.setItem("userToken",data.data.token)
+  //     await AsyncStorage.setItem("userData",JSON.stringify(data.user))
+  //   } catch (error) {
+  //     console.log("Error saving data",(error as TypeError).message)
+  //   }
+  // }
+
   const handleSubmit = async (
     values: SigninValues,
     actions: FormikHelpers<SigninValues>
@@ -57,7 +67,7 @@ const login = () => {
       setLoading(true);
       // dispatch(signInStart());
       setErrorMessage("");
-      const res = await fetch("http:192.168.1.199:5001/api/user/login", {
+      const res = await fetch("http:192.168.1.121:5000/api/user/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -68,6 +78,9 @@ const login = () => {
       const data = await res.json();
       console.log(data);
       if (data.success === false) return setErrorMessage(data.message);
+
+      await AsyncStorage.setItem("userToken", data.data.token);
+      await AsyncStorage.setItem("userData", JSON.stringify(data.data.user));
       setLoading(false);
       if (res.ok) {
         // dispatch(signInSuccess(data));
