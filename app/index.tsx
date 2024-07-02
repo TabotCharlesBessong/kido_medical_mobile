@@ -1,21 +1,35 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { useRouter } from "expo-router";
+import React from "react";
+import { Image } from "react-native";
+import Onboarding from "react-native-onboarding-swiper";
 
-const index = () => {
+const OnboardingScreen = () => {
+  const router = useRouter();
   return (
-    <View style={styles.container} >
-      <Text>Home</Text>
-    </View>
-  )
-}
+    <Onboarding
+      pages={[
+        {
+          backgroundColor: "#fff",
+          image: <Image />,
+          title: "Welcome to Your App",
+          subtitle: "This is a description of your app",
+        },
+        {
+          backgroundColor: "#fff",
+          image: <Image source={{ uri: "../../assets/images/splash.png" }} />,
+          title: "Feature 1",
+          subtitle: "Description of feature 1",
+        },
+        {
+          backgroundColor: "#fff",
+          image: <Image source={{ uri: "../../assets/images/doctor.jpeg" }} />,
+          title: "Feature 2",
+          subtitle: "Description of feature 2",
+        },
+      ]}
+      onDone={() => router.push("(tabs)")}
+    />
+  );
+};
 
-export default index
-
-const styles = StyleSheet.create({
-  container:{
-    display:"flex",
-    justifyContent:"center",
-    alignItems:"center",
-    flex:1
-  }
-})
+export default OnboardingScreen;

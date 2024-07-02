@@ -1,4 +1,5 @@
 import colors from "@/constants/Colors";
+import { COLORS } from "@/constants/theme";
 import React, { FC } from "react";
 import {
   StyleSheet,
@@ -23,7 +24,7 @@ export default AppInput;
 const styles = StyleSheet.create({
   input: {
     borderWidth: 2,
-    borderColor: colors.SECONDARY,
+    borderColor: COLORS.primary,
     height: 45,
     borderRadius: 25,
     color: colors.CONTRAST,

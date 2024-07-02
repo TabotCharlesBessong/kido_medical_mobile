@@ -1,19 +1,22 @@
+To store the token and user information in AsyncStorage after a successful login, you can modify your `handleSubmit` function to save these details. You can also create a function to save the data in AsyncStorage and use it in your `handleSubmit` function. 
+
+Here's the updated `login.tsx` code with these changes:
+
+```typescript
 import {
   AppButton,
   AppLink,
   AuthInputField,
   CustomText,
   PasswordVisibilityIcon,
-  SubmitButton
 } from "@/components";
 import { COLORS } from "@/constants/theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
-import { KeyboardAvoidingView, StyleSheet, TouchableOpacity, View } from "react-native";
-import { useDispatch } from "react-redux";
-import * as yup from "yup"
+import { KeyboardAvoidingView, StyleSheet, View } from "react-native";
+import * as yup from "yup";
 
 interface SigninValues {
   email: string;
@@ -26,7 +29,6 @@ const login = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const dispatch = useDispatch();
   const initialValues: SigninValues = {
     email: "",
     password: "",
@@ -49,14 +51,14 @@ const login = () => {
       .required("Password is required!"),
   });
 
-  // const saveUserData = async (data:any) => {
-  //   try {
-  //     await AsyncStorage.setItem("userToken",data.data.token)
-  //     await AsyncStorage.setItem("userData",JSON.stringify(data.user))
-  //   } catch (error) {
-  //     console.log("Error saving data",(error as TypeError).message)
-  //   }
-  // }
+  const saveUserData = async (data: any) => {
+    try {
+      await AsyncStorage.setItem("userToken", data.token);
+      await AsyncStorage.setItem("userData", JSON.stringify(data.user));
+    } catch (error) {
+      console.log("Error saving data", error);
+    }
+  };
 
   const handleSubmit = async (
     values: SigninValues,
@@ -65,9 +67,8 @@ const login = () => {
     console.log(values);
     try {
       setLoading(true);
-      // dispatch(signInStart());
       setErrorMessage("");
-      const res = await fetch("http:192.168.1.121:5000/api/user/login", {
+      const res = await fetch("http:192.168.1.199:5001/api/user/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -77,14 +78,16 @@ const login = () => {
       console.log(res);
       const data = await res.json();
       console.log(data);
-      if (data.success === false) return setErrorMessage(data.message);
+      if (!data.status) {
+        setErrorMessage(data.message);
+        setLoading(false);
+        return;
+      }
 
-      await AsyncStorage.setItem("userToken", data.data.token);
-      await AsyncStorage.setItem("userData", JSON.stringify(data.data.user));
+      await saveUserData(data.data);
       setLoading(false);
       if (res.ok) {
-        // dispatch(signInSuccess(data));
-        router.push("(tabs)")
+        router.push("(tabs)");
       }
     } catch (error) {
       console.log(error);
@@ -134,7 +137,7 @@ const login = () => {
               onPress={handleSubmit}
               title="Login"
               loading={loading}
-              loadingText="logining in...."
+              loadingText="Logging in...."
             />
             <View style={styles.bottomLinks}>
               <CustomText type="body5">don't yet have an account?</CustomText>
@@ -146,6 +149,11 @@ const login = () => {
           </KeyboardAvoidingView>
         )}
       </Formik>
+      {errorMessage ? (
+        <CustomText type="body4" style={{ color: "red", marginTop: 10 }}>
+          {errorMessage}
+        </CustomText>
+      ) : null}
     </KeyboardAvoidingView>
   );
 };
@@ -169,3 +177,11 @@ const styles = StyleSheet.create({
     width: "90%",
   },
 });
+```
+
+### Changes Made:
+1. **AsyncStorage Imports**: Imported `AsyncStorage` for storing the token and user data.
+2. **saveUserData Function**: Added a helper function to save the token and user data to `AsyncStorage`.
+3. **handleSubmit Function**: Called the `saveUserData` function to save the token and user data after a successful login.
+
+Now, the token and user information will be stored in `AsyncStorage` after a successful login, allowing you to access them when needed for authorization.
