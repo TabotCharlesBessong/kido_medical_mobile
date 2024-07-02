@@ -28,3 +28,55 @@ export const registerDoctor = createAsyncThunk(
     }
   }
 );
+
+export const updateDoctor = createAsyncThunk(
+  "doctor/updateDoctor",
+  async (doctorData: any, { rejectWithValue }) => {
+    try {
+      const { id, ...updateData } = doctorData;
+      const response = await api.put(`/doctor/${id}`, updateData);
+
+      if (response.data.success === false) {
+        return rejectWithValue(response.data.message);
+      }
+
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+export const fetchDoctor = createAsyncThunk(
+  "doctor/fetchDoctor",
+  async (doctorId: number, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/doctor/${doctorId}`);
+
+      if (response.data.success === false) {
+        return rejectWithValue(response.data.message);
+      }
+
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+export const fetchDoctors = createAsyncThunk(
+  "doctor/fetchDoctors",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/doctor");
+
+      if (response.data.success === false) {
+        return rejectWithValue(response.data.message);
+      }
+
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);

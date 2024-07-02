@@ -3,6 +3,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { DoctorCardProps, RegisterDoctorValues } from "@/constants/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from "@/utils/api";
+import { fetchDoctor, fetchDoctors, registerDoctor, updateDoctor } from "../actions/doctor.action";
 
 interface DoctorState {
   doctors: DoctorCardProps[];
@@ -18,37 +19,6 @@ const initialState: DoctorState = {
   error: null,
 };
 
-export const registerDoctor = createAsyncThunk(
-  "doctor/registerDoctor",
-  async (doctorData: RegisterDoctorValues, { rejectWithValue }) => {
-    try {
-      const token = await AsyncStorage.getItem("userToken");
-      const userData: any = await AsyncStorage.getItem("userData");
-      if (!token || !userData) {
-        throw new Error("No token or user data found, please log in again.");
-      }
-
-      const user = JSON.parse(userData);
-
-      const requestBody = {
-        ...doctorData,
-        user: {
-          userId: user.id,
-        },
-      };
-
-      const response = await api.post("/doctor/create", requestBody);
-
-      if (response.data.success === false) {
-        return rejectWithValue(response.data.message);
-      }
-
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
-);
 
 const doctorSlice = createSlice({
   name: "doctor",
@@ -70,6 +40,42 @@ const doctorSlice = createSlice({
       .addCase(registerDoctor.rejected, (state, action: PayloadAction<any>) => {
         state.loading = false;
         state.error = action.payload || "An error occurred";
+      })
+      .addCase(updateDoctor.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateDoctor.fulfilled, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.doctorDetails = action.payload.doctor;
+      })
+      .addCase(updateDoctor.rejected, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.error = action.payload || 'An error occurred';
+      })
+      .addCase(fetchDoctor.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchDoctor.fulfilled, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.doctorDetails = action.payload.doctor;
+      })
+      .addCase(fetchDoctor.rejected, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.error = action.payload || 'An error occurred';
+      })
+      .addCase(fetchDoctors.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchDoctors.fulfilled, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.doctors = action.payload.doctors;
+      })
+      .addCase(fetchDoctors.rejected, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.error = action.payload || 'An error occurred';
       });
   },
 });

@@ -14,8 +14,8 @@ import * as yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { Formik, FormikHelpers } from "formik";
 import { AppDispatch, RootState } from "@/redux/store";
-import { registerDoctor } from "@/redux/slice/doctor.slice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { registerDoctor } from "@/redux/actions/doctor.action";
 
 const DoctorRegistrationScreen: React.FC = () => {
   const { loading, error } = useSelector((state: RootState) => state.doctor);
