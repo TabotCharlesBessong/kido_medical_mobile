@@ -68,3 +68,14 @@ export interface TimeSlot {
   endTime: string;
   isAvailable: boolean;
 }
+
+interface PatientProfile {
+  employment: string;
+  maritalStatus: string;
+  age: number;
+  gender: string;
+  address: string;
+  religion: string;
+  tribe: string;
+  nic: string;
+}
