@@ -60,3 +60,11 @@ export interface IDoctor {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface TimeSlot {
+  id?: number;
+  doctorId: number;
+  startTime: string;
+  endTime: string;
+  isAvailable: boolean;
+}
