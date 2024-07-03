@@ -5,10 +5,15 @@ import {
   Button,
   StyleSheet,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { COLORS } from "@/constants/theme";
 import { AppButton, AuthCheckbox, CustomText } from "@/components";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/redux/store";
+import { createTimeSlot } from "@/redux/actions/timeslot.action";
+
 
 interface TimeSlotModalProps {
   isVisible: boolean;
@@ -26,6 +31,7 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
   const [isWeekly, setIsWeekly] = useState(false);
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
+  const dispatch: AppDispatch = useDispatch();
 
   const onStartTimeChange = (event: any, selectedDate?: Date) => {
     setShowStartPicker(false);
@@ -46,6 +52,31 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
       .getMinutes()
       .toString()
       .padStart(2, "0")}`;
+  };
+
+  const handleCreate = async () => {
+    if (startTime && endTime) {
+      const doctorId = 1; // Replace with actual doctor ID
+      const newTimeSlot = {
+        doctorId,
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString(),
+        isAvailable: true,
+      };
+
+      try {
+        await dispatch(createTimeSlot(newTimeSlot));
+        onCreate(formatTime(startTime), formatTime(endTime), isWeekly);
+        onClose();
+      } catch (error) {
+        Alert.alert("Error", "Failed to create time slot. Please try again.");
+      }
+    } else {
+      Alert.alert(
+        "Validation Error",
+        "Please select both start and end times."
+      );
+    }
   };
 
   return (
@@ -119,6 +150,7 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
                   onClose();
                 }
               }}
+              // onPress={handleCreate}
               width={120}
               backgroundColor={COLORS.primary}
             />

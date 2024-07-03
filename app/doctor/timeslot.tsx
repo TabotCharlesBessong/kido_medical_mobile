@@ -5,12 +5,20 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { COLORS } from "@/constants/theme";
 import { CustomText, TimeslotModal } from "@/components";
 import { TimeSlot, generateRandomTimeSlots } from "@/constants/data/timeslot";
+import { useRouter } from "expo-router";
+import { AppDispatch } from "@/redux/store";
+import { useDispatch } from "react-redux";
 
 const TimeSlotScreen: React.FC = () => {
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(
     generateRandomTimeSlots(8)
   );
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const dispatch: AppDispatch = useDispatch();
+  // const { timeSlots, loading, error } = useSelector(
+  //   (state: RootState) => state.timeSlot
+  // );
+  const router = useRouter();
 
   const handleCreateTimeSlot = (
     startTime: string,

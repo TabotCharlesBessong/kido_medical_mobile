@@ -1,292 +1,140 @@
-To update the reset password functionality to check if the code matches the code received from the forgot password response before changing the password, you can follow these steps:
+// timeSlotModal.tsx
+```ts
+import React, { useState } from 'react';
+import { Modal, View, Button, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { COLORS } from '@/constants/theme';
+import { AppButton, AuthCheckbox, CustomText } from '@/components';
+import { useDispatch } from 'react-redux';
+import { createTimeSlot } from '@/store/slices/timeSlotSlice';
+import { AppDispatch } from '@/store';
 
-1. **Store the code received from the forgot password response.**
-2. **Compare the stored code with the entered code in the reset password form.**
-3. **Proceed with the password reset if the codes match.**
-
-Here's how you can implement this:
-
-### Step 1: Store the Code
-- Modify the forgot password logic to store the received code.
-
-### Step 2: Compare Codes and Reset Password
-
-Here's the updated code for both `forgotpassword.tsx` and `reset.tsx`:
-
-#### `forgotpassword.tsx`
-
-```typescript
-import { AppButton, AuthInputField, CustomText } from "@/components";
-import { COLORS } from "@/constants/theme";
-import { useRouter } from "expo-router";
-import { Formik, FormikHelpers } from "formik";
-import React, { useState } from "react";
-import { KeyboardAvoidingView, StyleSheet } from "react-native";
-import { useDispatch } from "react-redux";
-import * as yup from "yup";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-interface ForgotValues {
-  email: string;
+interface TimeSlotModalProps {
+  isVisible: boolean;
+  onClose: () => void;
+  onCreate: (startTime: string, endTime: string, isWeekly: boolean) => void;
 }
 
-const forgot = () => {
-  const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const dispatch = useDispatch();
-  const initialValues: ForgotValues = {
-    email: "",
-  };
+const TimeSlotModal: React.FC<TimeSlotModalProps> = ({ isVisible, onClose, onCreate }) => {
+  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [endTime, setEndTime] = useState<Date | null>(null);
+  const [isWeekly, setIsWeekly] = useState(false);
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
+  const dispatch: AppDispatch = useDispatch();
 
-  const signupSchema = yup.object({
-    email: yup
-      .string()
-      .trim("Email is missing!")
-      .email("Invalid email!")
-      .required("Email is required!"),
-  });
-
-  const handleSubmit = async (
-    values: ForgotValues,
-    actions: FormikHelpers<ForgotValues>
-  ) => {
-    console.log(values);
-    try {
-      setLoading(true);
-      setErrorMessage("");
-      const res = await fetch(
-        "http:192.168.1.199:5001/api/user/forgot-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(values),
-        }
-      );
-      console.log(res);
-      const data = await res.json();
-      console.log(data);
-      if (data.success === false) return setErrorMessage(data.message);
-
-      // Store the code in AsyncStorage
-      await AsyncStorage.setItem("resetCode", data.data.token.code);
-
-      setLoading(false);
-      if (res.ok) router.push("auth/reset");
-    } catch (error) {
-      console.log(error);
-      setErrorMessage((error as TypeError).message);
-      setLoading(false);
+  const onStartTimeChange = (event: any, selectedDate?: Date) => {
+    setShowStartPicker(false);
+    if (selectedDate) {
+      setStartTime(selectedDate);
     }
   };
 
-  return (
-    <KeyboardAvoidingView style={styles.container}>
-      <CustomText type="h2">
-        You forgot your password, no problem you can reset it
-      </CustomText>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={signupSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ handleSubmit }) => (
-          <KeyboardAvoidingView style={styles.container}>
-            <AuthInputField
-              name="email"
-              placeholder="ebezebeatrice@gmail.com"
-              label="Email Address"
-              containerStyle={{ marginBottom: 16 }}
-            />
-            <AppButton
-              backgroundColor={COLORS.primary}
-              onPress={handleSubmit}
-              title="Forgot Password"
-              loading={loading}
-              loadingText="Sending reset...."
-            />
-          </KeyboardAvoidingView>
-        )}
-      </Formik>
-    </KeyboardAvoidingView>
-  );
-};
-
-export default forgot;
-
-const styles = StyleSheet.create({
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    flex: 1,
-    width: "100%",
-  },
-});
-```
-
-#### `reset.tsx`
-
-```typescript
-import {
-  AppButton,
-  AuthInputField,
-  CustomText,
-  PasswordVisibilityIcon,
-} from "@/components";
-import { COLORS } from "@/constants/theme";
-import { useRouter } from "expo-router";
-import { Formik, FormikHelpers } from "formik";
-import React, { useState } from "react";
-import { KeyboardAvoidingView, StyleSheet } from "react-native";
-import * as yup from "yup";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-interface ResetValues {
-  password: string;
-  confirmPassword: string;
-  code: string;
-}
-
-const reset = () => {
-  const [secureTextEntry, setSecureTextEntry] = useState<boolean>(false);
-  const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const initialValues: ResetValues = {
-    password: "",
-    confirmPassword: "",
-    code: "",
+  const onEndTimeChange = (event: any, selectedDate?: Date) => {
+    setShowEndPicker(false);
+    if (selectedDate) {
+      setEndTime(selectedDate);
+    }
   };
 
-  const resetSchema = yup.object({
-    password: yup
-      .string()
-      .trim("Password is missing!")
-      .min(8, "Password is too short!")
-      .matches(
-        /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])[a-zA-Z\d!@#\$%\^&\*]+$/,
-        "Password is too simple!"
-      )
-      .required("Password is required!"),
-    confirmPassword: yup
-      .string()
-      .oneOf([yup.ref("password")], "Passwords must match")
-      .required("Confirm Password is required!"),
-    code: yup.string().required("Code is required"),
-  });
+  const formatTime = (date: Date) => {
+    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  };
 
-  const handleSubmit = async (
-    values: ResetValues,
-    actions: FormikHelpers<ResetValues>
-  ) => {
-    console.log(values);
-    try {
-      setLoading(true);
-      setErrorMessage("");
+  const handleCreate = async () => {
+    if (startTime && endTime) {
+      const doctorId = 1; // Replace with actual doctor ID
+      const newTimeSlot = {
+        doctorId,
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString(),
+        isAvailable: true,
+      };
 
-      // Retrieve the code from AsyncStorage
-      const storedCode = await AsyncStorage.getItem("resetCode");
-
-      if (storedCode !== values.code) {
-        setErrorMessage("The code you entered is incorrect.");
-        setLoading(false);
-        return;
+      try {
+        await dispatch(createTimeSlot(newTimeSlot));
+        onCreate(formatTime(startTime), formatTime(endTime), isWeekly);
+        onClose();
+      } catch (error) {
+        Alert.alert('Error', 'Failed to create time slot. Please try again.');
       }
-
-      const res = await fetch("http:192.168.1.199:5001/api/user/reset-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-      console.log(res);
-      const data = await res.json();
-      console.log(data);
-      if (data.success === false) return setErrorMessage(data.message);
-      setLoading(false);
-      if (res.ok) router.push("auth/login");
-    } catch (error) {
-      console.log(error);
-      setErrorMessage((error as TypeError).message);
-      setLoading(false);
+    } else {
+      Alert.alert('Validation Error', 'Please select both start and end times.');
     }
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container}>
-      <CustomText type="larger">Create your new password</CustomText>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={resetSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ handleSubmit }) => (
-          <KeyboardAvoidingView style={styles.container}>
-            <AuthInputField
-              name="code"
-              placeholder="XX4GBN"
-              label="Enter the code sent to your mail"
-              containerStyle={{ marginBottom: 16 }}
+    <Modal transparent={true} animationType="slide" visible={isVisible} onRequestClose={onClose}>
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <CustomText type="h3">Create Time Slot</CustomText>
+
+          <TouchableOpacity onPress={() => setShowStartPicker(true)} style={styles.timePickerButton}>
+            <CustomText type="body1">
+              {startTime ? formatTime(startTime) : 'Select Start Time'}
+            </CustomText>
+          </TouchableOpacity>
+          {showStartPicker && (
+            <DateTimePicker
+              value={startTime || new Date()}
+              mode="time"
+              display="default"
+              onChange={onStartTimeChange}
             />
-            <AuthInputField
-              name="password"
-              placeholder="*************"
-              label="Password"
-              containerStyle={{ marginBottom: 16 }}
-              secureTextEntry={!secureTextEntry}
-              rightIcon={
-                <PasswordVisibilityIcon privateIcon={secureTextEntry} />
-              }
-              onRightIconPress={() => {
-                setSecureTextEntry(!secureTextEntry);
-              }}
+          )}
+
+          <TouchableOpacity onPress={() => setShowEndPicker(true)} style={styles.timePickerButton}>
+            <CustomText type="body1">{endTime ? formatTime(endTime) : 'Select End Time'}</CustomText>
+          </TouchableOpacity>
+          {showEndPicker && (
+            <DateTimePicker
+              value={endTime || new Date()}
+              mode="time"
+              display="default"
+              onChange={onEndTimeChange}
             />
-            <AuthInputField
-              name="confirmPassword"
-              placeholder="*************"
-              label="Confirm Password"
-              containerStyle={{ marginBottom: 16 }}
-              secureTextEntry={!secureTextEntry}
-              rightIcon={
-                <PasswordVisibilityIcon privateIcon={secureTextEntry} />
-              }
-              onRightIconPress={() => {
-                setSecureTextEntry(!secureTextEntry);
-              }}
-            />
-            <AppButton
-              backgroundColor={COLORS.primary}
-              onPress={handleSubmit}
-              title="Reset Password"
-              loading={loading}
-              loadingText="Resetting...."
-            />
-          </KeyboardAvoidingView>
-        )}
-      </Formik>
-    </KeyboardAvoidingView>
+          )}
+
+          <AuthCheckbox isChecked={isWeekly} onPress={() => setIsWeekly(!isWeekly)} title="Weekly Availability" />
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-around',
+              marginTop: 12,
+            }}
+          >
+            <AppButton title="Create" onPress={handleCreate} width={120} backgroundColor={COLORS.primary} />
+            <AppButton title="Cancel" onPress={onClose} width={120} backgroundColor={COLORS.danger} />
+          </View>
+        </View>
+      </View>
+    </Modal>
   );
 };
 
-export default reset;
-
 const styles = StyleSheet.create({
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+  modalContainer: {
     flex: 1,
-    width: "100%",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    padding: 20,
+    backgroundColor: COLORS.white,
+    borderRadius: 10,
+    // alignItems: "center",
+  },
+  timePickerButton: {
+    padding: 10,
+    marginVertical: 10,
+    backgroundColor: COLORS.gray,
+    borderRadius: 5,
   },
 });
-```
 
-In this code:
-- The code received from the forgot password API response is stored using `AsyncStorage`.
-- In the reset password screen, this code is retrieved and compared with the code entered by the user.
-- If the codes match, the password reset proceeds; otherwise, an error message is displayed.
+export default TimeSlotModal;
+```
