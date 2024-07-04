@@ -2,6 +2,8 @@
 
 # dependencies
 node_modules/
+utils/variables.ts 
+constants/ref
 
 # Expo
 .expo/

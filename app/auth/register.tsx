@@ -74,7 +74,7 @@ const register = () => {
     try {
       setLoading(true);
       setErrorMessage("");
-      const res = await fetch("http:192.168.1.199:5000/api/user/register", {
+      const res = await fetch("http:192.168.1.185:5000/api/user/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -95,7 +95,7 @@ const register = () => {
   };
   
   return (
-    <KeyboardAvoidingView style={styles.container}>
+    <KeyboardAvoidingView behavior="height" style={styles.container}>
       <CustomText type="larger">Create account</CustomText>
       <Formik
         initialValues={initialValues}

@@ -11,7 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
-import { KeyboardAvoidingView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useDispatch } from "react-redux";
 import * as yup from "yup"
 
@@ -67,7 +67,7 @@ const login = () => {
       setLoading(true);
       // dispatch(signInStart());
       setErrorMessage("");
-      const res = await fetch("http:192.168.1.121:5000/api/user/login", {
+      const res = await fetch("http:192.168.1.152:5000/api/user/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -122,6 +122,7 @@ const login = () => {
                 setSecureTextEntry(!secureTextEntry);
               }}
             />
+            <Text >{errorMessage}</Text>
             <View style={styles.bottomLinks}>
               <CustomText type="body5">forgot your password?</CustomText>
               <AppLink

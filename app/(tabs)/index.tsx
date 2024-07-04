@@ -28,10 +28,17 @@ const index = () => {
   const pharmacyData = generateRandomPharmaciesData();
   // console.log(pharmacyData);
 
+  const getData = async () => {
+    const token = await AsyncStorage.getItem("userToken");
+    const data = await AsyncStorage.getItem("userData");
+
+    // const keys = await AsyncStorage.getAllKeys();
+    // const result = await AsyncStorage.multiGet(keys);
+    console.log(token);
+  };
+
   useEffect(() => {
-    const token = AsyncStorage.getItem("userToken");
-    const data = AsyncStorage.getItem("userData");
-    console.log({ token, data });
+    getData();
   }, []);
   return (
     <ScrollView style={styles.container}>
@@ -76,7 +83,7 @@ const index = () => {
       </View>
 
       {/* Doctors */}
-      <View style={styles.doctors}>
+      {/* <View style={styles.doctors}>
         <View style={{ margin: 12 }}>
           <CustomText type="h1">Doctors near you</CustomText>
         </View>
@@ -104,10 +111,10 @@ const index = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.flatListContent}
         />
-      </View>
+      </View> */}
 
       {/* Pharmacies */}
-      <View style={styles.doctors}>
+      {/* <View style={styles.doctors}>
         <View style={{ margin: 12 }}>
           <CustomText type="h1">Doctors near you</CustomText>
         </View>
@@ -126,7 +133,7 @@ const index = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.flatListContent}
         />
-      </View>
+      </View> */}
       {/* Recent Activities Section */}
       <View>
         <View style={{ margin: 12 }}>
