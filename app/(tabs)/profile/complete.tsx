@@ -15,6 +15,7 @@ import { Formik, FormikHelpers } from "formik";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { COLORS } from "@/constants/theme";
+import { baseUrl } from "@/utils/variables";
 
 interface CompleteValues {
   gender: string;
@@ -89,11 +90,11 @@ const CompleteScreen: React.FC = () => {
 
       // Get the bearer token from async storage
       const token = await AsyncStorage.getItem("userToken");
-      console.log(token)
+      console.log(token);
 
       // Create an instance of axios with default headers
       const instance = axios.create({
-        baseURL: "http://192.168.1.185:5000/api",
+        baseURL: baseUrl,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -204,7 +205,13 @@ const CompleteScreen: React.FC = () => {
               keyboardType="phone-pad"
               // onChangeText={(value) => handleInputChange("phone", Number(value))}
             />
-            <AppButton title="Submit" backgroundColor={COLORS.primary} loading={loading} loadingText="Completing..." onPress={handleSubmit} />
+            <AppButton
+              title="Submit"
+              backgroundColor={COLORS.primary}
+              loading={loading}
+              loadingText="Completing..."
+              onPress={handleSubmit}
+            />
           </KeyboardAvoidingView>
         )}
       </Formik>
