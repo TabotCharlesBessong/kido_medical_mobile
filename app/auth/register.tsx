@@ -95,7 +95,7 @@ const register = () => {
   };
   
   return (
-    <KeyboardAvoidingView style={styles.container}>
+    <KeyboardAvoidingView behavior="height" style={styles.container}>
       <CustomText type="larger">Create account</CustomText>
       <Formik
         initialValues={initialValues}
