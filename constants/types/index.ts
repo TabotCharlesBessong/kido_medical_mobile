@@ -119,4 +119,6 @@ export interface IPrescription {
   medications: IMedication[];
   createdAt: Date;
   updatedAt: Date;
+  doctorName: string
+  patientName: string
 }

@@ -41,3 +41,8 @@ yarn-error.*
 
 expo-env.d.ts
 # @end expo-cli
+constants/ref/one.md
+constants/ref/two.md
+constants/ref/three.md
+constants/ref/4.md
+constants/ref/5.md
