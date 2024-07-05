@@ -69,7 +69,7 @@ export interface TimeSlot {
   isAvailable: boolean;
 }
 
-interface PatientProfile {
+export interface PatientProfile {
   employment: string;
   maritalStatus: string;
   age: number;
@@ -78,4 +78,18 @@ interface PatientProfile {
   religion: string;
   tribe: string;
   nic: string;
+}
+
+export interface IConsultation {
+  id: string;
+  patientId: string;
+  doctorId: string;
+  appointmentId: string;
+  presentingComplaints: string;
+  pastHistory: string;
+  diagnosticImpression: string;
+  investigations: string;
+  treatment: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
