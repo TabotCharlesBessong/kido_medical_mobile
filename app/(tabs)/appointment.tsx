@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Button,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -16,10 +15,12 @@ import { generateRandomAppointments } from "@/constants/data/appointment";
 
 interface Appointment {
   id: number;
-  doctor: string;
+  doctorName: string;
+  doctorSpecialty: string;
   date: string;
   time: string;
   reason: string;
+  appointmentStatus: "Pending" | "Approved" | "Cancelled";
 }
 
 interface AppointmentsScreenProps {
@@ -44,8 +45,11 @@ const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
     setPastAppointments(past);
   }, []);
 
-  const handleAppointmentDetails = (appointmentId: number) => {
-    router.push(`/appointment-details/${appointmentId}`);
+  const handleAppointmentDetails = (appointment: Appointment) => {
+    router.push({
+      pathname: "/profile/appointmentDetails",
+      params: { appointment: JSON.stringify(appointment) },
+    });
   };
 
   const handleNewAppointment = () => {
@@ -55,22 +59,41 @@ const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
   const renderAppointmentItem = ({ item }: RenderAppointmentItemProps) => (
     <TouchableOpacity
       style={styles.appointmentItem}
-      onPress={() => handleAppointmentDetails(item.id)}
+      onPress={() => handleAppointmentDetails(item)}
     >
-      <CustomText type="body3">{item.doctor}</CustomText>
+      <View style={styles.appointmentHeader}>
+        <CustomText type="body3">{item.doctorName}</CustomText>
+        <MaterialIcons
+          name={
+            item.appointmentStatus === "Approved"
+              ? "check-circle"
+              : item.appointmentStatus === "Pending"
+              ? "hourglass-empty"
+              : "cancel"
+          }
+          size={24}
+          color={
+            item.appointmentStatus === "Approved"
+              ? COLORS.primary
+              : item.appointmentStatus === "Pending"
+              ? COLORS.danger
+              : COLORS.danger
+          }
+        />
+      </View>
+      <CustomText type="body4">{item.doctorSpecialty}</CustomText>
       <CustomText type="body4">
         {item.date} - {item.time}
       </CustomText>
       <CustomText type="body4">{item.reason}</CustomText>
       <View style={styles.buttonContainer}>
         <View style={{ width: "40%" }}>
-          <AppButton title="start" onPress={() => {}} />
+          <AppButton title="Start" onPress={() => {}} />
         </View>
         <View style={{ width: "40%" }}>
           <AppButton
             backgroundColor={COLORS.danger}
-            // textColor="white"
-            title="cancel"
+            title="Cancel"
             onPress={() => {}}
           />
         </View>
@@ -81,22 +104,38 @@ const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
   const renderPastAppointmentItem = ({ item }: RenderAppointmentItemProps) => (
     <TouchableOpacity
       style={styles.appointmentItem}
-      onPress={() => handleAppointmentDetails(item.id)}
+      onPress={() => handleAppointmentDetails(item)}
     >
-      <CustomText type="body3">{item.doctor}</CustomText>
+      <View style={styles.appointmentHeader}>
+        <CustomText type="body3">{item.doctorName}</CustomText>
+        <MaterialIcons
+          name={
+            item.appointmentStatus === "Approved"
+              ? "check-circle"
+              : item.appointmentStatus === "Pending"
+              ? "hourglass-empty"
+              : "cancel"
+          }
+          size={24}
+          color={
+            item.appointmentStatus === "Approved"
+              ? COLORS.primary
+              : item.appointmentStatus === "Pending"
+              ? COLORS.danger
+              : COLORS.danger
+          }
+        />
+      </View>
+      <CustomText type="body4">{item.doctorSpecialty}</CustomText>
       <CustomText type="body4">
         {item.date} - {item.time}
       </CustomText>
       <CustomText type="body4">{item.reason}</CustomText>
-      <View style={styles.buttonContainer}>
-        <View style={{ width: "40%" }}>
-          {/* <AppButton title="start" onPress={() => {}} /> */}
-        </View>
-        <View style={{ width: "40%" }}>
+      <View style={{display:'flex',alignSelf:'flex-end'}}>
+        <View style={{ width: 150 }}>
           <AppButton
             backgroundColor={COLORS.danger}
-            // textColor="white"
-            title="delete"
+            title="Delete"
             onPress={() => {}}
           />
         </View>
@@ -159,12 +198,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginVertical: 5,
   },
+  appointmentHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
     marginTop: 10,
-    display: "flex",
-    gap: 16,
   },
 });
 

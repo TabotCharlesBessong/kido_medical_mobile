@@ -83,7 +83,7 @@ const index = () => {
       </View>
 
       {/* Doctors */}
-      {/* <View style={styles.doctors}>
+      <View style={styles.doctors}>
         <View style={{ margin: 12 }}>
           <CustomText type="h1">Doctors near you</CustomText>
         </View>
@@ -111,7 +111,7 @@ const index = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.flatListContent}
         />
-      </View> */}
+      </View>
 
       {/* Pharmacies */}
       {/* <View style={styles.doctors}>
