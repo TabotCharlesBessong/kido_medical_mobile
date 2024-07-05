@@ -93,3 +93,30 @@ export interface IConsultation {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export enum Frequency {
+  ONCE_A_DAY = "ONCE_A_DAY",
+  TWICE_A_DAY = "TWICE_A_DAY",
+  THRICE_A_DAY = "THRICE_A_DAY",
+}
+
+export interface IMedication {
+  id: string;
+  prescriptionId: string;
+  name: string;
+  dosage: string;
+  frequency: Frequency;
+  duration: number; // in days
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IPrescription {
+  id: string;
+  consultationId: string;
+  instructions?: string;
+  investigation?: string;
+  medications: IMedication[];
+  createdAt: Date;
+  updatedAt: Date;
+}

@@ -1,93 +1,176 @@
-To store the token and user information in AsyncStorage after a successful login, you can modify your `handleSubmit` function to save these details. You can also create a function to save the data in AsyncStorage and use it in your `handleSubmit` function. 
+Certainly! To pass the parameters (`patientId` and `appointmentId`) from the previous screen to the `ConsultationScreen` using `expo-router`, you can update the previous screen's navigation logic. Let's assume that the previous screen is `AppointmentDetailsScreen`. Here's how you can update it:
 
-Here's the updated `login.tsx` code with these changes:
+### AppointmentDetailsScreen.tsx
+```typescript
+import React from "react";
+import { View, StyleSheet, Button } from "react-native";
+import { useRouter } from "expo-router";
+import { AppButton, CustomText } from "@/components";
+import { COLORS } from "@/constants/theme";
+
+const AppointmentDetailsScreen: React.FC = ({ route }) => {
+  const router = useRouter();
+  const { patientId, appointmentId } = route.params;
+
+  const handleConsultation = () => {
+    router.push({
+      pathname: "/ConsultationScreen",
+      params: { patientId, appointmentId },
+    });
+  };
+
+  return (
+    <View style={styles.container}>
+      <CustomText type="larger">Appointment Details</CustomText>
+      <AppButton
+        title="Start Consultation"
+        backgroundColor={COLORS.primary}
+        onPress={handleConsultation}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
+
+export default AppointmentDetailsScreen;
+```
+
+In this example, the `AppointmentDetailsScreen` has a button that, when pressed, navigates to the `ConsultationScreen` with the `patientId` and `appointmentId` passed as parameters.
+
+### ConsultationScreen.tsx
+Here's the updated `ConsultationScreen` that retrieves and uses these parameters:
 
 ```typescript
-import {
-  AppButton,
-  AppLink,
-  AuthInputField,
-  CustomText,
-  PasswordVisibilityIcon,
-} from "@/components";
-import { COLORS } from "@/constants/theme";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
-import { Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
-import { KeyboardAvoidingView, StyleSheet, View } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Text,
+} from "react-native";
+import { useRouter, useSearchParams } from "expo-router";
+import { AppButton, AuthInputField, CustomText } from "@/components";
 import * as yup from "yup";
+import { Formik, FormikHelpers } from "formik";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { COLORS } from "@/constants/theme";
+import { baseUrl } from "@/utils/variables";
 
-interface SigninValues {
-  email: string;
-  password: string;
+interface ConsultationValues {
+  presentingComplaints: string;
+  pastHistory: string;
+  diagnosticImpression: string;
+  investigations: string;
+  treatment: string;
 }
 
-const login = () => {
-  const [secureTextEntry, setSecureTextEntry] = useState<boolean>(false);
-  const router = useRouter();
+const ConsultationScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const initialValues: SigninValues = {
-    email: "",
-    password: "",
+  const router = useRouter();
+  const { patientId, appointmentId } = useSearchParams();
+
+  const initialValues: ConsultationValues = {
+    presentingComplaints: "",
+    pastHistory: "",
+    diagnosticImpression: "",
+    investigations: "",
+    treatment: "",
   };
 
-  const signupSchema = yup.object({
-    email: yup
-      .string()
-      .trim("Email is missing!")
-      .email("Invalid email!")
-      .required("Email is required!"),
-    password: yup
-      .string()
-      .trim("Password is missing!")
-      .min(8, "Password is too short!")
-      .matches(
-        /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])[a-zA-Z\d!@#\$%\^&\*]+$/,
-        "Password is too simple!"
-      )
-      .required("Password is required!"),
+  const consultationSchema = yup.object().shape({
+    presentingComplaints: yup.string().required("Presenting Complaints are required"),
+    pastHistory: yup.string().required("Past History is required"),
+    diagnosticImpression: yup.string().required("Diagnostic Impression is required"),
+    investigations: yup.string().required("Investigations are required"),
+    treatment: yup.string().required("Treatment is required"),
   });
 
-  const saveUserData = async (data: any) => {
-    try {
-      await AsyncStorage.setItem("userToken", data.token);
-      await AsyncStorage.setItem("userData", JSON.stringify(data.user));
-    } catch (error) {
-      console.log("Error saving data", error);
-    }
-  };
-
   const handleSubmit = async (
-    values: SigninValues,
-    actions: FormikHelpers<SigninValues>
+    values: ConsultationValues,
+    actions: FormikHelpers<ConsultationValues>
   ) => {
     console.log(values);
     try {
       setLoading(true);
       setErrorMessage("");
-      const res = await fetch("http:192.168.1.199:5001/api/user/login", {
-        method: "POST",
+
+      // Get the bearer token from async storage
+      const token = await AsyncStorage.getItem("userToken");
+      console.log(token);
+
+      // Create an instance of axios with default headers
+      const instance = axios.create({
+        baseURL: baseUrl,
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(values),
+      });
+
+      // Add request interceptor to handle authorization
+      instance.interceptors.request.use(
+        async (config) => {
+          // Refresh the bearer token if expired or not available
+          const newToken = await AsyncStorage.getItem("userToken");
+          if (newToken) {
+            config.headers.Authorization = `Bearer ${newToken}`;
+          }
+          return config;
+        },
+        (error) => {
+          return Promise.reject(error);
+        }
+      );
+
+      // Add response interceptor to handle errors
+      instance.interceptors.response.use(
+        (response) => {
+          return response;
+        },
+        (error) => {
+          if (error.response) {
+            // Handle HTTP errors
+            console.log(error.response.data);
+            setErrorMessage(error.response.data.message);
+          } else {
+            // Handle network errors
+            console.log(error.message);
+            setErrorMessage(error.message);
+          }
+          return Promise.reject(error);
+        }
+      );
+
+      // Make the API request
+      const res = await instance.post("/consultation/create", {
+        ...values,
+        patientId,
+        appointmentId,
       });
       console.log(res);
-      const data = await res.json();
+      const data = res.data;
       console.log(data);
-      if (!data.status) {
-        setErrorMessage(data.message);
-        setLoading(false);
-        return;
-      }
 
-      await saveUserData(data.data);
-      setLoading(false);
-      if (res.ok) {
-        router.push("(tabs)");
+      // Handle success and redirect
+      if (data.success === false) {
+        setErrorMessage(data.message);
+      } else {
+        setLoading(false);
+        if (res.status === 200) {
+          router.push("(tabs)");
+        }
       }
     } catch (error) {
       console.log(error);
@@ -97,91 +180,73 @@ const login = () => {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container}>
-      <CustomText type="larger">Welcome back</CustomText>
+    <KeyboardAvoidingView behavior="height" style={styles.container}>
+      <CustomText type="larger">Consultation</CustomText>
       <Formik
         initialValues={initialValues}
-        validationSchema={signupSchema}
+        validationSchema={consultationSchema}
         onSubmit={handleSubmit}
       >
         {({ handleSubmit }) => (
           <KeyboardAvoidingView style={styles.container}>
             <AuthInputField
-              name="email"
-              placeholder="ebezebeatrice@gmail.com"
-              label="Email Address"
-              containerStyle={{ marginBottom: 16 }}
+              name="presentingComplaints"
+              label="Presenting Complaints"
+              placeholder="Enter presenting complaints"
             />
             <AuthInputField
-              name="password"
-              placeholder="*************"
-              label="Password"
-              containerStyle={{ marginBottom: 16 }}
-              secureTextEntry={!secureTextEntry}
-              rightIcon={
-                <PasswordVisibilityIcon privateIcon={secureTextEntry} />
-              }
-              onRightIconPress={() => {
-                setSecureTextEntry(!secureTextEntry);
-              }}
+              name="pastHistory"
+              label="Past History"
+              placeholder="Enter past history"
             />
-            <View style={styles.bottomLinks}>
-              <CustomText type="body5">forgot your password?</CustomText>
-              <AppLink
-                title="forgot password"
-                onPress={() => router.push("auth/forgot")}
-              />
-            </View>
+            <AuthInputField
+              name="diagnosticImpression"
+              label="Diagnostic Impression"
+              placeholder="Enter diagnostic impression"
+            />
+            <AuthInputField
+              name="investigations"
+              label="Investigations"
+              placeholder="Enter investigations"
+            />
+            <AuthInputField
+              name="treatment"
+              label="Treatment"
+              placeholder="Enter treatment"
+            />
             <AppButton
+              title="Submit"
               backgroundColor={COLORS.primary}
-              onPress={handleSubmit}
-              title="Login"
               loading={loading}
-              loadingText="Logging in...."
+              loadingText="Submitting..."
+              onPress={handleSubmit}
             />
-            <View style={styles.bottomLinks}>
-              <CustomText type="body5">don't yet have an account?</CustomText>
-              <AppLink
-                title="register"
-                onPress={() => router.push("auth/register")}
-              />
-            </View>
+            {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
           </KeyboardAvoidingView>
         )}
       </Formik>
-      {errorMessage ? (
-        <CustomText type="body4" style={{ color: "red", marginTop: 10 }}>
-          {errorMessage}
-        </CustomText>
-      ) : null}
     </KeyboardAvoidingView>
   );
 };
 
-export default login;
-
 const styles = StyleSheet.create({
   container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
     flex: 1,
-    width: "100%",
+    padding: 16,
   },
-  bottomLinks: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginVertical: 16,
-    flexDirection: "row",
-    width: "90%",
+  errorText: {
+    color: "red",
+    marginTop: 10,
+    textAlign: "center",
   },
 });
+
+export default ConsultationScreen;
 ```
 
-### Changes Made:
-1. **AsyncStorage Imports**: Imported `AsyncStorage` for storing the token and user data.
-2. **saveUserData Function**: Added a helper function to save the token and user data to `AsyncStorage`.
-3. **handleSubmit Function**: Called the `saveUserData` function to save the token and user data after a successful login.
+### Explanation:
+1. **Passing Parameters**: In the `AppointmentDetailsScreen`, the `handleConsultation` function navigates to `ConsultationScreen` while passing `patientId` and `appointmentId` as params using the `router.push` method.
+2. **Receiving Parameters**: In the `ConsultationScreen`, the `useSearchParams` hook from `expo-router` is used to retrieve `patientId` and `appointmentId` from the route parameters.
+3. **Form Handling**: The rest of the `ConsultationScreen` implementation remains similar to the `CompleteScreen`, with form fields for `presentingComplaints`, `pastHistory`, `diagnosticImpression`, `investigations`, and `treatment`, and form submission logic to send these details along with the received `patientId` and `appointmentId` to the backend API.
 
-Now, the token and user information will be stored in `AsyncStorage` after a successful login, allowing you to access them when needed for authorization.
+This setup should allow you to pass the necessary parameters and handle the consultation form submission effectively.
