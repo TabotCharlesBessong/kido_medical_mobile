@@ -69,7 +69,7 @@ export interface TimeSlot {
   isAvailable: boolean;
 }
 
-interface PatientProfile {
+export interface PatientProfile {
   employment: string;
   maritalStatus: string;
   age: number;
@@ -78,4 +78,47 @@ interface PatientProfile {
   religion: string;
   tribe: string;
   nic: string;
+}
+
+export interface IConsultation {
+  id: string;
+  patientId: string;
+  doctorId: string;
+  appointmentId: string;
+  presentingComplaints: string;
+  pastHistory: string;
+  diagnosticImpression: string;
+  investigations: string;
+  treatment: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export enum Frequency {
+  ONCE_A_DAY = "ONCE_A_DAY",
+  TWICE_A_DAY = "TWICE_A_DAY",
+  THRICE_A_DAY = "THRICE_A_DAY",
+}
+
+export interface IMedication {
+  id: string;
+  prescriptionId: string;
+  name: string;
+  dosage: string;
+  frequency: Frequency;
+  duration: number; // in days
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IPrescription {
+  id: string;
+  consultationId: string;
+  instructions?: string;
+  investigation?: string;
+  medications: IMedication[];
+  createdAt: Date;
+  updatedAt: Date;
+  doctorName: string
+  patientName: string
 }

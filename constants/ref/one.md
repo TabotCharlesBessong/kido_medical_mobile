@@ -1,187 +1,384 @@
-To store the token and user information in AsyncStorage after a successful login, you can modify your `handleSubmit` function to save these details. You can also create a function to save the data in AsyncStorage and use it in your `handleSubmit` function. 
+Sure, I'll make the adjustments so that the data in the `AppointmentDetailsScreen` comes from the route params, and I'll add the `ChatScreen` and `CallScreen`.
 
-Here's the updated `login.tsx` code with these changes:
+### Updated AppointmentsScreen
+
+First, update the `AppointmentsScreen` to pass the appointment data in the route params when navigating to the details screen.
 
 ```typescript
+import React, { useState, useEffect } from "react";
 import {
-  AppButton,
-  AppLink,
-  AuthInputField,
-  CustomText,
-  PasswordVisibilityIcon,
-} from "@/components";
+  View,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { MaterialIcons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/theme";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { Formik, FormikHelpers } from "formik";
-import React, { useState } from "react";
-import { KeyboardAvoidingView, StyleSheet, View } from "react-native";
-import * as yup from "yup";
+import { AppButton, CustomText } from "@/components";
+import { generateRandomAppointments } from "@/utils/randomData";
 
-interface SigninValues {
-  email: string;
-  password: string;
+interface Appointment {
+  id: number;
+  doctorName: string;
+  doctorSpecialty: string;
+  date: string;
+  time: string;
+  reason: string;
+  appointmentStatus: "Pending" | "Approved" | "Cancelled";
 }
 
-const login = () => {
-  const [secureTextEntry, setSecureTextEntry] = useState<boolean>(false);
+interface AppointmentsScreenProps {
+  // Props if any
+}
+
+interface RenderAppointmentItemProps {
+  item: Appointment;
+}
+
+const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
-  const initialValues: SigninValues = {
-    email: "",
-    password: "",
+  const [upcomingAppointments, setUpcomingAppointments] = useState<Appointment[]>([]);
+  const [pastAppointments, setPastAppointments] = useState<Appointment[]>([]);
+
+  useEffect(() => {
+    const { upcoming, past } = generateRandomAppointments();
+    setUpcomingAppointments(upcoming);
+    setPastAppointments(past);
+  }, []);
+
+  const handleAppointmentDetails = (appointment: Appointment) => {
+    router.push({
+      pathname: "/appointment-details",
+      params: { appointment: JSON.stringify(appointment) },
+    });
   };
 
-  const signupSchema = yup.object({
-    email: yup
-      .string()
-      .trim("Email is missing!")
-      .email("Invalid email!")
-      .required("Email is required!"),
-    password: yup
-      .string()
-      .trim("Password is missing!")
-      .min(8, "Password is too short!")
-      .matches(
-        /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])[a-zA-Z\d!@#\$%\^&\*]+$/,
-        "Password is too simple!"
-      )
-      .required("Password is required!"),
-  });
-
-  const saveUserData = async (data: any) => {
-    try {
-      await AsyncStorage.setItem("userToken", data.token);
-      await AsyncStorage.setItem("userData", JSON.stringify(data.user));
-    } catch (error) {
-      console.log("Error saving data", error);
-    }
+  const handleNewAppointment = () => {
+    router.push("/doctor/book-appointment");
   };
 
-  const handleSubmit = async (
-    values: SigninValues,
-    actions: FormikHelpers<SigninValues>
-  ) => {
-    console.log(values);
-    try {
-      setLoading(true);
-      setErrorMessage("");
-      const res = await fetch("http:192.168.1.199:5001/api/user/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-      console.log(res);
-      const data = await res.json();
-      console.log(data);
-      if (!data.status) {
-        setErrorMessage(data.message);
-        setLoading(false);
-        return;
-      }
+  const renderAppointmentItem = ({ item }: RenderAppointmentItemProps) => (
+    <TouchableOpacity
+      style={styles.appointmentItem}
+      onPress={() => handleAppointmentDetails(item)}
+    >
+      <View style={styles.appointmentHeader}>
+        <CustomText type="body3">{item.doctorName}</CustomText>
+        <MaterialIcons
+          name={
+            item.appointmentStatus === "Approved"
+              ? "check-circle"
+              : item.appointmentStatus === "Pending"
+              ? "hourglass-empty"
+              : "cancel"
+          }
+          size={24}
+          color={
+            item.appointmentStatus === "Approved"
+              ? COLORS.success
+              : item.appointmentStatus === "Pending"
+              ? COLORS.warning
+              : COLORS.danger
+          }
+        />
+      </View>
+      <CustomText type="body4">{item.doctorSpecialty}</CustomText>
+      <CustomText type="body4">
+        {item.date} - {item.time}
+      </CustomText>
+      <CustomText type="body4">{item.reason}</CustomText>
+      <View style={styles.buttonContainer}>
+        <View style={{ width: "40%" }}>
+          <AppButton title="Start" onPress={() => {}} />
+        </View>
+        <View style={{ width: "40%" }}>
+          <AppButton
+            backgroundColor={COLORS.danger}
+            title="Cancel"
+            onPress={() => {}}
+          />
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
 
-      await saveUserData(data.data);
-      setLoading(false);
-      if (res.ok) {
-        router.push("(tabs)");
-      }
-    } catch (error) {
-      console.log(error);
-      setErrorMessage((error as TypeError).message);
-      setLoading(false);
-    }
-  };
+  const renderPastAppointmentItem = ({ item }: RenderAppointmentItemProps) => (
+    <TouchableOpacity
+      style={styles.appointmentItem}
+      onPress={() => handleAppointmentDetails(item)}
+    >
+      <View style={styles.appointmentHeader}>
+        <CustomText type="body3">{item.doctorName}</CustomText>
+        <MaterialIcons
+          name={
+            item.appointmentStatus === "Approved"
+              ? "check-circle"
+              : item.appointmentStatus === "Pending"
+              ? "hourglass-empty"
+              : "cancel"
+          }
+          size={24}
+          color={
+            item.appointmentStatus === "Approved"
+              ? COLORS.success
+              : item.appointmentStatus === "Pending"
+              ? COLORS.warning
+              : COLORS.danger
+          }
+        />
+      </View>
+      <CustomText type="body4">{item.doctorSpecialty}</CustomText>
+      <CustomText type="body4">
+        {item.date} - {item.time}
+      </CustomText>
+      <CustomText type="body4">{item.reason}</CustomText>
+      <View style={styles.buttonContainer}>
+        <View style={{ width: "40%" }}>
+          <AppButton
+            backgroundColor={COLORS.danger}
+            title="Delete"
+            onPress={() => {}}
+          />
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
-    <KeyboardAvoidingView style={styles.container}>
-      <CustomText type="larger">Welcome back</CustomText>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={signupSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ handleSubmit }) => (
-          <KeyboardAvoidingView style={styles.container}>
-            <AuthInputField
-              name="email"
-              placeholder="ebezebeatrice@gmail.com"
-              label="Email Address"
-              containerStyle={{ marginBottom: 16 }}
+    <ScrollView>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <CustomText type="h1">Appointments</CustomText>
+          <TouchableOpacity onPress={handleNewAppointment}>
+            <MaterialIcons
+              name="add-circle-outline"
+              size={28}
+              color={COLORS.primary}
             />
-            <AuthInputField
-              name="password"
-              placeholder="*************"
-              label="Password"
-              containerStyle={{ marginBottom: 16 }}
-              secureTextEntry={!secureTextEntry}
-              rightIcon={
-                <PasswordVisibilityIcon privateIcon={secureTextEntry} />
-              }
-              onRightIconPress={() => {
-                setSecureTextEntry(!secureTextEntry);
-              }}
-            />
-            <View style={styles.bottomLinks}>
-              <CustomText type="body5">forgot your password?</CustomText>
-              <AppLink
-                title="forgot password"
-                onPress={() => router.push("auth/forgot")}
-              />
-            </View>
-            <AppButton
-              backgroundColor={COLORS.primary}
-              onPress={handleSubmit}
-              title="Login"
-              loading={loading}
-              loadingText="Logging in...."
-            />
-            <View style={styles.bottomLinks}>
-              <CustomText type="body5">don't yet have an account?</CustomText>
-              <AppLink
-                title="register"
-                onPress={() => router.push("auth/register")}
-              />
-            </View>
-          </KeyboardAvoidingView>
-        )}
-      </Formik>
-      {errorMessage ? (
-        <CustomText type="body4" style={{ color: "red", marginTop: 10 }}>
-          {errorMessage}
-        </CustomText>
-      ) : null}
-    </KeyboardAvoidingView>
+          </TouchableOpacity>
+        </View>
+
+        <CustomText type="h2">Upcoming Appointments</CustomText>
+        <FlatList
+          data={upcomingAppointments}
+          renderItem={renderAppointmentItem}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.appointmentList}
+        />
+
+        <CustomText type="h2">Past Appointments</CustomText>
+        <FlatList
+          data={pastAppointments}
+          renderItem={renderPastAppointmentItem}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.appointmentList}
+        />
+      </SafeAreaView>
+    </ScrollView>
   );
 };
 
-export default login;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    paddingHorizontal: 16,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 20,
+  },
+  appointmentList: {
+    marginBottom: 20,
+  },
+  appointmentItem: {
+    padding: 16,
+    backgroundColor: COLORS.gray,
+    borderRadius: 8,
+    marginVertical: 5,
+  },
+  appointmentHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 10,
+  },
+});
+
+export default AppointmentsScreen;
+```
+
+### AppointmentDetailsScreen
+
+Now, let's update the `AppointmentDetailsScreen` to read the appointment data from the route params.
+
+```typescript
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter, useSearchParams } from "expo-router";
+import { AppButton, CustomText } from "@/components";
+import { COLORS } from "@/constants/theme";
+
+const AppointmentDetailsScreen: React.FC = () => {
+  const router = useRouter();
+  const { appointment } = useSearchParams();
+  const appointmentData = JSON.parse(appointment);
+
+  const handleChat = () => {
+    router.push(`/chat/${appointmentData.id}`);
+  };
+
+  const handleCall = () => {
+    router.push(`/call/${appointmentData.id}`);
+  };
+
+  const handlePrescribe = () => {
+    router.push(`/prescribe/${appointmentData.id}`);
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <CustomText type="h1">Appointment Details</CustomText>
+      </View>
+      <View style={styles.detailsContainer}>
+        <CustomText type="body3">Doctor: {appointmentData.doctorName}</CustomText>
+        <CustomText type="body4">Specialty: {appointmentData.doctorSpecialty}</CustomText>
+        <CustomText type="body4">Date: {appointmentData.date}</CustomText>
+        <CustomText type="body4">Time: {appointmentData.time}</CustomText>
+        <CustomText type="body4">Reason: {appointmentData.reason}</CustomText>
+        <CustomText type="body4">Status: {appointmentData.appointmentStatus}</CustomText>
+      </View>
+      <View style={styles.buttonContainer}>
+        <AppButton title="Chat" onPress={handleChat} />
+        <AppButton title="Call" onPress={handleCall} />
+        <AppButton title="Prescribe" onPress={handlePrescribe} />
+      </View>
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
     flex: 1,
-    width: "100%",
+    backgroundColor: COLORS.white,
+    paddingHorizontal: 16,
   },
-  bottomLinks: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginVertical: 16,
+  header: {
+    marginVertical: 20,
+  },
+  detailsContainer: {
+    marginBottom: 20,
+  },
+  buttonContainer: {
     flexDirection: "row",
-    width: "90%",
+    justifyContent: "space-around",
+    marginTop: 20,
   },
 });
+
+export default AppointmentDetailsScreen;
 ```
 
-### Changes Made:
-1. **AsyncStorage Imports**: Imported `AsyncStorage` for storing the token and user data.
-2. **saveUserData Function**: Added a helper function to save the token and user data to `AsyncStorage`.
-3. **handleSubmit Function**: Called the `saveUserData` function to save the token and user data after a successful login.
+### ChatScreen and CallScreen
 
-Now, the token and user information will be stored in `AsyncStorage` after a successful login, allowing you to access them when needed for authorization.
+Now, let's create simple `ChatScreen` and `CallScreen` components.
+
+```typescript
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter, useSearchParams } from "expo-router";
+import { CustomText } from "@/components";
+import { COLORS } from "@/constants/theme";
+
+const ChatScreen: React
+
+.FC = () => {
+  const { appointmentId } = useSearchParams();
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <CustomText type="h1">Chat</CustomText>
+      </View>
+      <View style={styles.chatContainer}>
+        <CustomText type="body3">Chat for appointment ID: {appointmentId}</CustomText>
+      </View>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    paddingHorizontal: 16,
+  },
+  header: {
+    marginVertical: 20,
+  },
+  chatContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
+
+export default ChatScreen;
+```
+
+```typescript
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter, useSearchParams } from "expo-router";
+import { CustomText } from "@/components";
+import { COLORS } from "@/constants/theme";
+
+const CallScreen: React.FC = () => {
+  const { appointmentId } = useSearchParams();
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <CustomText type="h1">Call</CustomText>
+      </View>
+      <View style={styles.callContainer}>
+        <CustomText type="body3">Call for appointment ID: {appointmentId}</CustomText>
+      </View>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    paddingHorizontal: 16,
+  },
+  header: {
+    marginVertical: 20,
+  },
+  callContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
+
+export default CallScreen;
+```
+
+With these updates, the appointment details will be passed as route params, and you will have screens for chat and call functionality that display the appointment ID.
