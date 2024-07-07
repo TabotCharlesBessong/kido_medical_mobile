@@ -79,6 +79,12 @@ const profile = () => {
         <Text style={styles.buttonText}>View Prescriptions</Text>
       </TouchableOpacity>
       <TouchableOpacity
+        onPress={() => router.push("/doctor/createPost")}
+        style={[styles.button, { marginBottom: 24 }]}
+      >
+        <Text style={styles.buttonText}>Create Post</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
         onPress={() => router.push("/doctor/timeslot")}
         style={styles.button}
       >
