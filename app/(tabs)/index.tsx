@@ -69,7 +69,7 @@ const index = () => {
         <View style={styles.footerContainer}>
           <TouchableOpacity style={styles.iconContainer} onPress={() => {}}>
             <FontAwesome name="thumbs-up" size={20} color="blue" />
-            <Text style={styles.text}>{item.likeCount}</Text>
+            <Text style={styles.text}>{13}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconContainer} onPress={() => {}}>
             <FontAwesome name="comment" size={20} color="blue" />

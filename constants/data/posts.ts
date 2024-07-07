@@ -68,18 +68,18 @@ export const generatePosts = (numPosts = 10) => {
     });
   }
 
-  const data = {
-    status: true,
-    message: "Mock data generated successfully",
-    data: {
-      posts: posts,
-    },
-  };
+  // const data = {
+  //   status: true,
+  //   message: "Mock data generated successfully",
+  //   data: {
+  //     posts: posts,
+  //   },
+  // };
 
-  fs.writeFileSync("constants/data/mockPosts.json", JSON.stringify(data, null, 2));
-  console.log("Mock data generated successfully!");
+  // fs.writeFileSync("constants/data/mockPosts.json", JSON.stringify(data, null, 2));
+  // console.log("Mock data generated successfully!");
 
   return posts
 };
 
-generatePosts();
+// generatePosts();
