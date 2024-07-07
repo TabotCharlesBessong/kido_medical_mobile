@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
-import faker from "faker";
+import { faker } from "@faker-js/faker";
 import fs from "fs";
 
-export const generateMockData = (numPosts = 10) => {
+export const generatePosts = (numPosts = 10) => {
   const posts = [];
   const users = [];
 
@@ -56,7 +56,7 @@ export const generateMockData = (numPosts = 10) => {
       id: postId,
       doctorId: doctorId,
       title: faker.lorem.words(3),
-      image: faker.image.imageUrl(),
+      image: faker.image.food(),
       description: faker.lorem.paragraph(),
       likesCount: numLikes,
       status: "ACTIVE",
@@ -68,18 +68,18 @@ export const generateMockData = (numPosts = 10) => {
     });
   }
 
-  // const data = {
-  //   status: true,
-  //   message: "Mock data generated successfully",
-  //   data: {
-  //     posts: posts,
-  //   },
-  // };
+  const data = {
+    status: true,
+    message: "Mock data generated successfully",
+    data: {
+      posts: posts,
+    },
+  };
 
-  // fs.writeFileSync("mockPosts.json", JSON.stringify(data, null, 2));
-  // console.log("Mock data generated successfully!");
+  fs.writeFileSync("constants/data/mockPosts.json", JSON.stringify(data, null, 2));
+  console.log("Mock data generated successfully!");
 
   return posts
 };
 
-// generateMockData();
+generatePosts();

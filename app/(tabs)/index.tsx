@@ -5,10 +5,10 @@ import {
   PharmacieCard,
 } from "@/components";
 import { COLORS } from "@/constants/theme";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
@@ -21,12 +21,16 @@ import {
 import doctorsData from "../../constants/data/doctorData";
 import generateRandomPharmaciesData from "@/constants/data/pharmacieData";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Post } from "@/constants/types";
+import { generatePosts } from "@/constants/data/posts";
 
 const index = () => {
   const router = useRouter();
   const doctorData = doctorsData();
   const pharmacyData = generateRandomPharmaciesData();
   // console.log(pharmacyData);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);const [errorMessage, setErrorMessage] = useState<string>("");
 
   const getData = async () => {
     const token = await AsyncStorage.getItem("userToken");
@@ -37,8 +41,51 @@ const index = () => {
     console.log(token);
   };
 
+  const fetchPosts = async () => {
+    try {
+      // Simulating fetch with delay to show loading state
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Replace with actual fetch from API
+      // const response = await axios.get(`${baseUrl}/prescriptions`);
+      // setPrescriptions(response.data.data);
+
+      const postData = generatePosts(17); // Replace with actual API call
+      setPosts(postData);
+      console.log(posts)
+      setLoading(false);
+    } catch (error) {
+      setErrorMessage("Failed to fetch prescriptions.");
+      setLoading(false);
+    }
+  };
+
+  const renderPost = ({ item }: { item: Post }) => (
+    <TouchableOpacity onPress={() => router.push(`/posts/${item.id}`)}>
+      <View style={styles.post}>
+        <Image source={{ uri: item.image }} style={styles.image} />
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.description}>{item.description}</Text>
+        <View style={styles.footerContainer}>
+          <TouchableOpacity style={styles.iconContainer} onPress={() => {}}>
+            <FontAwesome name="thumbs-up" size={20} color="blue" />
+            <Text style={styles.text}>{item.likeCount}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconContainer} onPress={() => {}}>
+            <FontAwesome name="comment" size={20} color="blue" />
+            <Text style={styles.text}>23</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconContainer} onPress={() => {}}>
+            <FontAwesome name="share" size={20} color="blue" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
   useEffect(() => {
     getData();
+    fetchPosts()
   }, []);
   return (
     <ScrollView style={styles.container}>
@@ -82,6 +129,19 @@ const index = () => {
         </View>
       </View>
 
+      {/* post */}
+
+      <View style={{display:'flex',padding:16}}>
+        {loading ? (
+          <Text>Loading...</Text>
+        ) : (
+          <FlatList
+            data={posts}
+            renderItem={renderPost}
+            keyExtractor={(item) => item.id}
+          />
+        )}
+      </View>
       {/* Doctors */}
       <View style={styles.doctors}>
         <View style={{ margin: 12 }}>
@@ -114,7 +174,7 @@ const index = () => {
       </View>
 
       {/* Pharmacies */}
-      {/* <View style={styles.doctors}>
+      <View style={styles.doctors}>
         <View style={{ margin: 12 }}>
           <CustomText type="h1">Doctors near you</CustomText>
         </View>
@@ -133,7 +193,7 @@ const index = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.flatListContent}
         />
-      </View> */}
+      </View>
       {/* Recent Activities Section */}
       <View>
         <View style={{ margin: 12 }}>
@@ -257,5 +317,40 @@ const styles = StyleSheet.create({
   activityText: {
     fontSize: 16,
     color: COLORS.white,
+  },
+  post: {
+    marginBottom: 16,
+    borderBottomWidth: 1,
+    borderColor: "black",
+    padding: 4,
+    paddingBottom: 8,
+  },
+  image: {
+    width: "100%",
+    height: 240,
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  description: {
+    fontSize: 14,
+    color: "#666",
+  },
+  footerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: "#f0f0f0",
+  },
+  iconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  text: {
+    marginLeft: 4,
   },
 });

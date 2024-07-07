@@ -122,3 +122,13 @@ export interface IPrescription {
   doctorName: string
   patientName: string
 }
+
+export interface Post {
+  id: string;
+  doctorId: string;
+  title: string;
+  image: string;
+  description: string;
+  likeCount: number
+  comments: string[]
+}
