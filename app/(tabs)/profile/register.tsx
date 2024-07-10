@@ -1,4 +1,3 @@
-// DoctorRegistrationScreen.tsx
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -8,7 +7,12 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { RegisterDoctorValues } from "@/constants/types";
-import { AppButton, AuthInputField, AuthSelectField } from "@/components";
+import {
+  AppButton,
+  AuthInputField,
+  AuthSelectField,
+  CustomText,
+} from "@/components";
 import { COLORS } from "@/constants/theme";
 import * as yup from "yup";
 import { useDispatch } from "react-redux";
@@ -16,8 +20,10 @@ import { Formik, FormikHelpers } from "formik";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { baseUrl } from "@/utils/variables";
+import { useTranslation } from "react-i18next";
 
 const DoctorRegistrationScreen: React.FC = () => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
   const dispatch = useDispatch();
@@ -34,19 +40,19 @@ const DoctorRegistrationScreen: React.FC = () => {
   };
 
   const doctorRegistrationSchema = yup.object({
-    name: yup.string().required("Name is required"),
-    specialization: yup.string().required("Speciality is required"),
-    location: yup.string().required("Location is required"),
-    documents: yup.string().required("Documents are required"),
+    name: yup.string().required(t("doctorRegistration.yup.req1")),
+    specialization: yup.string().required(t("doctorRegistration.yup.req2")),
+    location: yup.string().required(t("doctorRegistration.yup.req3")),
+    documents: yup.string().required(t("doctorRegistration.yup.req4")),
     experience: yup
       .number()
-      .required("Experience is required")
-      .min(0, "Experience must be a positive number"),
-    language: yup.string().required("Language is required"),
+      .required(t("doctorRegistration.yup.req5"))
+      .min(0, t("doctorRegistration.yup.pos1")),
+    language: yup.string().required(t("doctorRegistration.yup.req6")),
     fee: yup
       .number()
-      .required("Fee is required")
-      .min(0, "Fee must be a positive number"),
+      .required(t("doctorRegistration.yup.req7"))
+      .min(0, t("doctorRegistration.yup.pos2")),
   });
 
   const handleSubmit = async (
@@ -130,6 +136,7 @@ const DoctorRegistrationScreen: React.FC = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <CustomText type="larger">{t("doctorRegistration.text1")}</CustomText>
       <Formik
         initialValues={initialValues}
         validationSchema={doctorRegistrationSchema}
@@ -138,31 +145,30 @@ const DoctorRegistrationScreen: React.FC = () => {
         {({ handleSubmit }) => (
           <KeyboardAvoidingView>
             <AuthInputField
-              name="specialization"
-              label="Specialization"
-              placeholder="Enter your specialization"
+              name="name"
+              label={t("doctorRegistration.form.label1")}
+              placeholder={t("doctorRegistration.form.placeholder1")}
             />
             <AuthInputField
-              name="documents"
-              label="Documents"
-              placeholder="Enter your documents"
+              name="specialization"
+              label={t("doctorRegistration.form.label2")}
+              placeholder={t("doctorRegistration.form.placeholder2")}
+            />
+            <AuthInputField
+              name="location"
+              label={t("doctorRegistration.form.label3")}
+              placeholder={t("doctorRegistration.form.placeholder3")}
             />
             <AuthInputField
               name="experience"
-              label="Experience"
-              placeholder="Enter your experience"
-              keyboardType="numeric"
-            />
-            <AuthInputField
-              name="fee"
-              label="Fee"
-              placeholder="Enter your fee"
+              label={t("doctorRegistration.form.label4")}
+              placeholder={t("doctorRegistration.form.placeholder4")}
               keyboardType="numeric"
             />
             <AuthSelectField
               name="language"
-              label="Language"
-              placeholder="Select languages"
+              label={t("doctorRegistration.form.label5")}
+              placeholder={t("doctorRegistration.form.placeholder5")}
               options={[
                 { label: "English", value: "English" },
                 { label: "French", value: "French" },
@@ -170,14 +176,25 @@ const DoctorRegistrationScreen: React.FC = () => {
                 { label: "German", value: "German" },
               ]}
             />
+            <AuthInputField
+              name="fee"
+              label={t("doctorRegistration.form.label6")}
+              placeholder={t("doctorRegistration.form.placeholder6")}
+              keyboardType="numeric"
+            />
+            <AuthInputField
+              name="documents"
+              label={t("doctorRegistration.form.label7")}
+              placeholder={t("doctorRegistration.form.placeholder7")}
+            />
             <AppButton
               containerStyle={{ marginTop: 24 }}
-              title="Submit"
+              title={t("doctorRegistration.button")}
               onPress={handleSubmit}
               width={"100%"}
               backgroundColor={COLORS.primary}
               loading={loading}
-              loadingText="Registering...."
+              loadingText={t("doctorRegistration.loader")}
             />
             {errorMessage && (
               <Text style={styles.errorText}>{errorMessage}</Text>

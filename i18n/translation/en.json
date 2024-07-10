@@ -1,23 +1,23 @@
 {
-  "homescreen":{
-    "title1":"What we can help you with",
-    "help":{
-      "help1":"Book Appointment",
-      "help2":"Get consulted",
-      "help3":"Treated and attended to by a doctor"
+  "homescreen": {
+    "title1": "What we can help you with",
+    "help": {
+      "help1": "Book Appointment",
+      "help2": "Get consulted",
+      "help3": "Treated and attended to by a doctor"
     },
-    "title2":"Doctors near you",
-    "title3":"Pharmacies near you",
-    "recent":"Recent Activities"
+    "title2": "Doctors near you",
+    "title3": "Pharmacies near you",
+    "recent": "Recent Activities"
   },
-  "layout":{
-    "one":"Home",
-    "tow":"Chats",
-    "three":"Appointments",
-    "four":"Setting",
-    "five":"Profile"
+  "layout": {
+    "one": "Home",
+    "tow": "Chats",
+    "three": "Appointments",
+    "four": "Setting",
+    "five": "Profile"
   },
-  "appointments":{
+  "appointments": {
     "title": "Appointments",
     "title1": "Upcoming Appointments",
     "title2": "Past Appointments",
@@ -25,19 +25,99 @@
     "button2": "Cancel",
     "button3": "Delete"
   },
-  "settings":{
-    "profile":"Edit Profile",
-    "notification":"Notifications",
-    "privacy":"Privacy",
-    "money":"My Subscriptions",
-    "help":"Help & Support",
-    "terms":"Terms and Policies",
-    "save":"Data Saver",
-    "report":"Report a Problem",
-    "account":"Add Account",
-    "logout":"Log out",
-    "title":"Settings",
-    "security":"Security",
-    "delete":"Delete Data"
+  "settings": {
+    "profile": "Edit Profile",
+    "notification": "Notifications",
+    "privacy": "Privacy",
+    "money": "My Subscriptions",
+    "help": "Help & Support",
+    "terms": "Terms and Policies",
+    "save": "Data Saver",
+    "report": "Report a Problem",
+    "account": "Add Account",
+    "logout": "Log out",
+    "title": "Settings",
+    "security": "Security",
+    "delete": "Delete Data"
+  },
+  "profile": {
+    "text1": "Username",
+    "text2": "First Name",
+    "text3": "Last Name",
+    "text4": "Email",
+    "text5": "Account Status",
+    "text6": "Created At",
+    "button1": "Add Patient Information",
+    "button2": "Register as Doctor"
+  },
+  "complete": {
+    "yup": {
+      "req1": "Gender is required",
+      "pos": "Age must be a positive number",
+      "req2": "Age is required",
+      "req3": "Address 1 is required",
+      "re4": "Occupation is required",
+      "match": "Phone number must be 9 or 14 digits long",
+      "req5": "Phone number is required"
+    },
+    "text1": "Fill in information",
+    "form": {
+      "label1": "Gender",
+      "placeholder1": "Choose your Gender",
+      "label2": "Age",
+      "placeholder2": "Enter your Age",
+      "label3": "City",
+      "placeholder3": "Enter your City",
+      "label4": "quater",
+      "placeholder4": "Enter your quater",
+      "label5": "Occupation",
+      "placeholder5": "Enter your Occupation",
+      "label6": "Phone Number",
+      "placeholder6": "Enter your Phone Number"
+    },
+    "button": "Submit",
+    "loader": "Submitting...",
+    "options": {
+      "one": "MALE",
+      "two": "FEMALE"
+    }
+  },
+  "doctorRegistration": {
+    "yup": {
+      "req1": "Name is required",
+      "req2": "Speciality is required",
+      "req3": "Location is required",
+      "req4": "Documents are required",
+      "req5": "Experience is required",
+      "pos1": "Experience must be a positive number",
+      "req6": "Language is required",
+      "req7": "Fee is required",
+      "pos2": "Fee must be a positive number"
+    },
+    "text1": "Register as a Doctor",
+    "form": {
+      "label1": "Name",
+      "placeholder1": "Enter your Name",
+      "label2": "Specialization",
+      "placeholder2": "Enter your Specialization",
+      "label3": "Location",
+      "placeholder3": "Enter your Location",
+      "label4": "Experience",
+      "placeholder4": "Enter your Experience",
+      "label5": "Language",
+      "placeholder5": "Select your Languages",
+      "label6": "Fee",
+      "placeholder6": "Enter your Fee",
+      "label7": "Documents",
+      "placeholder7": "Enter your Documents"
+    },
+    "button": "Submit",
+    "loader": "Registering...",
+    "options":{
+      "one":"English",
+      "two":"French",
+      "three":"German",
+      "four":"Spanish"
+    }
   }
 }

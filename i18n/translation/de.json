@@ -38,5 +38,37 @@
     "logout": "Abmelden",
     "security": "Sicherheit",
     "delete": "Daten löschen"
+  },
+  "complete": {
+    "yup": {
+      "req1": "Geschlecht ist erforderlich",
+      "pos": "Das Alter muss eine positive Zahl sein",
+      "req2": "Das Alter ist erforderlich",
+      "req3": "Adresse 1 ist erforderlich",
+      "re4": "Beschäftigung ist erforderlich",
+      "match": "Die Telefonnummer muss 9 oder 14 Ziffern lang sein",
+      "req5": "Telefonnummer ist erforderlich"
+    },
+    "text1": "Informationen ausfüllen",
+    "form": {
+      "label1": "Geschlecht",
+      "placeholder1": "Wählen Sie Ihr Geschlecht",
+      "label2": "Alter",
+      "placeholder2": "Geben Sie Ihr Alter ein",
+      "label3": "Stadt",
+      "placeholder3": "Geben Sie Ihre Stadt ein",
+      "label4": "Viertel",
+      "placeholder4": "Geben Sie Ihr Viertel ein",
+      "label5": "Beruf",
+      "placeholder5": "Geben Sie Ihre Beschäftigung ein",
+      "label6": "Telefonnummer",
+      "placeholder6": "Geben Sie Ihre Telefonnummer ein"
+    },
+    "button": "Einreichen",
+    "loader": "Einreichung...",
+    "options": {
+      "one": "MÄNNLICH",
+      "two": "WEIBLICH"
+    }
   }
 }

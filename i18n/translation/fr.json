@@ -21,9 +21,9 @@
     "title": "Rendez-vous",
     "title1": "Prochains rendez-vous",
     "title2": "Rendez-vous passés",
-    "button1":"Commencer",
-    "button2":"Annuler",
-    "button3":"Supprimer"
+    "button1": "Commencer",
+    "button2": "Annuler",
+    "button3": "Supprimer"
   },
   "settings": {
     "profile": "Modifier le profil",
@@ -38,5 +38,35 @@
     "logout": "Se déconnecter",
     "security": "Securite",
     "delete": "Suprimmer les données"
+  },
+  "yup": {
+    "req1": "Le sexe est requis",
+    "pos": "L'âge doit être un nombre positif",
+    "req2": "L'âge est requis",
+    "req3": "L'adresse 1 est requise",
+    "re4": "L'occupation est requise",
+    "match": "Le numéro de téléphone doit comporter 9 ou 14 chiffres",
+    "req5": "Le numéro de téléphone est requis"
+  },
+  "text1": "Remplir les informations",
+  "form": {
+    "label1": "Genre",
+    "placeholder1": "Choisissez votre Genre",
+    "label2": "Âge",
+    "placeholder2": "Entrez votre Âge",
+    "label3": "Ville",
+    "placeholder3": "Entrez votre Ville",
+    "label4": "Quartier",
+    "placeholder4": "Entrez votre Quartier",
+    "label5": "Occupation",
+    "placeholder5": "Entrez votre Occupation",
+    "label6": "Numéro de Téléphone",
+    "placeholder6": "Entrez votre Numéro de Téléphone"
+  },
+  "button": "Soumettre",
+  "loader": "Soumission...",
+  "options": {
+    "one": "MÂLE",
+    "two": "FEMELLE"
   }
 }
