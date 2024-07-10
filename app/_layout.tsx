@@ -11,6 +11,7 @@ import { OnboardingScreen, SplashScreenComponent } from "@/components";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "@/redux/store";
+import  "../i18n/i18n.config"
 
 export {
   // Catch any errors thrown by the Layout component.

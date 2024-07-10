@@ -23,10 +23,12 @@ import generateRandomPharmaciesData from "@/constants/data/pharmacieData";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Post } from "@/constants/types";
 import { generatePosts } from "@/constants/data/posts";
+import { useTranslation } from "react-i18next";
 
 const index = () => {
   const router = useRouter();
   const doctorData = doctorsData();
+  const {t,i18n} = useTranslation()
   const pharmacyData = generateRandomPharmaciesData();
   // console.log(pharmacyData);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -40,6 +42,11 @@ const index = () => {
     // const result = await AsyncStorage.multiGet(keys);
     console.log(token);
   };
+
+  const changeLanguage = () => {
+    if(i18n.language === 'en')  i18n.changeLanguage('fr')
+    else i18n.changeLanguage('en')
+  }
 
   const fetchPosts = async () => {
     try {
@@ -92,7 +99,7 @@ const index = () => {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <TouchableOpacity onPress={() => {}}>
+          <TouchableOpacity onPress={() => changeLanguage}>
             <AntDesign name="bars" size={32} color={COLORS.primary} />
           </TouchableOpacity>
           <Image
@@ -114,24 +121,24 @@ const index = () => {
       {/* Main Features Section */}
       <View>
         <View style={{ margin: 12 }}>
-          <CustomText type="h1">What we can help you with us</CustomText>
+          <CustomText type="h1">{t("homescreen.title1")}</CustomText>
         </View>
         <View style={styles.features}>
           <TouchableOpacity style={styles.featureCard} onPress={() => {}}>
-            <Text style={styles.featureText}>Book Appointment</Text>
+            <Text style={styles.featureText}>{t("homescreen.help.help1")}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.featureCard} onPress={() => {}}>
-            <Text style={styles.featureText}>My Appointments</Text>
+            <Text style={styles.featureText}>{t("homescreen.help.help2")}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.featureCard} onPress={() => {}}>
-            <Text style={styles.featureText}>Find Doctors</Text>
+            <Text style={styles.featureText}>{t("homescreen.help.help3")}</Text>
           </TouchableOpacity>
         </View>
       </View>
 
       {/* post */}
 
-      <View style={{display:'flex',padding:16}}>
+      <View style={{ display: "flex", padding: 16 }}>
         {loading ? (
           <Text>Loading...</Text>
         ) : (
@@ -145,7 +152,7 @@ const index = () => {
       {/* Doctors */}
       <View style={styles.doctors}>
         <View style={{ margin: 12 }}>
-          <CustomText type="h1">Doctors near you</CustomText>
+          <CustomText type="h1">{t("homescreen.title2")}</CustomText>
         </View>
         <FlatList
           data={doctorData}
@@ -176,7 +183,7 @@ const index = () => {
       {/* Pharmacies */}
       <View style={styles.doctors}>
         <View style={{ margin: 12 }}>
-          <CustomText type="h1">Doctors near you</CustomText>
+          <CustomText type="h1">{t("homescreen.title3")}</CustomText>
         </View>
         <FlatList
           data={pharmacyData}
@@ -197,7 +204,7 @@ const index = () => {
       {/* Recent Activities Section */}
       <View>
         <View style={{ margin: 12 }}>
-          <CustomText type="h1">Recent Activities</CustomText>
+          <CustomText type="h1">{t("homescreen.recent")}</CustomText>
         </View>
         {/* Add recent activity items here */}
         <View style={styles.activities}>

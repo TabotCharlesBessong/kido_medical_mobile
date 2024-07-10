@@ -1,0 +1,13 @@
+{
+  "homescreen":{
+    "title1":"What we can help you with",
+    "help":{
+      "help1":"Book Appointment",
+      "help2":"Get consulted",
+      "help3":"Treated and attended to by a doctor"
+    },
+    "title2":"Doctors near you",
+    "title3":"Pharmacies near you",
+    "recent":"Recent Activities"
+  }
+}
