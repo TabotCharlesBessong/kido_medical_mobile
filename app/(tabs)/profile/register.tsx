@@ -1,5 +1,5 @@
 // DoctorRegistrationScreen.tsx
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -11,15 +11,16 @@ import { RegisterDoctorValues } from "@/constants/types";
 import { AppButton, AuthInputField, AuthSelectField } from "@/components";
 import { COLORS } from "@/constants/theme";
 import * as yup from "yup";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Formik, FormikHelpers } from "formik";
-import { AppDispatch, RootState } from "@/redux/store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { registerDoctor } from "@/redux/actions/doctor.action";
+import axios from "axios";
+import { baseUrl } from "@/utils/variables";
 
 const DoctorRegistrationScreen: React.FC = () => {
-  const { loading, error } = useSelector((state: RootState) => state.doctor);
-  const dispatch: AppDispatch = useDispatch();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const dispatch = useDispatch();
   const router = useRouter();
 
   const initialValues: RegisterDoctorValues = {
@@ -52,18 +53,80 @@ const DoctorRegistrationScreen: React.FC = () => {
     values: RegisterDoctorValues,
     actions: FormikHelpers<RegisterDoctorValues>
   ) => {
-    dispatch(registerDoctor(values)).then((action) => {
-      if (registerDoctor.fulfilled.match(action)) {
-        router.push("(tabs)");
-      }
-    });
-  };
+    console.log("Submitting values:", values);
+    try {
+      setLoading(true);
+      setErrorMessage("");
 
-  useEffect(() => {
-    const token = AsyncStorage.getItem("userToken")
-    const data = AsyncStorage.getItem("userData")
-    console.log({token,data})
-  },[])
+      // Get the bearer token from async storage
+      const token = await AsyncStorage.getItem("userToken");
+      console.log("Bearer token:", token);
+
+      // Create an instance of axios with default headers
+      const instance = axios.create({
+        baseURL: baseUrl,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Add request interceptor to handle authorization
+      instance.interceptors.request.use(
+        async (config) => {
+          // Refresh the bearer token if expired or not available
+          const newToken = await AsyncStorage.getItem("userToken");
+          if (newToken) {
+            config.headers.Authorization = `Bearer ${newToken}`;
+          }
+          return config;
+        },
+        (error) => {
+          return Promise.reject(error);
+        }
+      );
+
+      // Add response interceptor to handle errors
+      instance.interceptors.response.use(
+        (response) => {
+          return response;
+        },
+        (error) => {
+          if (error.response) {
+            // Handle HTTP errors
+            console.log("HTTP error response:", error.response.data);
+            setErrorMessage(error.response.data.message);
+          } else {
+            // Handle network errors
+            console.log("Network error:", error.message);
+            setErrorMessage(error.message);
+          }
+          return Promise.reject(error);
+        }
+      );
+
+      // Make the API request
+      const res = await instance.post("/doctor/create", values);
+      console.log("API response:", res);
+      const data = res.data;
+      console.log("API response data:", data);
+
+      // Handle success and redirect
+      if (data.success === false) {
+        setErrorMessage(data.message);
+      } else {
+        if (res.status === 200) {
+          router.push("(tabs)");
+        }
+      }
+    } catch (error) {
+      console.log("Error:", error);
+      setErrorMessage((error as TypeError).message);
+    } finally {
+      setLoading(false);
+      actions.setSubmitting(false);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -116,7 +179,9 @@ const DoctorRegistrationScreen: React.FC = () => {
               loading={loading}
               loadingText="Registering...."
             />
-            {error && <Text style={styles.errorText}>{error}</Text>}
+            {errorMessage && (
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            )}
           </KeyboardAvoidingView>
         )}
       </Formik>

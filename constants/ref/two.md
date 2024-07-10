@@ -1,292 +1,365 @@
-To update the reset password functionality to check if the code matches the code received from the forgot password response before changing the password, you can follow these steps:
+### Update Mock Data Generation
 
-1. **Store the code received from the forgot password response.**
-2. **Compare the stored code with the entered code in the reset password form.**
-3. **Proceed with the password reset if the codes match.**
-
-Here's how you can implement this:
-
-### Step 1: Store the Code
-- Modify the forgot password logic to store the received code.
-
-### Step 2: Compare Codes and Reset Password
-
-Here's the updated code for both `forgotpassword.tsx` and `reset.tsx`:
-
-#### `forgotpassword.tsx`
+First, let's update the mock data generation function to include `doctorName`, `doctorSpecialty`, and `appointmentStatus`.
 
 ```typescript
-import { AppButton, AuthInputField, CustomText } from "@/components";
-import { COLORS } from "@/constants/theme";
-import { useRouter } from "expo-router";
-import { Formik, FormikHelpers } from "formik";
-import React, { useState } from "react";
-import { KeyboardAvoidingView, StyleSheet } from "react-native";
-import { useDispatch } from "react-redux";
-import * as yup from "yup";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// utils/randomData.js
 
-interface ForgotValues {
-  email: string;
+interface Appointment {
+  id: number;
+  doctorName: string;
+  doctorSpecialty: string;
+  date: string;
+  time: string;
+  reason: string;
+  appointmentStatus: "Pending" | "Approved" | "Cancelled";
 }
 
-const forgot = () => {
-  const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const dispatch = useDispatch();
-  const initialValues: ForgotValues = {
-    email: "",
+interface AppointmentsScreenProps {
+  // Props if any
+}
+
+interface RenderAppointmentItemProps {
+  item: Appointment;
+}
+
+export const generateRandomAppointments = () => {
+  const doctorNames = ["Dr. Smith", "Dr. Doe", "Dr. Brown", "Dr. White", "Dr. Green"];
+  const doctorSpecialties = ["Cardiology", "Dermatology", "Pediatrics", "Neurology", "General Medicine"];
+
+  const dates = ["June 12, 2024", "June 15, 2024", "June 20, 2024", "June 25, 2024", "June 30, 2024"];
+  const times = ["10:00 AM", "02:00 PM", "04:00 PM", "08:00 AM", "11:00 AM"];
+
+  const statuses = ["Pending", "Approved", "Cancelled"];
+
+  const generateRandomId = () => Math.floor(Math.random() * 1000).toString();
+
+  const generateAppointments = (count: number) => {
+    return Array.from({ length: count }, () => ({
+      id: generateRandomId(),
+      doctorName: doctorNames[Math.floor(Math.random() * doctorNames.length)],
+      doctorSpecialty: doctorSpecialties[Math.floor(Math.random() * doctorSpecialties.length)],
+      date: dates[Math.floor(Math.random() * dates.length)],
+      time: times[Math.floor(Math.random() * times.length)],
+      reason: "Hello i have a pain in my stomach is like my liver is down",
+      appointmentStatus: statuses[Math.floor(Math.random() * statuses.length)],
+    }));
   };
 
-  const signupSchema = yup.object({
-    email: yup
-      .string()
-      .trim("Email is missing!")
-      .email("Invalid email!")
-      .required("Email is required!"),
-  });
-
-  const handleSubmit = async (
-    values: ForgotValues,
-    actions: FormikHelpers<ForgotValues>
-  ) => {
-    console.log(values);
-    try {
-      setLoading(true);
-      setErrorMessage("");
-      const res = await fetch(
-        "http:192.168.1.199:5001/api/user/forgot-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(values),
-        }
-      );
-      console.log(res);
-      const data = await res.json();
-      console.log(data);
-      if (data.success === false) return setErrorMessage(data.message);
-
-      // Store the code in AsyncStorage
-      await AsyncStorage.setItem("resetCode", data.data.token.code);
-
-      setLoading(false);
-      if (res.ok) router.push("auth/reset");
-    } catch (error) {
-      console.log(error);
-      setErrorMessage((error as TypeError).message);
-      setLoading(false);
-    }
+  return {
+    upcoming: generateAppointments(6),
+    past: generateAppointments(4),
   };
-
-  return (
-    <KeyboardAvoidingView style={styles.container}>
-      <CustomText type="h2">
-        You forgot your password, no problem you can reset it
-      </CustomText>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={signupSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ handleSubmit }) => (
-          <KeyboardAvoidingView style={styles.container}>
-            <AuthInputField
-              name="email"
-              placeholder="ebezebeatrice@gmail.com"
-              label="Email Address"
-              containerStyle={{ marginBottom: 16 }}
-            />
-            <AppButton
-              backgroundColor={COLORS.primary}
-              onPress={handleSubmit}
-              title="Forgot Password"
-              loading={loading}
-              loadingText="Sending reset...."
-            />
-          </KeyboardAvoidingView>
-        )}
-      </Formik>
-    </KeyboardAvoidingView>
-  );
 };
-
-export default forgot;
-
-const styles = StyleSheet.create({
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    flex: 1,
-    width: "100%",
-  },
-});
 ```
 
-#### `reset.tsx`
+### Update AppointmentsScreen to Display New Data
+
+Next, update the `AppointmentsScreen` to display the new fields, including an icon for the appointment status.
 
 ```typescript
+import React, { useState, useEffect } from "react";
 import {
-  AppButton,
-  AuthInputField,
-  CustomText,
-  PasswordVisibilityIcon,
-} from "@/components";
+  View,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { MaterialIcons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/theme";
 import { useRouter } from "expo-router";
-import { Formik, FormikHelpers } from "formik";
-import React, { useState } from "react";
-import { KeyboardAvoidingView, StyleSheet } from "react-native";
-import * as yup from "yup";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AppButton, CustomText } from "@/components";
+import { generateRandomAppointments } from "@/utils/randomData";
 
-interface ResetValues {
-  password: string;
-  confirmPassword: string;
-  code: string;
+interface Appointment {
+  id: number;
+  doctorName: string;
+  doctorSpecialty: string;
+  date: string;
+  time: string;
+  reason: string;
+  appointmentStatus: "Pending" | "Approved" | "Cancelled";
 }
 
-const reset = () => {
-  const [secureTextEntry, setSecureTextEntry] = useState<boolean>(false);
+interface AppointmentsScreenProps {
+  // Props if any
+}
+
+interface RenderAppointmentItemProps {
+  item: Appointment;
+}
+
+const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
-  const initialValues: ResetValues = {
-    password: "",
-    confirmPassword: "",
-    code: "",
+  const [upcomingAppointments, setUpcomingAppointments] = useState<Appointment[]>([]);
+  const [pastAppointments, setPastAppointments] = useState<Appointment[]>([]);
+
+  useEffect(() => {
+    const { upcoming, past } = generateRandomAppointments();
+    setUpcomingAppointments(upcoming);
+    setPastAppointments(past);
+  }, []);
+
+  const handleAppointmentDetails = (appointmentId: number) => {
+    router.push({
+      pathname: "/appointment-details",
+      params: { appointmentId },
+    });
   };
 
-  const resetSchema = yup.object({
-    password: yup
-      .string()
-      .trim("Password is missing!")
-      .min(8, "Password is too short!")
-      .matches(
-        /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])[a-zA-Z\d!@#\$%\^&\*]+$/,
-        "Password is too simple!"
-      )
-      .required("Password is required!"),
-    confirmPassword: yup
-      .string()
-      .oneOf([yup.ref("password")], "Passwords must match")
-      .required("Confirm Password is required!"),
-    code: yup.string().required("Code is required"),
-  });
-
-  const handleSubmit = async (
-    values: ResetValues,
-    actions: FormikHelpers<ResetValues>
-  ) => {
-    console.log(values);
-    try {
-      setLoading(true);
-      setErrorMessage("");
-
-      // Retrieve the code from AsyncStorage
-      const storedCode = await AsyncStorage.getItem("resetCode");
-
-      if (storedCode !== values.code) {
-        setErrorMessage("The code you entered is incorrect.");
-        setLoading(false);
-        return;
-      }
-
-      const res = await fetch("http:192.168.1.199:5001/api/user/reset-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-      console.log(res);
-      const data = await res.json();
-      console.log(data);
-      if (data.success === false) return setErrorMessage(data.message);
-      setLoading(false);
-      if (res.ok) router.push("auth/login");
-    } catch (error) {
-      console.log(error);
-      setErrorMessage((error as TypeError).message);
-      setLoading(false);
-    }
+  const handleNewAppointment = () => {
+    router.push("/doctor/book-appointment");
   };
+
+  const renderAppointmentItem = ({ item }: RenderAppointmentItemProps) => (
+    <TouchableOpacity
+      style={styles.appointmentItem}
+      onPress={() => handleAppointmentDetails(item.id)}
+    >
+      <View style={styles.appointmentHeader}>
+        <CustomText type="body3">{item.doctorName}</CustomText>
+        <MaterialIcons
+          name={
+            item.appointmentStatus === "Approved"
+              ? "check-circle"
+              : item.appointmentStatus === "Pending"
+              ? "hourglass-empty"
+              : "cancel"
+          }
+          size={24}
+          color={
+            item.appointmentStatus === "Approved"
+              ? COLORS.success
+              : item.appointmentStatus === "Pending"
+              ? COLORS.warning
+              : COLORS.danger
+          }
+        />
+      </View>
+      <CustomText type="body4">{item.doctorSpecialty}</CustomText>
+      <CustomText type="body4">
+        {item.date} - {item.time}
+      </CustomText>
+      <CustomText type="body4">{item.reason}</CustomText>
+      <View style={styles.buttonContainer}>
+        <View style={{ width: "40%" }}>
+          <AppButton title="Start" onPress={() => {}} />
+        </View>
+        <View style={{ width: "40%" }}>
+          <AppButton
+            backgroundColor={COLORS.danger}
+            title="Cancel"
+            onPress={() => {}}
+          />
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const renderPastAppointmentItem = ({ item }: RenderAppointmentItemProps) => (
+    <TouchableOpacity
+      style={styles.appointmentItem}
+      onPress={() => handleAppointmentDetails(item.id)}
+    >
+      <View style={styles.appointmentHeader}>
+        <CustomText type="body3">{item.doctorName}</CustomText>
+        <MaterialIcons
+          name={
+            item.appointmentStatus === "Approved"
+              ? "check-circle"
+              : item.appointmentStatus === "Pending"
+              ? "hourglass-empty"
+              : "cancel"
+          }
+          size={24}
+          color={
+            item.appointmentStatus === "Approved"
+              ? COLORS.success
+              : item.appointmentStatus === "Pending"
+              ? COLORS.warning
+              : COLORS.danger
+          }
+        />
+      </View>
+      <CustomText type="body4">{item.doctorSpecialty}</CustomText>
+      <CustomText type="body4">
+        {item.date} - {item.time}
+      </CustomText>
+      <CustomText type="body4">{item.reason}</CustomText>
+      <View style={styles.buttonContainer}>
+        <View style={{ width: "40%" }}>
+          <AppButton
+            backgroundColor={COLORS.danger}
+            title="Delete"
+            onPress={() => {}}
+          />
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
-    <KeyboardAvoidingView style={styles.container}>
-      <CustomText type="larger">Create your new password</CustomText>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={resetSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ handleSubmit }) => (
-          <KeyboardAvoidingView style={styles.container}>
-            <AuthInputField
-              name="code"
-              placeholder="XX4GBN"
-              label="Enter the code sent to your mail"
-              containerStyle={{ marginBottom: 16 }}
+    <ScrollView>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <CustomText type="h1">Appointments</CustomText>
+          <TouchableOpacity onPress={handleNewAppointment}>
+            <MaterialIcons
+              name="add-circle-outline"
+              size={28}
+              color={COLORS.primary}
             />
-            <AuthInputField
-              name="password"
-              placeholder="*************"
-              label="Password"
-              containerStyle={{ marginBottom: 16 }}
-              secureTextEntry={!secureTextEntry}
-              rightIcon={
-                <PasswordVisibilityIcon privateIcon={secureTextEntry} />
-              }
-              onRightIconPress={() => {
-                setSecureTextEntry(!secureTextEntry);
-              }}
-            />
-            <AuthInputField
-              name="confirmPassword"
-              placeholder="*************"
-              label="Confirm Password"
-              containerStyle={{ marginBottom: 16 }}
-              secureTextEntry={!secureTextEntry}
-              rightIcon={
-                <PasswordVisibilityIcon privateIcon={secureTextEntry} />
-              }
-              onRightIconPress={() => {
-                setSecureTextEntry(!secureTextEntry);
-              }}
-            />
-            <AppButton
-              backgroundColor={COLORS.primary}
-              onPress={handleSubmit}
-              title="Reset Password"
-              loading={loading}
-              loadingText="Resetting...."
-            />
-          </KeyboardAvoidingView>
-        )}
-      </Formik>
-    </KeyboardAvoidingView>
+          </TouchableOpacity>
+        </View>
+
+        <CustomText type="h2">Upcoming Appointments</CustomText>
+        <FlatList
+          data={upcomingAppointments}
+          renderItem={renderAppointmentItem}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.appointmentList}
+        />
+
+        <CustomText type="h2">Past Appointments</CustomText>
+        <FlatList
+          data={pastAppointments}
+          renderItem={renderPastAppointmentItem}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.appointmentList}
+        />
+      </SafeAreaView>
+    </ScrollView>
   );
 };
 
-export default reset;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    paddingHorizontal: 16,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 20,
+  },
+  appointmentList: {
+    marginBottom: 20,
+  },
+  appointmentItem: {
+    padding: 16,
+    backgroundColor: COLORS.gray,
+    borderRadius: 8,
+    marginVertical: 5,
+  },
+  appointmentHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 10,
+  },
+});
+
+export default AppointmentsScreen;
+```
+
+### AppointmentDetailsScreen
+
+Finally, create the `AppointmentDetailsScreen` to show the details of an appointment and provide options to chat, call, or prescribe.
+
+```typescript
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter, useSearchParams } from "expo-router";
+import { AppButton, CustomText } from "@/components";
+import { COLORS } from "@/constants/theme";
+import { appointmentsData } from "@/utils/randomData"; // Assumes you store generated appointments here
+
+const AppointmentDetailsScreen: React.FC = () => {
+  const router = useRouter();
+  const { appointmentId } = useSearchParams();
+
+  const appointment = appointmentsData.upcoming.find(
+    (item) => item.id.toString() === appointmentId
+  );
+
+  if (!appointment) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <CustomText type="h1">Appointment not found</CustomText>
+      </
+
+SafeAreaView>
+    );
+  }
+
+  const handleChat = () => {
+    router.push(`/chat/${appointmentId}`);
+  };
+
+  const handleCall = () => {
+    router.push(`/call/${appointmentId}`);
+  };
+
+  const handlePrescribe = () => {
+    router.push(`/prescribe/${appointmentId}`);
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <CustomText type="h1">Appointment Details</CustomText>
+      </View>
+      <View style={styles.detailsContainer}>
+        <CustomText type="body3">Doctor: {appointment.doctorName}</CustomText>
+        <CustomText type="body4">Specialty: {appointment.doctorSpecialty}</CustomText>
+        <CustomText type="body4">Date: {appointment.date}</CustomText>
+        <CustomText type="body4">Time: {appointment.time}</CustomText>
+        <CustomText type="body4">Reason: {appointment.reason}</CustomText>
+        <CustomText type="body4">Status: {appointment.appointmentStatus}</CustomText>
+      </View>
+      <View style={styles.buttonContainer}>
+        <AppButton title="Chat" onPress={handleChat} />
+        <AppButton title="Call" onPress={handleCall} />
+        <AppButton title="Prescribe" onPress={handlePrescribe} />
+      </View>
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
     flex: 1,
-    width: "100%",
+    backgroundColor: COLORS.white,
+    paddingHorizontal: 16,
+  },
+  header: {
+    marginVertical: 20,
+  },
+  detailsContainer: {
+    marginBottom: 20,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 20,
   },
 });
+
+export default AppointmentDetailsScreen;
 ```
 
-In this code:
-- The code received from the forgot password API response is stored using `AsyncStorage`.
-- In the reset password screen, this code is retrieved and compared with the code entered by the user.
-- If the codes match, the password reset proceeds; otherwise, an error message is displayed.
+### Navigation to Chat and Call Screens
+
+Make sure you have the corresponding `ChatScreen` and `CallScreen` to handle the navigation from the detailed screen.
+
+With these updates, you should be able to see the new fields in the appointment list, including the status icons, and navigate to a detailed view where you can start a chat, a call, or prescribe medication.

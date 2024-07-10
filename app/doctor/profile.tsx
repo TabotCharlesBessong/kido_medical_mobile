@@ -45,7 +45,7 @@ const profile = () => {
         <CustomText type="body2">Consultation Fee:</CustomText>
         <CustomText type="h4">22000 XAF</CustomText>
       </View>
-      <View >
+      <View>
         <CustomText type="body2">Summary:</CustomText>
         <CustomText type="h4">
           Dr. Jason graduated from North Eastern University school of Medicine
@@ -54,10 +54,40 @@ const profile = () => {
           Dr. Smith is affiliated with Northeastern medicine laboratory
         </CustomText>
       </View>
-      <TouchableOpacity style={[styles.button,{marginBottom:24}]}>
+      <TouchableOpacity
+        onPress={() => router.push("/doctor/book-appointment")}
+        style={[styles.button, { marginBottom: 24 }]}
+      >
         <Text style={styles.buttonText}>Book Appointment</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.push("/doctor/timeslot")} style={styles.button}>
+      <TouchableOpacity
+        onPress={() => router.push("/doctor/consult")}
+        style={[styles.button, { marginBottom: 24 }]}
+      >
+        <Text style={styles.buttonText}>Consult Patient</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => router.push("/doctor/prescribe")}
+        style={[styles.button, { marginBottom: 24 }]}
+      >
+        <Text style={styles.buttonText}>Prescribe to Patient</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => router.push("/doctor/prescriptions")}
+        style={[styles.button, { marginBottom: 24 }]}
+      >
+        <Text style={styles.buttonText}>View Prescriptions</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => router.push("/doctor/createPost")}
+        style={[styles.button, { marginBottom: 24 }]}
+      >
+        <Text style={styles.buttonText}>Create Post</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => router.push("/doctor/timeslot")}
+        style={styles.button}
+      >
         <Text style={styles.buttonText}>Time slot</Text>
       </TouchableOpacity>
     </ScrollView>

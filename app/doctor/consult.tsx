@@ -2,14 +2,12 @@ import React, { useState } from "react";
 import {
   View,
   StyleSheet,
-  Button,
   ScrollView,
   KeyboardAvoidingView,
+  Text,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { IPatient } from "@/constants/types";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { AppButton, AuthInputField, CustomText } from "@/components";
-import { useDispatch } from "react-redux";
 import * as yup from "yup";
 import { Formik, FormikHelpers } from "formik";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -17,71 +15,42 @@ import axios from "axios";
 import { COLORS } from "@/constants/theme";
 import { baseUrl } from "@/utils/variables";
 
-interface CompleteValues {
-  gender: string;
-  age: number;
-  address1: string;
-  address2: string;
-  occupation: string;
-  phone: number;
+interface ConsultationValues {
+  presentingComplaints: string;
+  pastHistory: string;
+  diagnosticImpression: string;
+  investigations: string;
+  treatment: string;
 }
 
-const CompleteScreen: React.FC = () => {
-  const [patientData, setPatientData] = useState<IPatient>({
-    id: "",
-    userId: "",
-    gender: "",
-    age: 0,
-    address1: "",
-    address2: "",
-    occupation: "",
-    phone: 0,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  });
+const ConsultationScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const router = useRouter();
-  const dispatch = useDispatch();
+  console.log(useLocalSearchParams)
+  const { patientId, appointmentId } = useLocalSearchParams();
+  console.log({appointmentId,patientId})
 
-  const initialValues: CompleteValues = {
-    gender: "",
-    age: 0,
-    address1: "",
-    address2: "",
-    occupation: "",
-    phone: 0,
+  const initialValues: ConsultationValues = {
+    presentingComplaints: "",
+    pastHistory: "",
+    diagnosticImpression: "",
+    investigations: "",
+    treatment: "",
   };
 
-  const completionSchema = yup.object().shape({
-    gender: yup
-      .string()
-      .oneOf(["MALE", "FEMALE"])
-      .required("Gender is required"),
-    age: yup
-      .number()
-      .positive("Age must be a positive number")
-      .required("Age is required"),
-    address1: yup.string().required("Address 1 is required"),
-    address2: yup.string(),
-    occupation: yup.string().required("Occupation is required"),
-    phone: yup
-      .string()
-      .matches(/^(?:\d{9}|\d{14})$/, "Phone number must be 9 or 14 digits long")
-      .required("Phone number is required"),
+  const consultationSchema = yup.object().shape({
+    presentingComplaints: yup.string().required("Presenting Complaints are required"),
+    pastHistory: yup.string().required("Past History is required"),
+    diagnosticImpression: yup.string().required("Diagnostic Impression is required"),
+    investigations: yup.string().required("Investigations are required"),
+    treatment: yup.string().required("Treatment is required"),
   });
 
-  const handleInputChange = (name: keyof IPatient, value: string | number) => {
-    setPatientData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
   const handleSubmit = async (
-    values: CompleteValues,
-    actions: FormikHelpers<CompleteValues>
+    values: ConsultationValues,
+    actions: FormikHelpers<ConsultationValues>
   ) => {
     console.log(values);
     try {
@@ -136,7 +105,11 @@ const CompleteScreen: React.FC = () => {
       );
 
       // Make the API request
-      const res = await instance.post("/patient/create", values);
+      const res = await instance.post("/consultation/create", {
+        ...values,
+        patientId,
+        appointmentId,
+      });
       console.log(res);
       const data = res.data;
       console.log(data);
@@ -159,59 +132,49 @@ const CompleteScreen: React.FC = () => {
 
   return (
     <KeyboardAvoidingView behavior="height" style={styles.container}>
-      <CustomText type="larger">Create account</CustomText>
+      <CustomText type="larger">Consultation</CustomText>
       <Formik
         initialValues={initialValues}
-        validationSchema={completionSchema}
+        validationSchema={consultationSchema}
         onSubmit={handleSubmit}
       >
         {({ handleSubmit }) => (
           <KeyboardAvoidingView style={styles.container}>
             <AuthInputField
-              name="gender"
-              label="Gender"
-              placeholder="Enter your gender"
-              // onChangeText={(value:string) => handleInputChange("gender", value)}
+              name="presentingComplaints"
+              label="Presenting Complaints"
+              placeholder="Enter presenting complaints"
             />
             <AuthInputField
-              name="age"
-              label="Age"
-              placeholder="Enter your age"
-              keyboardType="numeric"
-              // onChangeText={(value) => handleInputChange("age", Number(value))}
+              name="pastHistory"
+              label="Past History"
+              placeholder="Enter past history"
             />
             <AuthInputField
-              name="address1"
-              label="City"
-              placeholder="Enter your city"
-              // onChangeText={(value) => handleInputChange("address1", value)}
+              name="diagnosticImpression"
+              label="Diagnostic Impression"
+              placeholder="Enter diagnostic impression"
             />
             <AuthInputField
-              name="address2"
-              label="Quarter"
-              placeholder="Enter your quarter"
-              // onChangeText={(value) => handleInputChange("address2", value)}
+              name="investigations"
+              label="Investigations"
+              placeholder="Enter investigations"
             />
             <AuthInputField
-              name="occupation"
-              label="Occupation"
-              placeholder="Enter your occupation"
-              // onChangeText={(value) => handleInputChange("occupation", value)}
-            />
-            <AuthInputField
-              name="phone"
-              label="Phone"
-              placeholder="Enter your phone number"
-              keyboardType="phone-pad"
-              // onChangeText={(value) => handleInputChange("phone", Number(value))}
+              name="treatment"
+              label="Treatment"
+              placeholder="Enter treatment"
             />
             <AppButton
               title="Submit"
-              backgroundColor={COLORS.primary}
+              // backgroundColor={COLORS.primary}
+              containerStyle={{backgroundColor:"green",marginTop:24}}
               loading={loading}
-              loadingText="Completing..."
+              loadingText="Submitting..."
               onPress={handleSubmit}
+              width={"100%"}
             />
+            {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
           </KeyboardAvoidingView>
         )}
       </Formik>
@@ -224,6 +187,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  errorText: {
+    color: "red",
+    marginTop: 10,
+    textAlign: "center",
+  },
 });
 
-export default CompleteScreen;
+export default ConsultationScreen;
