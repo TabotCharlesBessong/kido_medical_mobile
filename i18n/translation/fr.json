@@ -9,5 +9,34 @@
     "title2": "Médecins près de chez vous",
     "title3": "Pharmacies près de chez vous",
     "recent": "Activités récentes"
+  },
+  "layout": {
+    "one": "Accueil",
+    "tow": "Chats",
+    "three": "Rendez-vous",
+    "four": "Paramètres",
+    "five": "Profil"
+  },
+  "appointments": {
+    "title": "Rendez-vous",
+    "title1": "Prochains rendez-vous",
+    "title2": "Rendez-vous passés",
+    "button1":"Commencer",
+    "button2":"Annuler",
+    "button3":"Supprimer"
+  },
+  "settings": {
+    "profile": "Modifier le profil",
+    "notification": "Notifications",
+    "privacy": "Confidentialité",
+    "money": "Mes abonnements",
+    "help": "Aide et support",
+    "terms": "Termes et politiques",
+    "save": "Économiseur de données",
+    "report": "Signaler un problème",
+    "account": "Ajouter un compte",
+    "logout": "Se déconnecter",
+    "security": "Securite",
+    "delete": "Suprimmer les données"
   }
 }

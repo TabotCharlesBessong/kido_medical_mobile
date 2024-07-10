@@ -9,5 +9,34 @@
     "title2": "Ärzte in Ihrer Nähe",
     "title3": "Apotheken in Ihrer Nähe",
     "recent": "Letzte Aktivitäten"
+  },
+  "layout": {
+    "one": "Startseite",
+    "tow": "Chats",
+    "three": "Termine",
+    "four": "Einstellungen",
+    "five": "Profil"
+  },
+  "appointments": {
+    "title": "Termine",
+    "title1": "Bevorstehende Termine",
+    "title2": "Vergangene Termine",
+    "button1": "Fangen",
+    "button2": "Stornieren",
+    "button3": "Löschen"
+  },
+  "settings": {
+    "profile": "Profil bearbeiten",
+    "notification": "Benachrichtigungen",
+    "privacy": "Datenschutz",
+    "money": "Meine Abonnements",
+    "help": "Hilfe und Support",
+    "terms": "Bedingungen und Richtlinien",
+    "save": "Datensparer",
+    "report": "Ein Problem melden",
+    "account": "Konto hinzufügen",
+    "logout": "Abmelden",
+    "security": "Sicherheit",
+    "delete": "Daten löschen"
   }
 }

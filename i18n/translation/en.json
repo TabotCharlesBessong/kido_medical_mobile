@@ -9,5 +9,35 @@
     "title2":"Doctors near you",
     "title3":"Pharmacies near you",
     "recent":"Recent Activities"
+  },
+  "layout":{
+    "one":"Home",
+    "tow":"Chats",
+    "three":"Appointments",
+    "four":"Setting",
+    "five":"Profile"
+  },
+  "appointments":{
+    "title": "Appointments",
+    "title1": "Upcoming Appointments",
+    "title2": "Past Appointments",
+    "button1": "Start",
+    "button2": "Cancel",
+    "button3": "Delete"
+  },
+  "settings":{
+    "profile":"Edit Profile",
+    "notification":"Notifications",
+    "privacy":"Privacy",
+    "money":"My Subscriptions",
+    "help":"Help & Support",
+    "terms":"Terms and Policies",
+    "save":"Data Saver",
+    "report":"Report a Problem",
+    "account":"Add Account",
+    "logout":"Log out",
+    "title":"Settings",
+    "security":"Security",
+    "delete":"Delete Data"
   }
 }

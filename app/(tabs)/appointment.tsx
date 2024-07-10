@@ -12,6 +12,7 @@ import { COLORS } from "@/constants/theme";
 import { useRouter } from "expo-router";
 import { AppButton, CustomText } from "@/components";
 import { generateRandomAppointments } from "@/constants/data/appointment";
+import { useTranslation } from "react-i18next";
 
 interface Appointment {
   id: number;
@@ -52,6 +53,8 @@ const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
     });
   };
 
+  const {t} = useTranslation()
+
   const handleNewAppointment = () => {
     router.push("/doctor/book-appointment");
   };
@@ -88,12 +91,12 @@ const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
       <CustomText type="body4">{item.reason}</CustomText>
       <View style={styles.buttonContainer}>
         <View style={{ width: "40%" }}>
-          <AppButton title="Start" onPress={() => {}} />
+          <AppButton title={t("appointments.button1")} onPress={() => {}} />
         </View>
         <View style={{ width: "40%" }}>
           <AppButton
             backgroundColor={COLORS.danger}
-            title="Cancel"
+            title={t("appointments.button2")}
             onPress={() => {}}
           />
         </View>
@@ -131,11 +134,11 @@ const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
         {item.date} - {item.time}
       </CustomText>
       <CustomText type="body4">{item.reason}</CustomText>
-      <View style={{display:'flex',alignSelf:'flex-end'}}>
+      <View style={{ display: "flex", alignSelf: "flex-end" }}>
         <View style={{ width: 150 }}>
           <AppButton
             backgroundColor={COLORS.danger}
-            title="Delete"
+            title={t("appointments.button3")}
             onPress={() => {}}
           />
         </View>
@@ -147,7 +150,7 @@ const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
     <ScrollView>
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <CustomText type="h1">Appointments</CustomText>
+          <CustomText type="h1">{t("appointments.title")}</CustomText>
           <TouchableOpacity onPress={handleNewAppointment}>
             <MaterialIcons
               name="add-circle-outline"
@@ -157,7 +160,7 @@ const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
           </TouchableOpacity>
         </View>
 
-        <CustomText type="h2">Upcoming Appointments</CustomText>
+        <CustomText type="h2">{t("appointments.title1")}</CustomText>
         <FlatList
           data={upcomingAppointments}
           renderItem={renderAppointmentItem}
@@ -165,7 +168,7 @@ const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
           contentContainerStyle={styles.appointmentList}
         />
 
-        <CustomText type="h2">Past Appointments</CustomText>
+        <CustomText type="h2">{t("appointments.title2")}</CustomText>
         <FlatList
           data={pastAppointments}
           renderItem={renderPastAppointmentItem}
