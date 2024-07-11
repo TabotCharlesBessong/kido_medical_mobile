@@ -9,6 +9,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { KeyboardAvoidingView, StyleSheet, Text } from "react-native";
 import * as yup from "yup";
 
@@ -24,6 +25,7 @@ const reset = () => {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const {t} = useTranslation()
 
   const initialValues: ResetValues = {
     password: "",
@@ -35,26 +37,29 @@ const reset = () => {
   const resetSchema = yup.object({
     password: yup
       .string()
-      .trim("Password is missing!")
-      .min(8, "Password is too short!")
+      .trim(t("reset.yup.password.trim"))
+      .min(8, t("reset.yup.password.min"))
       .matches(
         /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])[a-zA-Z\d!@#\$%\^&\*]+$/,
-        "Password is too simple!"
+        t("reset.yup.password.matches")
       )
-      .required("Password is required!"),
+      .required(t("reset.yup.password.required")),
     confirmPassword: yup
       .string()
-      .oneOf([yup.ref("password")], "Passwords must match")
-      .required("Confirm Password is required!"),
+      .oneOf(
+        [yup.ref("password")],
+        t("reset.yup.confirmPassword.oneOf")
+      )
+      .required(t("reset.yup.confirmPassword.required")),
     code: yup
       .string()
-      .matches(/^[A-Z0-9]{6}$/, "Invalid code")
-      .required("Code is required"),
+      .matches(/^[A-Z0-9]{6}$/, t("reset.yup.code.matches"))
+      .required(t("reset.yup.code.required")),
     email: yup
       .string()
-      .trim("Email is missing!")
-      .email("Invalid email!")
-      .required("Email is required!"),
+      .trim(t("reset.yup.email.trim"))
+      .email(t("reset.yup.email.email"))
+      .required(t("reset.yup.email.required")),
   });
 
   const handleSubmit = async (
@@ -101,7 +106,7 @@ const reset = () => {
 
   return (
     <KeyboardAvoidingView style={styles.container}>
-      <CustomText type="larger">Create your new password</CustomText>
+      <CustomText type="larger">{t("reset.title")}</CustomText>
       <Formik
         initialValues={initialValues}
         validationSchema={resetSchema}
@@ -111,20 +116,20 @@ const reset = () => {
           <KeyboardAvoidingView style={styles.container}>
             <AuthInputField
               name="code"
-              placeholder="XX4GBN"
-              label="Enter the code sent to your mail"
+              placeholder={t("reset.form.placeholder1")}
+              label={t("reset.form.label1")}
               containerStyle={{ marginBottom: 16 }}
             />
             <AuthInputField
               name="email"
-              placeholder="ebezebeatrice@gmail.com"
-              label="Email Address"
+              placeholder={t("reset.form.placeholder2")}
+              label={t("reset.form.label2")}
               containerStyle={{ marginBottom: 16 }}
             />
             <AuthInputField
               name="password"
-              placeholder="*************"
-              label="Password"
+              placeholder={t("reset.form.placeholder3")}
+              label={t("reset.form.label3")}
               containerStyle={{ marginBottom: 16 }}
               secureTextEntry={!secureTextEntry}
               rightIcon={
@@ -136,8 +141,8 @@ const reset = () => {
             />
             <AuthInputField
               name="confirmPassword"
-              placeholder="*************"
-              label="Confirm Password"
+              placeholder={t("reset.form.placeholder4")}
+              label={t("reset.form.label4")}
               containerStyle={{ marginBottom: 16 }}
               secureTextEntry={!secureTextEntry}
               rightIcon={
@@ -150,9 +155,9 @@ const reset = () => {
             <AppButton
               backgroundColor={COLORS.primary}
               onPress={handleSubmit}
-              title="Reset Password"
+              title={t("reset.button")}
               loading={loading}
-              loadingText="Resetting...."
+              loadingText={t("reset.loading")}
             />
           </KeyboardAvoidingView>
         )}

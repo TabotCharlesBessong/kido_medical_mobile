@@ -9,6 +9,7 @@ import { COLORS } from "@/constants/theme";
 import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { KeyboardAvoidingView, StyleSheet, View } from "react-native";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
@@ -34,36 +35,40 @@ const register = () => {
     password:'',
     confirmPassword:''
   }
+  const {t} = useTranslation()
 
   const signupSchema = yup.object({
     firstname: yup
       .string()
-      .trim("First Name is missing!")
-      .min(3, "Invalid name!")
-      .required("First Name is required!"),
+      .trim(t("register.yup.firstname.trim"))
+      .min(3, t("register.yup.firstname.min"))
+      .required(t("register.yup.firstname.required")),
     lastname: yup
       .string()
-      .trim("Last Name is missing!")
-      .min(3, "Invalid name!")
-      .required("Last Name is required!"),
+      .trim(t("register.yup.lastname.trim"))
+      .min(3, t("register.yup.lastname.min"))
+      .required(t("register.yup.lastname.required")),
     email: yup
       .string()
-      .trim("Email is missing!")
-      .email("Invalid email!")
-      .required("Email is required!"),
+      .trim(t("register.yup.email.trim"))
+      .email(t("register.yup.email.email"))
+      .required(t("register.yup.email.required")),
     password: yup
       .string()
-      .trim("Password is missing!")
-      .min(8, "Password is too short!")
+      .trim(t("register.yup.password.trim"))
+      .min(8, t("register.yup.password.min"))
       .matches(
         /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])[a-zA-Z\d!@#\$%\^&\*]+$/,
-        "Password is too simple!"
+        t("register.yup.password.matches")
       )
-      .required("Password is required!"),
+      .required(t("register.yup.password.required")),
     confirmPassword: yup
       .string()
-      .oneOf([yup.ref("password")], "Passwords must match")
-      .required("Confirm Password is required!"),
+      .oneOf(
+        [yup.ref("password")],
+        t("register.yup.confirmPassword.oneOf")
+      )
+      .required(t("register.yup.confirmPassword.required")),
   });
 
   const handleSubmit = async (
@@ -96,39 +101,36 @@ const register = () => {
   
   return (
     <KeyboardAvoidingView behavior="height" style={styles.container}>
-      <CustomText type="larger">Create account</CustomText>
+      <CustomText type="larger">{t("register.title")}</CustomText>
       <Formik
         initialValues={initialValues}
         validationSchema={signupSchema}
         onSubmit={handleSubmit}
       >
-        {({
-          handleSubmit,
-        }) => (
-
+        {({ handleSubmit }) => (
           <KeyboardAvoidingView style={styles.container}>
             <AuthInputField
               name="firstname"
-              placeholder="Charles Bessong"
-              label="First Name"
+              placeholder={t("register.form.placeholder1")}
+              label={t("register.form.label1")}
               containerStyle={{ marginBottom: 16 }}
             />
             <AuthInputField
               name="lastname"
-              placeholder="Tabot"
-              label="First Name"
+              placeholder={t("register.form.placeholder2")}
+              label={t("register.form.label2")}
               containerStyle={{ marginBottom: 16 }}
             />
             <AuthInputField
               name="email"
-              placeholder="ebezebeatrice@gmail.com"
-              label="Email Address"
+              placeholder={t("register.form.placeholder3")}
+              label={t("register.form.label3")}
               containerStyle={{ marginBottom: 16 }}
             />
             <AuthInputField
               name="password"
-              placeholder="*************"
-              label="Password"
+              placeholder={t("register.form.placeholder4")}
+              label={t("register.form.label4")}
               containerStyle={{ marginBottom: 16 }}
               secureTextEntry={!secureTextEntry}
               rightIcon={
@@ -140,8 +142,8 @@ const register = () => {
             />
             <AuthInputField
               name="confirmPassword"
-              placeholder="*************"
-              label="Confirm Password"
+              placeholder={t("register.form.placeholder5")}
+              label={t("register.form.label5")}
               containerStyle={{ marginBottom: 16 }}
               secureTextEntry={!secureTextEntry}
               rightIcon={
@@ -154,13 +156,18 @@ const register = () => {
             <AppButton
               backgroundColor={COLORS.primary}
               onPress={handleSubmit}
-              title="Register now"
+              title={t("register.button")}
               loading={loading}
-              loadingText="Registering...."
+              loadingText={t("register.loading")}
             />
-            <View style={styles.bottomLinks} >
-              <CustomText type="body5" >do you already have an account?</CustomText>
-              <AppLink title="login" onPress={() => router.push("auth/login")} />
+            <View style={styles.bottomLinks}>
+              <CustomText type="body5">
+                {t("register.bottomText")}
+              </CustomText>
+              <AppLink
+                title={t("register.link")}
+                onPress={() => router.push("auth/login")}
+              />
             </View>
           </KeyboardAvoidingView>
         )}

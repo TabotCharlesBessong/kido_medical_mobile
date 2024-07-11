@@ -113,11 +113,136 @@
     },
     "button": "Submit",
     "loader": "Registering...",
-    "options":{
-      "one":"English",
-      "two":"French",
-      "three":"German",
-      "four":"Spanish"
+    "options": {
+      "one": "English",
+      "two": "French",
+      "three": "German",
+      "four": "Spanish"
+    }
+  },
+  "register": {
+    "yup": {
+      "firstname": {
+        "trim": "First Name is missing!",
+        "min": "Invalid name!",
+        "required": "First Name is required!"
+      },
+      "lastname": {
+        "trim": "Last Name is missing!",
+        "min": "Invalid name!",
+        "required": "Last Name is required!"
+      },
+      "email": {
+        "trim": "Email is missing!",
+        "email": "Invalid email!",
+        "required": "Email is required!"
+      },
+      "password": {
+        "trim": "Password is missing!",
+        "min": "Password is too short!",
+        "matches": "Password is too simple!",
+        "required": "Password is required!"
+      },
+      "confirmPassword": {
+        "oneOf": "Passwords must match",
+        "required": "Confirm Password is required!"
+      }
+    },
+    "title": "Create account",
+    "form": {
+      "label1": "First Name",
+      "placeholder1": "Charles Bessong",
+      "label2": "Last Name",
+      "placeholder2": "Tabot",
+      "label3": "Email Address",
+      "placeholder3": "ebezebeatrice@gmail.com",
+      "label4": "Password",
+      "placeholder4": "*************",
+      "label5": "Confirm Password",
+      "placeholder5": "*************"
+    },
+    "button": "Register now",
+    "loading": "Registering....",
+    "bottomText": "do you already have an account?",
+    "link": "login"
+  },
+  "login": {
+    "yup": {
+      "email": {
+        "trim": "Email is missing!",
+        "email": "Invalid email!",
+        "required": "Email is required!"
+      },
+      "password": {
+        "trim": "Password is missing!",
+        "min": "Password is too short!",
+        "matches": "Password is too simple!",
+        "required": "Password is required!"
+      }
+    },
+    "title": "Welcome back",
+    "form": {
+      "label1": "Email Address",
+      "placeholder1": "ebezebeatrice@gmail.com",
+      "label2": "Password",
+      "placeholder2": "*************"
+    },
+    "button": "Login",
+    "loading": "Logging in....",
+    "forgotText": "Forgot your password?",
+    "forgotLink": "Forgot password",
+    "registerText": "Don't yet have an account?",
+    "registerLink": "Register"
+  },
+  "reset": {
+    "yup": {
+      "password": {
+        "trim": "Password is missing!",
+        "min": "Password is too short!",
+        "matches": "Password is too simple!",
+        "required": "Password is required!"
+      },
+      "confirmPassword": {
+        "oneOf": "Passwords must match",
+        "required": "Confirm Password is required!"
+      },
+      "code": {
+        "matches": "Invalid code",
+        "required": "Code is required"
+      },
+      "email": {
+        "trim": "Email is missing!",
+        "email": "Invalid email!",
+        "required": "Email is required!"
+      }
+    },
+    "title": "Create your new password",
+    "form": {
+      "label1": "Enter the code sent to your mail",
+      "placeholder1": "XX4GBN",
+      "label2": "Email Address",
+      "placeholder2": "ebezebeatrice@gmail.com",
+      "label3": "Password",
+      "placeholder3": "*************",
+      "label4": "Confirm Password",
+      "placeholder4": "*************"
+    },
+    "button": "Reset Password",
+    "loading": "Resetting....",
+    "error": "The code you entered is incorrect."
+  },
+  "forgotPassword": {
+    "title": "You forgot your password, no problem you can reset it",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "ebezebeatrice@gmail.com",
+    "submitButton": "Forgot Password",
+    "loadingText": "Sending reset....",
+    "yup": {
+      "email": {
+        "trim": "Email is missing!",
+        "email": "Invalid email!",
+        "required": "Email is required!"
+      }
     }
   }
 }

@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { KeyboardAvoidingView, StyleSheet } from "react-native";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
@@ -20,13 +21,14 @@ const forgot = () => {
   const initialValues: ForgotValues = {
     email: "",
   };
+  const {t} = useTranslation()
 
   const signupSchema = yup.object({
     email: yup
       .string()
-      .trim("Email is missing!")
-      .email("Invalid email!")
-      .required("Email is required!"),
+      .trim(t("login.yup.email.trim"))
+      .email(t("login.yup.email.email"))
+      .required(t("login.yup.email.required")),
   });
 
   const handleSubmit = async (
@@ -78,16 +80,16 @@ const forgot = () => {
           <KeyboardAvoidingView style={styles.container}>
             <AuthInputField
               name="email"
-              placeholder="ebezebeatrice@gmail.com"
-              label="Email Address"
+              placeholder={t("forgotPassword.emailPlaceholder")}
+              label={t("forgotPassword.emailLabel")}
               containerStyle={{ marginBottom: 16 }}
             />
             <AppButton
               backgroundColor={COLORS.primary}
               onPress={handleSubmit}
-              title="Forgot Password"
+              title={t("forgotPassword.submitButton")}
               loading={loading}
-              loadingText="Sending reset...."
+              loadingText={t("forgotPassword.loadingText")}
             />
           </KeyboardAvoidingView>
         )}

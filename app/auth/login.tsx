@@ -11,6 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { KeyboardAvoidingView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useDispatch } from "react-redux";
 import * as yup from "yup"
@@ -27,6 +28,7 @@ const login = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const dispatch = useDispatch();
+  const {t} = useTranslation()
   const initialValues: SigninValues = {
     email: "",
     password: "",
@@ -35,18 +37,18 @@ const login = () => {
   const signupSchema = yup.object({
     email: yup
       .string()
-      .trim("Email is missing!")
-      .email("Invalid email!")
-      .required("Email is required!"),
+      .trim(t("login.yup.email.trim"))
+      .email(t("login.yup.email.email"))
+      .required(t("login.yup.email.required")),
     password: yup
       .string()
-      .trim("Password is missing!")
-      .min(8, "Password is too short!")
+      .trim(t("login.yup.password.trim"))
+      .min(8, t("login.yup.password.min"))
       .matches(
         /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])[a-zA-Z\d!@#\$%\^&\*]+$/,
-        "Password is too simple!"
+        t("login.yup.password.matches")
       )
-      .required("Password is required!"),
+      .required(t("login.yup.password.required")),
   });
 
   // const saveUserData = async (data:any) => {
@@ -95,7 +97,7 @@ const login = () => {
 
   return (
     <KeyboardAvoidingView style={styles.container}>
-      <CustomText type="larger">Welcome back</CustomText>
+      <CustomText type="larger">{t("login.title")}</CustomText>
       <Formik
         initialValues={initialValues}
         validationSchema={signupSchema}
@@ -105,14 +107,14 @@ const login = () => {
           <KeyboardAvoidingView style={styles.container}>
             <AuthInputField
               name="email"
-              placeholder="ebezebeatrice@gmail.com"
-              label="Email Address"
+              placeholder={t("login.form.placeholder1")}
+              label={t("login.form.label1")}
               containerStyle={{ marginBottom: 16 }}
             />
             <AuthInputField
               name="password"
-              placeholder="*************"
-              label="Password"
+              placeholder={t("login.form.placeholder2")}
+              label={t("login.form.label2")}
               containerStyle={{ marginBottom: 16 }}
               secureTextEntry={!secureTextEntry}
               rightIcon={
@@ -122,25 +124,29 @@ const login = () => {
                 setSecureTextEntry(!secureTextEntry);
               }}
             />
-            <Text >{errorMessage}</Text>
+            <Text>{errorMessage}</Text>
             <View style={styles.bottomLinks}>
-              <CustomText type="body5">forgot your password?</CustomText>
+              <CustomText type="body5">
+                {t("login.forgotText")}
+              </CustomText>
               <AppLink
-                title="forgot password"
+                title={t("login.forgotLink")}
                 onPress={() => router.push("auth/forgot")}
               />
             </View>
             <AppButton
               backgroundColor={COLORS.primary}
               onPress={handleSubmit}
-              title="Login"
+              title={t("login.button")}
               loading={loading}
-              loadingText="logining in...."
+              loadingText={t("login.loading")}
             />
             <View style={styles.bottomLinks}>
-              <CustomText type="body5">don't yet have an account?</CustomText>
+              <CustomText type="body5">
+                {t("login.registerText")}
+              </CustomText>
               <AppLink
-                title="register"
+                title={t("login.registerLink")}
                 onPress={() => router.push("auth/register")}
               />
             </View>

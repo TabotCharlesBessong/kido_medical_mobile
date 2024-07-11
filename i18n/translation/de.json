@@ -70,5 +70,178 @@
       "one": "MÄNNLICH",
       "two": "WEIBLICH"
     }
+  },
+  "profile": {
+    "text1": "Benutzername",
+    "text2": "Vorname",
+    "text3": "Nachname",
+    "text4": "Email",
+    "text5": "Kontostatus",
+    "text6": "Erstellt am",
+    "button1": "Patienteninformationen hinzufügen",
+    "button2": "Als Arzt registrieren"
+  },
+  "doctorRegistration": {
+    "yup": {
+      "req1": "Name ist erforderlich",
+      "req2": "Spezialität ist erforderlich",
+      "req3": "Standort ist erforderlich",
+      "req4": "Dokumente sind erforderlich",
+      "req5": "Erfahrung ist erforderlich",
+      "pos1": "Erfahrung muss eine positive Zahl sein",
+      "req6": "Sprache ist erforderlich",
+      "req7": "Gebühr ist erforderlich",
+      "pos2": "Gebühr muss eine positive Zahl sein"
+    },
+    "text1": "Als Arzt registrieren",
+    "form": {
+      "label1": "Name",
+      "placeholder1": "Geben Sie Ihren Namen ein",
+      "label2": "Spezialisierung",
+      "placeholder2": "Geben Sie Ihre Spezialisierung ein",
+      "label3": "Standort",
+      "placeholder3": "Geben Sie Ihren Standort ein",
+      "label4": "Erfahrung",
+      "placeholder4": "Geben Sie Ihre Erfahrung ein",
+      "label5": "Sprache",
+      "placeholder5": "Wählen Sie Ihre Sprachen",
+      "label6": "Gebühr",
+      "placeholder6": "Geben Sie Ihre Gebühr ein",
+      "label7": "Dokumente",
+      "placeholder7": "Geben Sie Ihre Dokumente ein"
+    },
+    "button": "Einreichen",
+    "loader": "Registrierung...",
+    "options": {
+      "one": "Englisch",
+      "two": "Französisch",
+      "three": "Deutsch",
+      "four": "Spanisch"
+    }
+  },
+  "register": {
+    "yup": {
+      "firstname": {
+        "trim": "Vorname fehlt!",
+        "min": "Ungültiger Name!",
+        "required": "Vorname ist erforderlich!"
+      },
+      "lastname": {
+        "trim": "Nachname fehlt!",
+        "min": "Ungültiger Name!",
+        "required": "Nachname ist erforderlich!"
+      },
+      "email": {
+        "trim": "Email fehlt!",
+        "email": "Ungültige Email!",
+        "required": "Email ist erforderlich!"
+      },
+      "password": {
+        "trim": "Passwort fehlt!",
+        "min": "Das Passwort ist zu kurz!",
+        "matches": "Das Passwort ist zu einfach!",
+        "required": "Passwort ist erforderlich!"
+      },
+      "confirmPassword": {
+        "oneOf": "Passwörter müssen übereinstimmen",
+        "required": "Bestätigung des Passworts ist erforderlich!"
+      }
+    },
+    "title": "Konto erstellen",
+    "form": {
+      "label1": "Vorname",
+      "placeholder1": "Charles Bessong",
+      "label2": "Nachname",
+      "placeholder2": "Tabot",
+      "label3": "Email Adresse",
+      "placeholder3": "ebezebeatrice@gmail.com",
+      "label4": "Passwort",
+      "placeholder4": "*************",
+      "label5": "Passwort bestätigen",
+      "placeholder5": "*************"
+    },
+    "button": "Jetzt registrieren",
+    "loading": "Registrierung....",
+    "bottomText": "Haben Sie bereits ein Konto?",
+    "link": "anmelden"
+  },
+  "login": {
+    "yup": {
+      "email": {
+        "trim": "Email fehlt!",
+        "email": "Ungültige Email!",
+        "required": "Email ist erforderlich!"
+      },
+      "password": {
+        "trim": "Passwort fehlt!",
+        "min": "Das Passwort ist zu kurz!",
+        "matches": "Das Passwort ist zu einfach!",
+        "required": "Passwort ist erforderlich!"
+      }
+    },
+    "title": "Willkommen zurück",
+    "form": {
+      "label1": "Email Adresse",
+      "placeholder1": "ebezebeatrice@gmail.com",
+      "label2": "Passwort",
+      "placeholder2": "*************"
+    },
+    "button": "Anmelden",
+    "loading": "Anmeldung....",
+    "forgotText": "Haben Sie Ihr Passwort vergessen?",
+    "forgotLink": "Passwort vergessen",
+    "registerText": "Haben Sie noch kein Konto?",
+    "registerLink": "Registrieren"
+  },
+  "reset": {
+    "yup": {
+      "password": {
+        "trim": "Passwort fehlt!",
+        "min": "Das Passwort ist zu kurz!",
+        "matches": "Das Passwort ist zu einfach!",
+        "required": "Passwort ist erforderlich!"
+      },
+      "confirmPassword": {
+        "oneOf": "Passwörter müssen übereinstimmen",
+        "required": "Bestätigung des Passworts ist erforderlich!"
+      },
+      "code": {
+        "matches": "Ungültiger Code",
+        "required": "Code ist erforderlich"
+      },
+      "email": {
+        "trim": "Email fehlt!",
+        "email": "Ungültige Email!",
+        "required": "Email ist erforderlich!"
+      }
+    },
+    "title": "Erstellen Sie Ihr neues Passwort",
+    "form": {
+      "label1": "Geben Sie den Code ein, der an Ihre E-Mail gesendet wurde",
+      "placeholder1": "XX4GBN",
+      "label2": "Email Adresse",
+      "placeholder2": "ebezebeatrice@gmail.com",
+      "label3": "Passwort",
+      "placeholder3": "*************",
+      "label4": "Passwort bestätigen",
+      "placeholder4": "*************"
+    },
+    "button": "Passwort zurücksetzen",
+    "loading": "Zurücksetzen....",
+    "error": "Der eingegebene Code ist falsch."
+  },
+  "forgotPassword": {
+    "title": "Sie haben Ihr Passwort vergessen, kein Problem, Sie können es zurücksetzen",
+    "emailLabel": "E-Mail-Adresse",
+    "emailPlaceholder": "ebezebeatrice@gmail.com",
+    "submitButton": "Passwort vergessen",
+    "loadingText": "Zurücksetzung senden....",
+    "yup": {
+      "email": {
+        "trim": "Email fehlt!",
+        "email": "Ungültige Email!",
+        "required": "Email ist erforderlich!"
+      }
+    }
   }
 }
