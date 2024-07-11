@@ -16,6 +16,7 @@ import axios from "axios";
 import { COLORS } from "@/constants/theme";
 import { baseUrl } from "@/utils/variables";
 import { Frequency } from "@/constants/types";
+import { useTranslation } from "react-i18next";
 
 interface Medication {
   name: string;
@@ -33,6 +34,7 @@ interface PrescriptionValues {
 const CreatePrescriptionScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const { t } = useTranslation();
 
   const router = useRouter();
   const { consultationId } = useLocalSearchParams();
@@ -46,23 +48,35 @@ const CreatePrescriptionScreen: React.FC = () => {
   };
 
   const prescriptionSchema = yup.object().shape({
-    instructions: yup.string().required("Instructions are required"),
-    investigation: yup.string().required("Investigation is required"),
+    instructions: yup
+      .string()
+      .required(t("createPrescription.validation.instructionsRequired")),
+    investigation: yup
+      .string()
+      .required(t("createPrescription.validation.investigationRequired")),
     medications: yup
       .array()
       .of(
         yup.object().shape({
-          name: yup.string().required("Medication name is required"),
-          dosage: yup.string().required("Dosage is required"),
+          name: yup
+            .string()
+            .required(
+              t("createPrescription.validation.medicationNameRequired")
+            ),
+          dosage: yup
+            .string()
+            .required(t("createPrescription.validation.dosageRequired")),
           frequency: yup
             .string()
             .oneOf(["ONCE_A_DAY", "TWICE_A_DAY", "THRICE_A_DAY"])
-            .required("Frequency is required"),
-          duration: yup.string().required("Duration is required"),
+            .required(t("createPrescription.validation.frequencyRequired")),
+          duration: yup
+            .string()
+            .required(t("createPrescription.validation.durationRequired")),
         })
       )
-      .required("At least one medication is required")
-      .min(1, "At least one medication is required"),
+      .required(t("createPrescription.validation.atLeastOneMedicationRequired"))
+      .min(1, t("createPrescription.validation.atLeastOneMedicationRequired")),
   });
 
   const handleSubmit = async (
@@ -148,7 +162,7 @@ const CreatePrescriptionScreen: React.FC = () => {
 
   return (
     <KeyboardAvoidingView behavior="height" style={styles.container}>
-      <CustomText type="larger">Create Prescription</CustomText>
+      <CustomText type="larger">{t("createPrescription.title")}</CustomText>
       <Formik
         initialValues={initialValues}
         validationSchema={prescriptionSchema}
@@ -158,13 +172,13 @@ const CreatePrescriptionScreen: React.FC = () => {
           <ScrollView>
             <AuthInputField
               name="instructions"
-              label="Instructions"
-              placeholder="Enter instructions"
+              label={t("createPrescription.fields.instructions")}
+              placeholder={t("createPrescription.placeholders.instructions")}
             />
             <AuthInputField
               name="investigation"
-              label="Investigation"
-              placeholder="Enter investigation"
+              label={t("createPrescription.fields.investigation")}
+              placeholder={t("createPrescription.placeholders.investigation")}
             />
             <FieldArray name="medications">
               {({ push, remove }) => (
@@ -173,32 +187,40 @@ const CreatePrescriptionScreen: React.FC = () => {
                     <View key={index} style={styles.medicationContainer}>
                       <AuthInputField
                         name={`medications[${index}].name`}
-                        label="Medication Name"
-                        placeholder="Enter medication name"
+                        label={t("createPrescription.fields.medicationName")}
+                        placeholder={t(
+                          "createPrescription.placeholders.medicationName"
+                        )}
                       />
                       <AuthInputField
                         name={`medications[${index}].dosage`}
-                        label="Dosage"
-                        placeholder="Enter dosage"
+                        label={t("createPrescription.fields.dosage")}
+                        placeholder={t(
+                          "createPrescription.placeholders.dosage"
+                        )}
                       />
                       <AuthInputField
                         name={`medications[${index}].frequency`}
-                        label="Frequency"
-                        placeholder="Enter frequency"
+                        label={t("createPrescription.fields.frequency")}
+                        placeholder={t(
+                          "createPrescription.placeholders.frequency"
+                        )}
                       />
                       <AuthInputField
                         name={`medications[${index}].duration`}
-                        label="Duration"
-                        placeholder="Enter duration"
+                        label={t("createPrescription.fields.duration")}
+                        placeholder={t(
+                          "createPrescription.placeholders.duration"
+                        )}
                       />
                       <Button
-                        title="Remove Medication"
+                        title={t("createPrescription.buttons.removeMedication")}
                         onPress={() => remove(index)}
                       />
                     </View>
                   ))}
                   <Button
-                    title="Add Medication"
+                    title={t("createPrescription.buttons.addMedication")}
                     onPress={() =>
                       push({
                         name: "",
@@ -212,10 +234,10 @@ const CreatePrescriptionScreen: React.FC = () => {
               )}
             </FieldArray>
             <AppButton
-              title="Submit"
+              title={t("createPrescription.buttons.submit")}
               backgroundColor={COLORS.primary}
               loading={loading}
-              loadingText="Submitting..."
+              loadingText={t("createPrescription.buttons.submitting")}
               onPress={handleSubmit}
             />
             {errorMessage && (

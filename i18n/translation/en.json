@@ -244,5 +244,111 @@
         "required": "Email is required!"
       }
     }
+  },
+  "bookAppointment": {
+    "title": "Book appointment with your doctor",
+    "appointmentReasonLabel": "Appointment Reason",
+    "appointmentReasonPlaceholder": "Enter appointment reason",
+    "selectDateLabel": "Select Date:",
+    "selectTimeLabel": "Choose Time Slot",
+    "selectTimePlaceholder": "Select a time slot",
+    "bookButton": "Book Appointment",
+    "loadingText": "Booking...",
+    "validation": {
+      "timeRequired": "Time is required",
+      "dateRequired": "Date is required",
+      "reasonRequired": "Reason is required"
+    }
+  },
+  "consultation": {
+    "title": "Consultation",
+    "presentingComplaintsLabel": "Presenting Complaints",
+    "presentingComplaintsPlaceholder": "Enter presenting complaints",
+    "pastHistoryLabel": "Past History",
+    "pastHistoryPlaceholder": "Enter past history",
+    "diagnosticImpressionLabel": "Diagnostic Impression",
+    "diagnosticImpressionPlaceholder": "Enter diagnostic impression",
+    "investigationsLabel": "Investigations",
+    "investigationsPlaceholder": "Enter investigations",
+    "treatmentLabel": "Treatment",
+    "treatmentPlaceholder": "Enter treatment",
+    "submitButton": "Submit",
+    "submittingText": "Submitting...",
+    "validation": {
+      "presentingComplaintsRequired": "Presenting Complaints are required",
+      "pastHistoryRequired": "Past History is required",
+      "diagnosticImpressionRequired": "Diagnostic Impression is required",
+      "investigationsRequired": "Investigations are required",
+      "treatmentRequired": "Treatment is required"
+    }
+  },
+  "createPost": {
+    "title": "Create Post",
+    "fields": {
+      "title": "Title",
+      "description": "Description",
+      "image": "Image URL"
+    },
+    "placeholders": {
+      "title": "Enter post title",
+      "description": "Enter post description",
+      "image": "Enter image URL"
+    },
+    "buttons": {
+      "submit": "Submit"
+    },
+    "validation": {
+      "titleRequired": "Title is required",
+      "descriptionRequired": "Description is required",
+      "invalidImageUrl": "Invalid URL",
+      "imageUrlRequired": "Image URL is required"
+    }
+  },
+  "createPrescription": {
+    "title": "Create Prescription",
+    "fields": {
+      "instructions": "Instructions",
+      "investigation": "Investigation",
+      "medicationName": "Medication Name",
+      "dosage": "Dosage",
+      "frequency": "Frequency",
+      "duration": "Duration"
+    },
+    "placeholders": {
+      "instructions": "Enter instructions",
+      "investigation": "Enter investigation",
+      "medicationName": "Enter medication name",
+      "dosage": "Enter dosage",
+      "frequency": "Enter frequency",
+      "duration": "Enter duration"
+    },
+    "buttons": {
+      "submit": "Submit",
+      "addMedication": "Add Medication",
+      "removeMedication": "Remove Medication"
+    },
+    "validation": {
+      "instructionsRequired": "Instructions are required",
+      "investigationRequired": "Investigation is required",
+      "medicationNameRequired": "Medication name is required",
+      "dosageRequired": "Dosage is required",
+      "frequencyRequired": "Frequency is required",
+      "durationRequired": "Duration is required",
+      "atLeastOneMedicationRequired": "At least one medication is required"
+    }
+  },
+  "prescriptionDetails": {
+    "notFound": "Prescription not found.",
+    "doctor": "Doctor:",
+    "patient": "Patient:",
+    "instructions": "Instructions:",
+    "investigation": "Investigation:",
+    "medications": "Medications:",
+    "medicationName": "Name:",
+    "dosage": "Dosage:",
+    "frequency": "Frequency:",
+    "durationPrefix": "Duration:",
+    "daysSuffix": "days",
+    "none": "None"
   }
 }

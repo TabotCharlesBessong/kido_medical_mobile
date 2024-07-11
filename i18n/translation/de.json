@@ -243,5 +243,111 @@
         "required": "Email ist erforderlich!"
       }
     }
+  },
+  "bookAppointment": {
+    "title": "Termin mit Ihrem Arzt buchen",
+    "appointmentReasonLabel": "Termin Grund",
+    "appointmentReasonPlaceholder": "Geben Sie den Termin Grund ein",
+    "selectDateLabel": "Datum auswählen:",
+    "selectTimeLabel": "Zeitraum wählen",
+    "selectTimePlaceholder": "Wählen Sie einen Zeitraum",
+    "bookButton": "Termin buchen",
+    "loadingText": "Buchen...",
+    "validation": {
+      "timeRequired": "Zeit ist erforderlich",
+      "dateRequired": "Datum ist erforderlich",
+      "reasonRequired": "Grund ist erforderlich"
+    }
+  },
+  "consultation": {
+    "title": "Konsultation",
+    "presentingComplaintsLabel": "Anamnese",
+    "presentingComplaintsPlaceholder": "Geben Sie die Anamnese ein",
+    "pastHistoryLabel": "Frühere Krankheiten",
+    "pastHistoryPlaceholder": "Geben Sie frühere Krankheiten ein",
+    "diagnosticImpressionLabel": "Diagnoseeindruck",
+    "diagnosticImpressionPlaceholder": "Geben Sie den Diagnoseeindruck ein",
+    "investigationsLabel": "Untersuchungen",
+    "investigationsPlaceholder": "Geben Sie Untersuchungen ein",
+    "treatmentLabel": "Behandlung",
+    "treatmentPlaceholder": "Geben Sie die Behandlung ein",
+    "submitButton": "Absenden",
+    "submittingText": "Absenden...",
+    "validation": {
+      "presentingComplaintsRequired": "Anamnese ist erforderlich",
+      "pastHistoryRequired": "Frühere Krankheiten sind erforderlich",
+      "diagnosticImpressionRequired": "Diagnoseeindruck ist erforderlich",
+      "investigationsRequired": "Untersuchungen sind erforderlich",
+      "treatmentRequired": "Behandlung ist erforderlich"
+    }
+  },
+  "createPost": {
+    "title": "Beitrag erstellen",
+    "fields": {
+      "title": "Titel",
+      "description": "Beschreibung",
+      "image": "Bild-URL"
+    },
+    "placeholders": {
+      "title": "Geben Sie den Beitragstitel ein",
+      "description": "Geben Sie die Beschreibung des Beitrags ein",
+      "image": "Geben Sie die Bild-URL ein"
+    },
+    "buttons": {
+      "submit": "Einreichen"
+    },
+    "validation": {
+      "titleRequired": "Titel ist erforderlich",
+      "descriptionRequired": "Beschreibung ist erforderlich",
+      "invalidImageUrl": "Ungültige URL",
+      "imageUrlRequired": "Bild-URL ist erforderlich"
+    }
+  },
+  "createPrescription": {
+    "title": "Rezept erstellen",
+    "fields": {
+      "instructions": "Anweisungen",
+      "investigation": "Untersuchung",
+      "medicationName": "Medikamentenname",
+      "dosage": "Dosierung",
+      "frequency": "Häufigkeit",
+      "duration": "Dauer"
+    },
+    "placeholders": {
+      "instructions": "Geben Sie Anweisungen ein",
+      "investigation": "Geben Sie die Untersuchung ein",
+      "medicationName": "Geben Sie den Medikamentennamen ein",
+      "dosage": "Geben Sie die Dosierung ein",
+      "frequency": "Geben Sie die Häufigkeit ein",
+      "duration": "Geben Sie die Dauer ein"
+    },
+    "buttons": {
+      "submit": "Einreichen",
+      "addMedication": "Medikament hinzufügen",
+      "removeMedication": "Medikament entfernen"
+    },
+    "validation": {
+      "instructionsRequired": "Anweisungen sind erforderlich",
+      "investigationRequired": "Untersuchung ist erforderlich",
+      "medicationNameRequired": "Medikamentenname ist erforderlich",
+      "dosageRequired": "Dosierung ist erforderlich",
+      "frequencyRequired": "Häufigkeit ist erforderlich",
+      "durationRequired": "Dauer ist erforderlich",
+      "atLeastOneMedicationRequired": "Mindestens ein Medikament ist erforderlich"
+    }
+  },
+  "prescriptionDetails": {
+    "notFound": "Rezept nicht gefunden.",
+    "doctor": "Arzt :",
+    "patient": "Patient :",
+    "instructions": "Anweisungen :",
+    "investigation": "Untersuchung :",
+    "medications": "Medikamente :",
+    "medicationName": "Name :",
+    "dosage": "Dosierung :",
+    "frequency": "Frequenz :",
+    "durationPrefix": "Dauer :",
+    "daysSuffix": "Tage",
+    "none": "Keine"
   }
 }

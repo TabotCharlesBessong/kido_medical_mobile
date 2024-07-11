@@ -8,6 +8,7 @@ import axios from "axios";
 import { AppButton, AuthInputField, CustomText } from "@/components";
 import { COLORS } from "@/constants/theme";
 import { baseUrl } from "@/utils/variables";
+import { useTranslation } from "react-i18next";
 
 interface PostValues {
   title: string;
@@ -20,6 +21,7 @@ const CreatePostScreen: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
   const { doctorId } = useLocalSearchParams();
+  const {t} = useTranslation()
 
   const initialValues: PostValues = {
     title: "",
@@ -28,9 +30,14 @@ const CreatePostScreen: React.FC = () => {
   };
 
   const postSchema = yup.object().shape({
-    title: yup.string().required("Title is required"),
-    description: yup.string().required("Description is required"),
-    image: yup.string().url("Invalid URL").required("Image URL is required"),
+    title: yup.string().required(t("createPost.validation.titleRequired")),
+    description: yup
+      .string()
+      .required(t("createPost.validation.descriptionRequired")),
+    image: yup
+      .string()
+      .url(t("createPost.validation.invalidImageUrl"))
+      .required(t("createPost.validation.imageUrlRequired")),
   });
 
   const handleSubmit = async (
@@ -80,26 +87,26 @@ const CreatePostScreen: React.FC = () => {
           <KeyboardAvoidingView style={styles.container}>
             <AuthInputField
               name="title"
-              label="Title"
-              placeholder="Enter post title"
+              label={t("createPost.fields.title")}
+              placeholder={t("createPost.placeholders.title")}
             />
             <AuthInputField
               name="description"
-              label="Description"
-              placeholder="Enter post description"
+              label={t("createPost.fields.description")}
+              placeholder={t("createPost.placeholders.description")}
             />
             <AuthInputField
               name="image"
-              label="Image URL"
-              placeholder="Enter image URL"
+              label={t("createPost.fields.image")}
+              placeholder={t("createPost.placeholders.image")}
             />
             <AppButton
-              title="Submit"
+              title={t("createPost.buttons.submit")}
               backgroundColor={COLORS.primary}
               loading={loading}
               loadingText="Creating..."
               onPress={handleSubmit}
-              containerStyle={{marginTop:24}}
+              containerStyle={{ marginTop: 24 }}
             />
           </KeyboardAvoidingView>
         )}

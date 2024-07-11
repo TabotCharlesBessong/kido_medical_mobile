@@ -21,6 +21,7 @@ import { Formik, FormikHelpers } from "formik";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { baseUrl } from "@/utils/variables";
+import { useTranslation } from "react-i18next";
 
 interface BookingValues {
   date: string;
@@ -40,6 +41,7 @@ const BookAppointmentScreen: React.FC = () => {
 
   const router = useRouter();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const doctors = [
     { label: "Doctor 1", value: "doctor1" },
@@ -67,9 +69,14 @@ const BookAppointmentScreen: React.FC = () => {
   };
 
   const validationSchema = yup.object().shape({
-    time: yup.string().required("Time is required"),
-    date: yup.date().required("Date is required").nullable(),
-    reason: yup.string().required("Reason is required"),
+    time: yup.string().required(t("bookAppointment.validation.timeRequired")),
+    date: yup
+      .date()
+      .required(t("bookAppointment.validation.dateRequired"))
+      .nullable(),
+    reason: yup
+      .string()
+      .required(t("bookAppointment.validation.reasonRequired")),
   });
 
   const handleSubmit = async (
@@ -152,16 +159,7 @@ const BookAppointmentScreen: React.FC = () => {
 
   return (
     <KeyboardAvoidingView behavior="height" style={styles.container}>
-      <CustomText type="h1">Book appointment with your doctor</CustomText>
-      {/* <AuthSelectField
-        label="Choose Doctor"
-        name="doctor"
-        options={doctors}
-        containerStyle={styles.fieldContainer}
-        placeholder="Select a doctor"
-        // value={selectedDoctor}
-        // onValueChange={(value) => setSelectedDoctor(value)}
-      /> */}
+      <CustomText type="h1">{t("bookAppointment.title")}</CustomText>
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
@@ -171,12 +169,10 @@ const BookAppointmentScreen: React.FC = () => {
           <KeyboardAvoidingView style={styles.container}>
             <View style={{ width: "100%" }}>
               <AuthInputField
-                label="Appointment Reason"
+                label={t("bookAppointment.appointmentReasonLabel")}
                 name="reason"
-                placeholder="Enter appointment reason"
+                placeholder={t("bookAppointment.appointmentReasonPlaceholder")}
                 containerStyle={styles.fieldContainer}
-                // value={appointmentReason}
-                // onChangeText={(text) => setAppointmentReason(text)}
               />
             </View>
             <View
@@ -187,11 +183,13 @@ const BookAppointmentScreen: React.FC = () => {
                   flexDirection: "row",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  paddingHorizontal:24
+                  paddingHorizontal: 24,
                 },
               ]}
             >
-              <Text style={styles.label}>Select Date:</Text>
+              <Text style={styles.label}>
+                {t("bookAppointment.selectDateLabel")}
+              </Text>
               <Pressable
                 onPress={() => setShowDatePicker(true)}
                 style={styles.datePickerButton}
@@ -211,25 +209,20 @@ const BookAppointmentScreen: React.FC = () => {
             )}
             <View style={{ width: "100%" }}>
               <AuthSelectField
-                label="Choose Time Slot"
+                label={t("bookAppointment.selectTimeLabel")}
                 name="time"
                 options={timeSlots}
                 containerStyle={styles.fieldContainer}
-                placeholder="Select a time slot"
-                // value={selectedTime}
-                // onValueChange={(value) => setSelectedTime(value)}
+                placeholder={t("bookAppointment.selectTimePlaceholder")}
               />
             </View>
-            {/* <Pressable onPress={handleAppointmentSubmit} style={styles.submitButton}>
-        <Text style={styles.submitButtonText}>Book Appointment</Text>
-      </Pressable> */}
             <AppButton
-              title="Book Appointment"
+              title={t("bookAppointment.bookButton")}
               width={"95%"}
               backgroundColor={COLORS.primary}
               onPress={handleSubmit}
               loading={loading}
-              loadingText="Booking..."
+              loadingText={t("bookAppointment.loadingText")}
             />
           </KeyboardAvoidingView>
         )}

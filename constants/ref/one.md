@@ -1,194 +1,134 @@
-### JSON Translation for Forgot Password Screen
+I understand now. Let's update the translation JSON objects (`en.json`, `fr.json`, `de.json`) to separate the text that includes dynamic values like `{med.duration}` into individual parts. Then, we'll integrate these translations into the `PrescriptionDetailsScreen` component accordingly.
 
-**English:**
+### Updated Translation JSON Objects
+
+#### `en.json`
 ```json
 {
-  "forgotPassword": {
-    "title": "You forgot your password, no problem you can reset it",
-    "emailLabel": "Email Address",
-    "emailPlaceholder": "ebezebeatrice@gmail.com",
-    "submitButton": "Forgot Password",
-    "loadingText": "Sending reset...."
+  "screens": {
+    "prescriptionDetails": {
+      "notFound": "Prescription not found.",
+      "doctor": "Doctor:",
+      "patient": "Patient:",
+      "instructions": "Instructions:",
+      "investigation": "Investigation:",
+      "medications": "Medications:",
+      "medicationName": "Name:",
+      "dosage": "Dosage:",
+      "frequency": "Frequency:",
+      "durationPrefix": "Duration:",
+      "daysSuffix": "days",
+      "none": "None"
+    }
   }
 }
 ```
 
-**French:**
+#### `fr.json`
 ```json
 {
-  "forgotPassword": {
-    "title": "Vous avez oublié votre mot de passe, pas de problème, vous pouvez le réinitialiser",
-    "emailLabel": "Adresse e-mail",
-    "emailPlaceholder": "ebezebeatrice@gmail.com",
-    "submitButton": "Mot de passe oublié",
-    "loadingText": "Envoi de la réinitialisation...."
+  "screens": {
+    "prescriptionDetails": {
+      "notFound": "Prescription non trouvée.",
+      "doctor": "Docteur :",
+      "patient": "Patient :",
+      "instructions": "Instructions :",
+      "investigation": "Investigation :",
+      "medications": "Médicaments :",
+      "medicationName": "Nom :",
+      "dosage": "Dosage :",
+      "frequency": "Fréquence :",
+      "durationPrefix": "Durée :",
+      "daysSuffix": "jours",
+      "none": "Aucun"
+    }
   }
 }
 ```
 
-**German:**
+#### `de.json`
 ```json
 {
-  "forgotPassword": {
-    "title": "Sie haben Ihr Passwort vergessen, kein Problem, Sie können es zurücksetzen",
-    "emailLabel": "E-Mail-Adresse",
-    "emailPlaceholder": "ebezebeatrice@gmail.com",
-    "submitButton": "Passwort vergessen",
-    "loadingText": "Zurücksetzung senden...."
+  "screens": {
+    "prescriptionDetails": {
+      "notFound": "Rezept nicht gefunden.",
+      "doctor": "Arzt :",
+      "patient": "Patient :",
+      "instructions": "Anweisungen :",
+      "investigation": "Untersuchung :",
+      "medications": "Medikamente :",
+      "medicationName": "Name :",
+      "dosage": "Dosierung :",
+      "frequency": "Frequenz :",
+      "durationPrefix": "Dauer :",
+      "daysSuffix": "Tage",
+      "none": "Keine"
+    }
   }
 }
 ```
 
-### Implementation of Translation into the Screen
+### Implementation in `PrescriptionDetailsScreen`
+
+Now, integrate these translations into your `PrescriptionDetailsScreen` component:
 
 ```typescript
-import { AppButton, AuthInputField, CustomText } from "@/components";
+import React from "react";
+import { View, StyleSheet, ScrollView } from "react-native";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { CustomText } from "@/components";
 import { COLORS } from "@/constants/theme";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
-import { Formik, FormikHelpers } from "formik";
-import React, { useState } from "react";
-import { KeyboardAvoidingView, StyleSheet } from "react-native";
-import { useDispatch } from "react-redux";
-import * as yup from "yup";
-import i18n from 'i18n-js'; // Assuming i18n-js is used for internationalization
+import { IPrescription } from "@/constants/types";
+import { useTranslation } from "react-i18next";
 
-interface ForgotValues {
-  email: string;
-}
+const PrescriptionDetailsScreen: React.FC = () => {
+  const { t } = useTranslation(); // Initialize translation hook
 
-// Define translations
-const translations = {
-  en: {
-    forgotPassword: {
-      title: "You forgot your password, no problem you can reset it",
-      emailLabel: "Email Address",
-      emailPlaceholder: "ebezebeatrice@gmail.com",
-      submitButton: "Forgot Password",
-      loadingText: "Sending reset...."
-    }
-  },
-  fr: {
-    forgotPassword: {
-      title: "Vous avez oublié votre mot de passe, pas de problème, vous pouvez le réinitialiser",
-      emailLabel: "Adresse e-mail",
-      emailPlaceholder: "ebezebeatrice@gmail.com",
-      submitButton: "Mot de passe oublié",
-      loadingText: "Envoi de la réinitialisation...."
-    }
-  },
-  de: {
-    forgotPassword: {
-      title: "Sie haben Ihr Passwort vergessen, kein Problem, Sie können es zurücksetzen",
-      emailLabel: "E-Mail-Adresse",
-      emailPlaceholder: "ebezebeatrice@gmail.com",
-      submitButton: "Passwort vergessen",
-      loadingText: "Zurücksetzung senden...."
-    }
+  const { prescription } = useLocalSearchParams<{ prescription: IPrescription }>();
+
+  if (!prescription) {
+    return <CustomText type="h1">{t("screens.prescriptionDetails.notFound")}</CustomText>;
   }
-};
 
-// Set the translations
-i18n.translations = translations;
-
-// Set the locale (this would typically be dynamic)
-i18n.locale = 'en'; // or 'fr' or 'de'
-
-const forgot = () => {
-  const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const dispatch = useDispatch();
-  const initialValues: ForgotValues = {
-    email: "",
-  };
-
-  const signupSchema = yup.object({
-    email: yup
-      .string()
-      .trim(i18n.t('forgotPassword.emailMissing'))
-      .email(i18n.t('forgotPassword.invalidEmail'))
-      .required(i18n.t('forgotPassword.emailRequired')),
-  });
-
-  const handleSubmit = async (
-    values: ForgotValues,
-    actions: FormikHelpers<ForgotValues>
-  ) => {
-    console.log(values);
-    try {
-      setLoading(true);
-      setErrorMessage("");
-      const res = await fetch(
-        "http:192.168.1.121:5000/api/user/forgot-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(values),
-        }
-      );
-      console.log(res);
-      const data = await res.json();
-      console.log(data);
-      if (data.success === false) return setErrorMessage(data.message);
-
-      // storing the code
-      await AsyncStorage.setItem("resetCode", data.data.token.code);
-      const rcode = data.data.token.code;
-      console.log(rcode);
-      setLoading(false);
-      if (res.ok) router.push("auth/reset");
-    } catch (error) {
-      console.log(error);
-      setErrorMessage((error as TypeError).message);
-      setLoading(false);
-    }
-  };
   return (
-    <KeyboardAvoidingView style={styles.container}>
-      <CustomText type="h2">
-        {i18n.t('forgotPassword.title')}
-      </CustomText>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={signupSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ handleSubmit }) => (
-          <KeyboardAvoidingView style={styles.container}>
-            <AuthInputField
-              name="email"
-              placeholder={i18n.t('forgotPassword.emailPlaceholder')}
-              label={i18n.t('forgotPassword.emailLabel')}
-              containerStyle={{ marginBottom: 16 }}
-            />
-            <AppButton
-              backgroundColor={COLORS.primary}
-              onPress={handleSubmit}
-              title={i18n.t('forgotPassword.submitButton')}
-              loading={loading}
-              loadingText={i18n.t('forgotPassword.loadingText')}
-            />
-          </KeyboardAvoidingView>
-        )}
-      </Formik>
-    </KeyboardAvoidingView>
+    <ScrollView style={styles.container}>
+      <CustomText type="h2">{`${t("screens.prescriptionDetails.doctor")} ${prescription.doctorName}`}</CustomText>
+      <CustomText type="h4">{`${t("screens.prescriptionDetails.patient")} ${prescription.patientName}`}</CustomText>
+      <CustomText type="h4">{`${t("screens.prescriptionDetails.instructions")} ${prescription.instructions || t("screens.prescriptionDetails.none")}`}</CustomText>
+      <CustomText type="h4">{`${t("screens.prescriptionDetails.investigation")} ${prescription.investigation || t("screens.prescriptionDetails.none")}`}</CustomText>
+      <CustomText type="h2">{t("screens.prescriptionDetails.medications")}</CustomText>
+      {prescription?.medications?.map((med) => (
+        <View key={med.id} style={styles.medicationCard}>
+          <CustomText type="h4">{`${t("screens.prescriptionDetails.medicationName")} ${med.name}`}</CustomText>
+          <CustomText type="h4">{`${t("screens.prescriptionDetails.dosage")} ${med.dosage}`}</CustomText>
+          <CustomText type="h4">{`${t("screens.prescriptionDetails.frequency")} ${med.frequency}`}</CustomText>
+          <CustomText type="h4">{`${t("screens.prescriptionDetails.durationPrefix")} ${med.duration} ${t("screens.prescriptionDetails.daysSuffix")}`}</CustomText>
+        </View>
+      ))}
+    </ScrollView>
   );
 };
 
-export default forgot;
-
 const styles = StyleSheet.create({
   container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
     flex: 1,
-    width: "100%",
+    padding: 16,
+  },
+  medicationCard: {
+    backgroundColor: COLORS.secondaryGray,
+    padding: 16,
+    marginVertical: 8,
+    borderRadius: 8,
   },
 });
+
+export default PrescriptionDetailsScreen;
 ```
 
-This implementation leverages `i18n-js` to handle translations. You can dynamically set the locale based on the user's preferences or device settings.
+### Explanation
+
+- **Translation Keys**: The translation keys now separate text (`durationPrefix`, `daysSuffix`) from dynamic values (`med.duration`).
+
+- **Integration**: Each piece of text is fetched using `t` (translation function) and combined with the appropriate dynamic values (`prescription.doctorName`, `prescription.instructions`, etc.).
+
+This approach ensures that your application's text remains easily translatable and maintainable while dynamically incorporating localized content where necessary. Adjust the types (`IPrescription`, etc.) and field mappings (`prescription.doctorName`, `prescription.patientName`, etc.) based on your application's specific needs.

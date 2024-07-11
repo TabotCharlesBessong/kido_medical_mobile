@@ -243,5 +243,111 @@
         "required": "L'email est requis !"
       }
     }
+  },
+  "bookAppointment": {
+    "title": "Prenez rendez-vous avec votre médecin",
+    "appointmentReasonLabel": "Motif du rendez-vous",
+    "appointmentReasonPlaceholder": "Entrez le motif du rendez-vous",
+    "selectDateLabel": "Sélectionner la date:",
+    "selectTimeLabel": "Choisir le créneau horaire",
+    "selectTimePlaceholder": "Sélectionnez un créneau horaire",
+    "bookButton": "Prendre rendez-vous",
+    "loadingText": "Réservation...",
+    "validation": {
+      "timeRequired": "L'heure est requise",
+      "dateRequired": "La date est requise",
+      "reasonRequired": "Le motif est requis"
+    }
+  },
+  "consultation": {
+    "title": "Consultation",
+    "presentingComplaintsLabel": "Motifs de consultation",
+    "presentingComplaintsPlaceholder": "Entrez les motifs de consultation",
+    "pastHistoryLabel": "Antécédents médicaux",
+    "pastHistoryPlaceholder": "Entrez les antécédents médicaux",
+    "diagnosticImpressionLabel": "Impression diagnostique",
+    "diagnosticImpressionPlaceholder": "Entrez l'impression diagnostique",
+    "investigationsLabel": "Examens",
+    "investigationsPlaceholder": "Entrez les examens",
+    "treatmentLabel": "Traitement",
+    "treatmentPlaceholder": "Entrez le traitement",
+    "submitButton": "Soumettre",
+    "submittingText": "Soumission en cours...",
+    "validation": {
+      "presentingComplaintsRequired": "Les motifs de consultation sont obligatoires",
+      "pastHistoryRequired": "Les antécédents médicaux sont obligatoires",
+      "diagnosticImpressionRequired": "L'impression diagnostique est obligatoire",
+      "investigationsRequired": "Les examens sont obligatoires",
+      "treatmentRequired": "Le traitement est obligatoire"
+    }
+  },
+  "createPost": {
+    "title": "Créer une publication",
+    "fields": {
+      "title": "Titre",
+      "description": "Description",
+      "image": "URL de l'image"
+    },
+    "placeholders": {
+      "title": "Entrez le titre de la publication",
+      "description": "Entrez la description de la publication",
+      "image": "Entrez l'URL de l'image"
+    },
+    "buttons": {
+      "submit": "Soumettre"
+    },
+    "validation": {
+      "titleRequired": "Le titre est requis",
+      "descriptionRequired": "La description est requise",
+      "invalidImageUrl": "URL invalide",
+      "imageUrlRequired": "L'URL de l'image est requise"
+    }
+  },
+  "createPrescription": {
+    "title": "Créer une Ordonnance",
+    "fields": {
+      "instructions": "Instructions",
+      "investigation": "Investigation",
+      "medicationName": "Nom du Médicament",
+      "dosage": "Dosage",
+      "frequency": "Fréquence",
+      "duration": "Durée"
+    },
+    "placeholders": {
+      "instructions": "Entrez les instructions",
+      "investigation": "Entrez l'investigation",
+      "medicationName": "Entrez le nom du médicament",
+      "dosage": "Entrez le dosage",
+      "frequency": "Entrez la fréquence",
+      "duration": "Entrez la durée"
+    },
+    "buttons": {
+      "submit": "Soumettre",
+      "addMedication": "Ajouter un Médicament",
+      "removeMedication": "Supprimer le Médicament"
+    },
+    "validation": {
+      "instructionsRequired": "Les instructions sont requises",
+      "investigationRequired": "L'investigation est requise",
+      "medicationNameRequired": "Le nom du médicament est requis",
+      "dosageRequired": "Le dosage est requis",
+      "frequencyRequired": "La fréquence est requise",
+      "durationRequired": "La durée est requise",
+      "atLeastOneMedicationRequired": "Au moins un médicament est requis"
+    }
+  },
+  "prescriptionDetails": {
+    "notFound": "Prescription non trouvée.",
+    "doctor": "Docteur :",
+    "patient": "Patient :",
+    "instructions": "Instructions :",
+    "investigation": "Investigation :",
+    "medications": "Médicaments :",
+    "medicationName": "Nom :",
+    "dosage": "Dosage :",
+    "frequency": "Fréquence :",
+    "durationPrefix": "Durée :",
+    "daysSuffix": "jours",
+    "none": "Aucun"
   }
 }
