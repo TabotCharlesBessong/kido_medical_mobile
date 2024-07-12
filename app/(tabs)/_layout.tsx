@@ -1,6 +1,12 @@
 import Colors from "@/constants/Colors";
-import { AntDesign, Entypo, FontAwesome, FontAwesome5 } from "@expo/vector-icons";
+import {
+  AntDesign,
+  Entypo,
+  FontAwesome,
+  FontAwesome5,
+} from "@expo/vector-icons";
 import { Tabs } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useColorScheme } from "react-native";
 
 const TabBarIcons = (props: {
@@ -11,14 +17,15 @@ const TabBarIcons = (props: {
 };
 
 const TabLayout = () => {
-  const colorScheme = useColorScheme()
+  const colorScheme = useColorScheme();
+  const { t } = useTranslation();
 
   return (
     <Tabs>
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: t("layout.one"), // "Home"
           tabBarIcon: ({ color }) => <TabBarIcons name="home" color={color} />,
           headerShown: false,
         }}
@@ -26,7 +33,7 @@ const TabLayout = () => {
       <Tabs.Screen
         name="chat"
         options={{
-          title: "Chat Screen",
+          title: t("layout.tow"), // "Chats"
           tabBarIcon: ({ color }) => (
             <Entypo name="message" color={color} size={28} />
           ),
@@ -36,7 +43,7 @@ const TabLayout = () => {
       <Tabs.Screen
         name="appointment"
         options={{
-          title: "Appointments",
+          title: t("layout.three"), // "Appointments"
           tabBarIcon: ({ color }) => (
             <FontAwesome5 name="book-medical" size={28} color={color} />
           ),
@@ -45,7 +52,7 @@ const TabLayout = () => {
       <Tabs.Screen
         name="setting"
         options={{
-          title: "Setting",
+          title: t("layout.four"), // "Setting"
           tabBarIcon: ({ color }) => (
             <AntDesign name="setting" color={color} size={28} />
           ),
@@ -55,7 +62,7 @@ const TabLayout = () => {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
+          title: t("layout.five"), // "Profile"
           tabBarIcon: ({ color }) => (
             <AntDesign name="user" color={color} size={28} />
           ),
@@ -63,6 +70,6 @@ const TabLayout = () => {
       />
     </Tabs>
   );
-}
+};
 
-export default TabLayout
+export default TabLayout;

@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  KeyboardAvoidingView,
-  Text,
-} from "react-native";
+import { View, StyleSheet, KeyboardAvoidingView, Text } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { AppButton, AuthInputField, CustomText } from "@/components";
 import * as yup from "yup";
@@ -14,6 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { COLORS } from "@/constants/theme";
 import { baseUrl } from "@/utils/variables";
+import { useTranslation } from "react-i18next";
 
 interface ConsultationValues {
   presentingComplaints: string;
@@ -28,9 +23,8 @@ const ConsultationScreen: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const router = useRouter();
-  console.log(useLocalSearchParams)
   const { patientId, appointmentId } = useLocalSearchParams();
-  console.log({appointmentId,patientId})
+  const { t } = useTranslation();
 
   const initialValues: ConsultationValues = {
     presentingComplaints: "",
@@ -41,27 +35,33 @@ const ConsultationScreen: React.FC = () => {
   };
 
   const consultationSchema = yup.object().shape({
-    presentingComplaints: yup.string().required("Presenting Complaints are required"),
-    pastHistory: yup.string().required("Past History is required"),
-    diagnosticImpression: yup.string().required("Diagnostic Impression is required"),
-    investigations: yup.string().required("Investigations are required"),
-    treatment: yup.string().required("Treatment is required"),
+    presentingComplaints: yup
+      .string()
+      .required(t("consultation.validation.presentingComplaintsRequired")),
+    pastHistory: yup
+      .string()
+      .required(t("consultation.validation.pastHistoryRequired")),
+    diagnosticImpression: yup
+      .string()
+      .required(t("consultation.validation.diagnosticImpressionRequired")),
+    investigations: yup
+      .string()
+      .required(t("consultation.validation.investigationsRequired")),
+    treatment: yup
+      .string()
+      .required(t("consultation.validation.treatmentRequired")),
   });
 
   const handleSubmit = async (
     values: ConsultationValues,
     actions: FormikHelpers<ConsultationValues>
   ) => {
-    console.log(values);
     try {
       setLoading(true);
       setErrorMessage("");
 
-      // Get the bearer token from async storage
       const token = await AsyncStorage.getItem("userToken");
-      console.log(token);
 
-      // Create an instance of axios with default headers
       const instance = axios.create({
         baseURL: baseUrl,
         headers: {
@@ -70,51 +70,34 @@ const ConsultationScreen: React.FC = () => {
         },
       });
 
-      // Add request interceptor to handle authorization
-      instance.interceptors.request.use(
-        async (config) => {
-          // Refresh the bearer token if expired or not available
-          const newToken = await AsyncStorage.getItem("userToken");
-          if (newToken) {
-            config.headers.Authorization = `Bearer ${newToken}`;
-          }
-          return config;
-        },
-        (error) => {
-          return Promise.reject(error);
+      instance.interceptors.request.use(async (config) => {
+        const newToken = await AsyncStorage.getItem("userToken");
+        if (newToken) {
+          config.headers.Authorization = `Bearer ${newToken}`;
         }
-      );
+        return config;
+      });
 
-      // Add response interceptor to handle errors
       instance.interceptors.response.use(
-        (response) => {
-          return response;
-        },
+        (response) => response,
         (error) => {
           if (error.response) {
-            // Handle HTTP errors
-            console.log(error.response.data);
             setErrorMessage(error.response.data.message);
           } else {
-            // Handle network errors
-            console.log(error.message);
             setErrorMessage(error.message);
           }
           return Promise.reject(error);
         }
       );
 
-      // Make the API request
       const res = await instance.post("/consultation/create", {
         ...values,
         patientId,
         appointmentId,
       });
-      console.log(res);
-      const data = res.data;
-      console.log(data);
 
-      // Handle success and redirect
+      const data = res.data;
+
       if (data.success === false) {
         setErrorMessage(data.message);
       } else {
@@ -124,7 +107,6 @@ const ConsultationScreen: React.FC = () => {
         }
       }
     } catch (error) {
-      console.log(error);
       setErrorMessage((error as TypeError).message);
       setLoading(false);
     }
@@ -132,7 +114,7 @@ const ConsultationScreen: React.FC = () => {
 
   return (
     <KeyboardAvoidingView behavior="height" style={styles.container}>
-      <CustomText type="larger">Consultation</CustomText>
+      <CustomText type="larger">{t("consultation.title")}</CustomText>
       <Formik
         initialValues={initialValues}
         validationSchema={consultationSchema}
@@ -142,39 +124,40 @@ const ConsultationScreen: React.FC = () => {
           <KeyboardAvoidingView style={styles.container}>
             <AuthInputField
               name="presentingComplaints"
-              label="Presenting Complaints"
-              placeholder="Enter presenting complaints"
+              label={t("consultation.presentingComplaintsLabel")}
+              placeholder={t("consultation.presentingComplaintsPlaceholder")}
             />
             <AuthInputField
               name="pastHistory"
-              label="Past History"
-              placeholder="Enter past history"
+              label={t("consultation.pastHistoryLabel")}
+              placeholder={t("consultation.pastHistoryPlaceholder")}
             />
             <AuthInputField
               name="diagnosticImpression"
-              label="Diagnostic Impression"
-              placeholder="Enter diagnostic impression"
+              label={t("consultation.diagnosticImpressionLabel")}
+              placeholder={t("consultation.diagnosticImpressionPlaceholder")}
             />
             <AuthInputField
               name="investigations"
-              label="Investigations"
-              placeholder="Enter investigations"
+              label={t("consultation.investigationsLabel")}
+              placeholder={t("consultation.investigationsPlaceholder")}
             />
             <AuthInputField
               name="treatment"
-              label="Treatment"
-              placeholder="Enter treatment"
+              label={t("consultation.treatmentLabel")}
+              placeholder={t("consultation.treatmentPlaceholder")}
             />
             <AppButton
-              title="Submit"
-              // backgroundColor={COLORS.primary}
-              containerStyle={{backgroundColor:"green",marginTop:24}}
+              title={t("consultation.submitButton")}
+              containerStyle={{ backgroundColor: "green", marginTop: 24 }}
               loading={loading}
-              loadingText="Submitting..."
+              loadingText={t("consultation.submittingText")}
               onPress={handleSubmit}
               width={"100%"}
             />
-            {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+            {errorMessage && (
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            )}
           </KeyboardAvoidingView>
         )}
       </Formik>

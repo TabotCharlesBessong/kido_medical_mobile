@@ -1,18 +1,28 @@
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
-import { useRouter } from 'expo-router';
-import { COLORS } from '@/constants/theme';
-import { CustomText } from '@/components';
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import React from "react";
+import { useRouter } from "expo-router";
+import { COLORS } from "@/constants/theme";
+import { CustomText } from "@/components";
+import { useTranslation } from "react-i18next";
 
-const profile = () => {
-  const router = useRouter()
+const Profile = () => {
+  const router = useRouter();
+  const { t } = useTranslation();
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backButton}>Back</Text>
+          <Text style={styles.backButton}>{t("profiled.back")}</Text>
         </TouchableOpacity>
-        <CustomText type="h1">Doctor Profile</CustomText>
+        <CustomText type="h1">{t("profiled.doctorProfile")}</CustomText>
       </View>
       <View style={{ flex: 1 }}>
         <Image
@@ -22,86 +32,79 @@ const profile = () => {
       </View>
       <CustomText type="h2">Ebot Bessong</CustomText>
       <View style={styles.infoContainer}>
-        <CustomText type="body2">Speciality:</CustomText>
+        <CustomText type="body2">{t("profiled.speciality")}</CustomText>
         <CustomText type="h4">Generalist</CustomText>
       </View>
       <View style={styles.infoContainer}>
-        <CustomText type="body2">Location:</CustomText>
+        <CustomText type="body2">{t("profiled.location")}</CustomText>
         <CustomText type="h4">Douala Cameroon</CustomText>
       </View>
       <View style={styles.infoContainer}>
-        <CustomText type="body2">Experience:</CustomText>
+        <CustomText type="body2">{t("profiled.experience")}</CustomText>
         <CustomText type="h4">3+ years</CustomText>
       </View>
       <View style={styles.infoContainer}>
-        <CustomText type="body2">Languages:</CustomText>
+        <CustomText type="body2">{t("profiled.languages")}</CustomText>
         <CustomText type="h4">English, French</CustomText>
       </View>
       <View style={styles.infoContainer}>
-        <CustomText type="body2">Consultation Fee:</CustomText>
-        <CustomText type="h4">22000 XAF</CustomText>
-      </View>
-      <View style={styles.infoContainer}>
-        <CustomText type="body2">Consultation Fee:</CustomText>
+        <CustomText type="body2">{t("profiled.consultationFee")}</CustomText>
         <CustomText type="h4">22000 XAF</CustomText>
       </View>
       <View>
-        <CustomText type="body2">Summary:</CustomText>
-        <CustomText type="h4">
-          Dr. Jason graduated from North Eastern University school of Medicine
-          in 1992. He works in New York, NY and 2 other locations and
-          specializes in Hand surgery, Orthopedic surgery, and Sports medicine.
-          Dr. Smith is affiliated with Northeastern medicine laboratory
-        </CustomText>
+        <CustomText type="body2">{t("profiled.summary")}</CustomText>
+        <CustomText type="h4">{t("profiled.description")}</CustomText>
       </View>
       <TouchableOpacity
         onPress={() => router.push("/doctor/book-appointment")}
         style={[styles.button, { marginBottom: 24 }]}
       >
-        <Text style={styles.buttonText}>Book Appointment</Text>
+        <Text style={styles.buttonText}>{t("profiled.bookAppointment")}</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => router.push("/doctor/consult")}
         style={[styles.button, { marginBottom: 24 }]}
       >
-        <Text style={styles.buttonText}>Consult Patient</Text>
+        <Text style={styles.buttonText}>{t("profiled.consultPatient")}</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => router.push("/doctor/prescribe")}
         style={[styles.button, { marginBottom: 24 }]}
       >
-        <Text style={styles.buttonText}>Prescribe to Patient</Text>
+        <Text style={styles.buttonText}>
+          {t("profiled.prescribeToPatient")}
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => router.push("/doctor/prescriptions")}
         style={[styles.button, { marginBottom: 24 }]}
       >
-        <Text style={styles.buttonText}>View Prescriptions</Text>
+        <Text style={styles.buttonText}>{t("profiled.viewPrescriptions")}</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => router.push("/doctor/createPost")}
         style={[styles.button, { marginBottom: 24 }]}
       >
-        <Text style={styles.buttonText}>Create Post</Text>
+        <Text style={styles.buttonText}>{t("profiled.createPost")}</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => router.push("/doctor/timeslot")}
         style={styles.button}
       >
-        <Text style={styles.buttonText}>Time slot</Text>
+        <Text style={styles.buttonText}>{t("profiled.timeSlot")}</Text>
       </TouchableOpacity>
     </ScrollView>
   );
-}
+};
 
-export default profile
+export default Profile;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
     backgroundColor: "#fff",
-    paddingBottom:50
+    paddingBottom: 50,
   },
   header: {
     flexDirection: "row",
@@ -138,7 +141,7 @@ const styles = StyleSheet.create({
   infoContainer: {
     flexDirection: "row",
     marginBottom: 10,
-    alignItems:"center",
+    alignItems: "center",
   },
   button: {
     backgroundColor: COLORS.primary,

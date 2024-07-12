@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
 
 import { COLORS } from "@/constants/theme";
 import { CustomText, TimeslotModal } from "@/components";
@@ -10,14 +11,12 @@ import { AppDispatch } from "@/redux/store";
 import { useDispatch } from "react-redux";
 
 const TimeSlotScreen: React.FC = () => {
+  const { t } = useTranslation();
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(
     generateRandomTimeSlots(8)
   );
   const [isModalVisible, setIsModalVisible] = useState(false);
   const dispatch: AppDispatch = useDispatch();
-  // const { timeSlots, loading, error } = useSelector(
-  //   (state: RootState) => state.timeSlot
-  // );
   const router = useRouter();
 
   const handleCreateTimeSlot = (
@@ -42,26 +41,31 @@ const TimeSlotScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        <CustomText type="h3">Manage Time Slots</CustomText>
+        <CustomText type="h3">{t("timeslot.manageTimeSlots")}</CustomText>
         {timeSlots.map((slot) => (
           <View key={slot.id} style={styles.timeSlotItem}>
-            <View style={{display:"flex",flexDirection:"row",alignItems:"center",justifyContent:"space-between"}} >
-            <CustomText
-              type="body3"
-              // style={slot.isAvailable ? styles.available : styles.notAvailable}
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
             >
-              {slot.isAvailable ? "Available" : "Not Available"}
-            </CustomText>
-            <CustomText type="body1">
-              {`${slot.startTime} - ${slot.endTime}`}
-            </CustomText>
-
+              <CustomText type="body3">
+                {slot.isAvailable ? t("timeslot.available") : t("timeslot.notAvailable")}
+              </CustomText>
+              <CustomText type="body1">
+                {`${slot.startTime} - ${slot.endTime}`}
+              </CustomText>
             </View>
-            {slot.isWeekly && <CustomText type="body2">Weekly</CustomText>}
+            {slot.isWeekly && (
+              <CustomText type="body2">{t("timeslot.weekly")}</CustomText>
+            )}
           </View>
         ))}
         <TouchableOpacity style={styles.addButton} onPress={toggleModal}>
-          <CustomText type="body1">+ Add Time Slot</CustomText>
+          <CustomText type="body1">{t("timeslot.addTimeSlot")}</CustomText>
         </TouchableOpacity>
       </ScrollView>
       <TimeslotModal
@@ -73,7 +77,7 @@ const TimeSlotScreen: React.FC = () => {
   );
 };
 
-export default TimeSlotScreen
+export default TimeSlotScreen;
 
 const styles = StyleSheet.create({
   container: {

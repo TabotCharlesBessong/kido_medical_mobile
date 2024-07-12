@@ -1,0 +1,397 @@
+{
+  "homescreen": {
+    "title1": "Wobei wir Ihnen helfen können",
+    "help": {
+      "help1": "Termin buchen",
+      "help2": "Konsultiert werden",
+      "help3": "Behandelt und von einem Arzt betreut"
+    },
+    "title2": "Ärzte in Ihrer Nähe",
+    "title3": "Apotheken in Ihrer Nähe",
+    "recent": "Letzte Aktivitäten"
+  },
+  "layout": {
+    "one": "Startseite",
+    "tow": "Chats",
+    "three": "Termine",
+    "four": "Einstellungen",
+    "five": "Profil"
+  },
+  "appointments": {
+    "title": "Termine",
+    "title1": "Bevorstehende Termine",
+    "title2": "Vergangene Termine",
+    "button1": "Fangen",
+    "button2": "Stornieren",
+    "button3": "Löschen"
+  },
+  "settings": {
+    "profile": "Profil bearbeiten",
+    "notification": "Benachrichtigungen",
+    "privacy": "Datenschutz",
+    "money": "Meine Abonnements",
+    "help": "Hilfe und Support",
+    "terms": "Bedingungen und Richtlinien",
+    "save": "Datensparer",
+    "report": "Ein Problem melden",
+    "account": "Konto hinzufügen",
+    "logout": "Abmelden",
+    "security": "Sicherheit",
+    "delete": "Daten löschen"
+  },
+  "complete": {
+    "yup": {
+      "req1": "Geschlecht ist erforderlich",
+      "pos": "Das Alter muss eine positive Zahl sein",
+      "req2": "Das Alter ist erforderlich",
+      "req3": "Adresse 1 ist erforderlich",
+      "re4": "Beschäftigung ist erforderlich",
+      "match": "Die Telefonnummer muss 9 oder 14 Ziffern lang sein",
+      "req5": "Telefonnummer ist erforderlich"
+    },
+    "text1": "Informationen ausfüllen",
+    "form": {
+      "label1": "Geschlecht",
+      "placeholder1": "Wählen Sie Ihr Geschlecht",
+      "label2": "Alter",
+      "placeholder2": "Geben Sie Ihr Alter ein",
+      "label3": "Stadt",
+      "placeholder3": "Geben Sie Ihre Stadt ein",
+      "label4": "Viertel",
+      "placeholder4": "Geben Sie Ihr Viertel ein",
+      "label5": "Beruf",
+      "placeholder5": "Geben Sie Ihre Beschäftigung ein",
+      "label6": "Telefonnummer",
+      "placeholder6": "Geben Sie Ihre Telefonnummer ein"
+    },
+    "button": "Einreichen",
+    "loader": "Einreichung...",
+    "options": {
+      "one": "MÄNNLICH",
+      "two": "WEIBLICH"
+    }
+  },
+  "profile": {
+    "text1": "Benutzername",
+    "text2": "Vorname",
+    "text3": "Nachname",
+    "text4": "Email",
+    "text5": "Kontostatus",
+    "text6": "Erstellt am",
+    "button1": "Patienteninformationen hinzufügen",
+    "button2": "Als Arzt registrieren"
+  },
+  "doctorRegistration": {
+    "yup": {
+      "req1": "Name ist erforderlich",
+      "req2": "Spezialität ist erforderlich",
+      "req3": "Standort ist erforderlich",
+      "req4": "Dokumente sind erforderlich",
+      "req5": "Erfahrung ist erforderlich",
+      "pos1": "Erfahrung muss eine positive Zahl sein",
+      "req6": "Sprache ist erforderlich",
+      "req7": "Gebühr ist erforderlich",
+      "pos2": "Gebühr muss eine positive Zahl sein"
+    },
+    "text1": "Als Arzt registrieren",
+    "form": {
+      "label1": "Name",
+      "placeholder1": "Geben Sie Ihren Namen ein",
+      "label2": "Spezialisierung",
+      "placeholder2": "Geben Sie Ihre Spezialisierung ein",
+      "label3": "Standort",
+      "placeholder3": "Geben Sie Ihren Standort ein",
+      "label4": "Erfahrung",
+      "placeholder4": "Geben Sie Ihre Erfahrung ein",
+      "label5": "Sprache",
+      "placeholder5": "Wählen Sie Ihre Sprachen",
+      "label6": "Gebühr",
+      "placeholder6": "Geben Sie Ihre Gebühr ein",
+      "label7": "Dokumente",
+      "placeholder7": "Geben Sie Ihre Dokumente ein"
+    },
+    "button": "Einreichen",
+    "loader": "Registrierung...",
+    "options": {
+      "one": "Englisch",
+      "two": "Französisch",
+      "three": "Deutsch",
+      "four": "Spanisch"
+    }
+  },
+  "register": {
+    "yup": {
+      "firstname": {
+        "trim": "Vorname fehlt!",
+        "min": "Ungültiger Name!",
+        "required": "Vorname ist erforderlich!"
+      },
+      "lastname": {
+        "trim": "Nachname fehlt!",
+        "min": "Ungültiger Name!",
+        "required": "Nachname ist erforderlich!"
+      },
+      "email": {
+        "trim": "Email fehlt!",
+        "email": "Ungültige Email!",
+        "required": "Email ist erforderlich!"
+      },
+      "password": {
+        "trim": "Passwort fehlt!",
+        "min": "Das Passwort ist zu kurz!",
+        "matches": "Das Passwort ist zu einfach!",
+        "required": "Passwort ist erforderlich!"
+      },
+      "confirmPassword": {
+        "oneOf": "Passwörter müssen übereinstimmen",
+        "required": "Bestätigung des Passworts ist erforderlich!"
+      }
+    },
+    "title": "Konto erstellen",
+    "form": {
+      "label1": "Vorname",
+      "placeholder1": "Charles Bessong",
+      "label2": "Nachname",
+      "placeholder2": "Tabot",
+      "label3": "Email Adresse",
+      "placeholder3": "ebezebeatrice@gmail.com",
+      "label4": "Passwort",
+      "placeholder4": "*************",
+      "label5": "Passwort bestätigen",
+      "placeholder5": "*************"
+    },
+    "button": "Jetzt registrieren",
+    "loading": "Registrierung....",
+    "bottomText": "Haben Sie bereits ein Konto?",
+    "link": "anmelden"
+  },
+  "login": {
+    "yup": {
+      "email": {
+        "trim": "Email fehlt!",
+        "email": "Ungültige Email!",
+        "required": "Email ist erforderlich!"
+      },
+      "password": {
+        "trim": "Passwort fehlt!",
+        "min": "Das Passwort ist zu kurz!",
+        "matches": "Das Passwort ist zu einfach!",
+        "required": "Passwort ist erforderlich!"
+      }
+    },
+    "title": "Willkommen zurück",
+    "form": {
+      "label1": "Email Adresse",
+      "placeholder1": "ebezebeatrice@gmail.com",
+      "label2": "Passwort",
+      "placeholder2": "*************"
+    },
+    "button": "Anmelden",
+    "loading": "Anmeldung....",
+    "forgotText": "Haben Sie Ihr Passwort vergessen?",
+    "forgotLink": "Passwort vergessen",
+    "registerText": "Haben Sie noch kein Konto?",
+    "registerLink": "Registrieren"
+  },
+  "reset": {
+    "yup": {
+      "password": {
+        "trim": "Passwort fehlt!",
+        "min": "Das Passwort ist zu kurz!",
+        "matches": "Das Passwort ist zu einfach!",
+        "required": "Passwort ist erforderlich!"
+      },
+      "confirmPassword": {
+        "oneOf": "Passwörter müssen übereinstimmen",
+        "required": "Bestätigung des Passworts ist erforderlich!"
+      },
+      "code": {
+        "matches": "Ungültiger Code",
+        "required": "Code ist erforderlich"
+      },
+      "email": {
+        "trim": "Email fehlt!",
+        "email": "Ungültige Email!",
+        "required": "Email ist erforderlich!"
+      }
+    },
+    "title": "Erstellen Sie Ihr neues Passwort",
+    "form": {
+      "label1": "Geben Sie den Code ein, der an Ihre E-Mail gesendet wurde",
+      "placeholder1": "XX4GBN",
+      "label2": "Email Adresse",
+      "placeholder2": "ebezebeatrice@gmail.com",
+      "label3": "Passwort",
+      "placeholder3": "*************",
+      "label4": "Passwort bestätigen",
+      "placeholder4": "*************"
+    },
+    "button": "Passwort zurücksetzen",
+    "loading": "Zurücksetzen....",
+    "error": "Der eingegebene Code ist falsch."
+  },
+  "forgotPassword": {
+    "title": "Sie haben Ihr Passwort vergessen, kein Problem, Sie können es zurücksetzen",
+    "emailLabel": "E-Mail-Adresse",
+    "emailPlaceholder": "ebezebeatrice@gmail.com",
+    "submitButton": "Passwort vergessen",
+    "loadingText": "Zurücksetzung senden....",
+    "yup": {
+      "email": {
+        "trim": "Email fehlt!",
+        "email": "Ungültige Email!",
+        "required": "Email ist erforderlich!"
+      }
+    }
+  },
+  "bookAppointment": {
+    "title": "Termin mit Ihrem Arzt buchen",
+    "appointmentReasonLabel": "Termin Grund",
+    "appointmentReasonPlaceholder": "Geben Sie den Termin Grund ein",
+    "selectDateLabel": "Datum auswählen:",
+    "selectTimeLabel": "Zeitraum wählen",
+    "selectTimePlaceholder": "Wählen Sie einen Zeitraum",
+    "bookButton": "Termin buchen",
+    "loadingText": "Buchen...",
+    "validation": {
+      "timeRequired": "Zeit ist erforderlich",
+      "dateRequired": "Datum ist erforderlich",
+      "reasonRequired": "Grund ist erforderlich"
+    }
+  },
+  "consultation": {
+    "title": "Konsultation",
+    "presentingComplaintsLabel": "Anamnese",
+    "presentingComplaintsPlaceholder": "Geben Sie die Anamnese ein",
+    "pastHistoryLabel": "Frühere Krankheiten",
+    "pastHistoryPlaceholder": "Geben Sie frühere Krankheiten ein",
+    "diagnosticImpressionLabel": "Diagnoseeindruck",
+    "diagnosticImpressionPlaceholder": "Geben Sie den Diagnoseeindruck ein",
+    "investigationsLabel": "Untersuchungen",
+    "investigationsPlaceholder": "Geben Sie Untersuchungen ein",
+    "treatmentLabel": "Behandlung",
+    "treatmentPlaceholder": "Geben Sie die Behandlung ein",
+    "submitButton": "Absenden",
+    "submittingText": "Absenden...",
+    "validation": {
+      "presentingComplaintsRequired": "Anamnese ist erforderlich",
+      "pastHistoryRequired": "Frühere Krankheiten sind erforderlich",
+      "diagnosticImpressionRequired": "Diagnoseeindruck ist erforderlich",
+      "investigationsRequired": "Untersuchungen sind erforderlich",
+      "treatmentRequired": "Behandlung ist erforderlich"
+    }
+  },
+  "createPost": {
+    "title": "Beitrag erstellen",
+    "fields": {
+      "title": "Titel",
+      "description": "Beschreibung",
+      "image": "Bild-URL"
+    },
+    "placeholders": {
+      "title": "Geben Sie den Beitragstitel ein",
+      "description": "Geben Sie die Beschreibung des Beitrags ein",
+      "image": "Geben Sie die Bild-URL ein"
+    },
+    "buttons": {
+      "submit": "Einreichen"
+    },
+    "validation": {
+      "titleRequired": "Titel ist erforderlich",
+      "descriptionRequired": "Beschreibung ist erforderlich",
+      "invalidImageUrl": "Ungültige URL",
+      "imageUrlRequired": "Bild-URL ist erforderlich"
+    }
+  },
+  "createPrescription": {
+    "title": "Rezept erstellen",
+    "fields": {
+      "instructions": "Anweisungen",
+      "investigation": "Untersuchung",
+      "medicationName": "Medikamentenname",
+      "dosage": "Dosierung",
+      "frequency": "Häufigkeit",
+      "duration": "Dauer"
+    },
+    "placeholders": {
+      "instructions": "Geben Sie Anweisungen ein",
+      "investigation": "Geben Sie die Untersuchung ein",
+      "medicationName": "Geben Sie den Medikamentennamen ein",
+      "dosage": "Geben Sie die Dosierung ein",
+      "frequency": "Geben Sie die Häufigkeit ein",
+      "duration": "Geben Sie die Dauer ein"
+    },
+    "buttons": {
+      "submit": "Einreichen",
+      "addMedication": "Medikament hinzufügen",
+      "removeMedication": "Medikament entfernen"
+    },
+    "validation": {
+      "instructionsRequired": "Anweisungen sind erforderlich",
+      "investigationRequired": "Untersuchung ist erforderlich",
+      "medicationNameRequired": "Medikamentenname ist erforderlich",
+      "dosageRequired": "Dosierung ist erforderlich",
+      "frequencyRequired": "Häufigkeit ist erforderlich",
+      "durationRequired": "Dauer ist erforderlich",
+      "atLeastOneMedicationRequired": "Mindestens ein Medikament ist erforderlich"
+    }
+  },
+  "prescriptionDetails": {
+    "notFound": "Rezept nicht gefunden.",
+    "doctor": "Arzt :",
+    "patient": "Patient :",
+    "instructions": "Anweisungen :",
+    "investigation": "Untersuchung :",
+    "medications": "Medikamente :",
+    "medicationName": "Name :",
+    "dosage": "Dosierung :",
+    "frequency": "Frequenz :",
+    "durationPrefix": "Dauer :",
+    "daysSuffix": "Tage",
+    "none": "Keine"
+  },
+  "prescriptions": {
+    "loading": "Wird geladen...",
+    "error": "Abrufen der Rezepte fehlgeschlagen.",
+    "doctor": "Arzt :",
+    "patient": "Patient :",
+    "instructions": "Anweisungen :",
+    "investigation": "Untersuchung :",
+    "medications": "Medikamente :",
+    "none": "Keine"
+  },
+  "profiled": {
+    "back": "Zurück",
+    "doctorProfile": "Arztprofil",
+    "speciality": "Spezialität:",
+    "location": "Ort:",
+    "experience": "Erfahrung:",
+    "languages": "Sprachen:",
+    "consultationFee": "Beratungsgebühr:",
+    "summary": "Zusammenfassung:",
+    "bookAppointment": "Termin Buchen",
+    "consultPatient": "Patient Beraten",
+    "prescribeToPatient": "Verschreiben",
+    "viewPrescriptions": "Rezepte Anzeigen",
+    "createPost": "Beitrag Erstellen",
+    "timeSlot": "Zeitschlitz",
+    "description": "Dr. Jason schloss 1992 sein Medizinstudium an der North Eastern University ab. Er arbeitet in New York, NY und an zwei weiteren Standorten und ist auf Handchirurgie, orthopädische Chirurgie und Sportmedizin spezialisiert. Dr. Smith ist mit dem Northeastern Medicine Laboratory verbunden."
+  },
+  "timeslot":{
+    "manageTimeSlots": "Zeitfenster verwalten",
+    "available": "Verfügbar",
+    "notAvailable": "Nicht verfügbar",
+    "weekly": "Wöchentlich",
+    "addTimeSlot": "+ Zeitfenster hinzufügen",
+    "createTimeSlot": "Zeitfenster erstellen",
+    "selectStartTime": "Startzeit auswählen",
+    "selectEndTime": "Endzeit auswählen",
+    "weeklyAvailability": "Wöchentliche Verfügbarkeit",
+    "create": "Erstellen",
+    "cancel": "Abbrechen",
+    "validationError": "Validierungsfehler",
+    "selectBothTimes": "Bitte wählen Sie sowohl die Start- als auch die Endzeit aus.",
+    "error": "Fehler",
+    "failedToCreateTimeSlot": "Zeitfenster konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
+  }
+}

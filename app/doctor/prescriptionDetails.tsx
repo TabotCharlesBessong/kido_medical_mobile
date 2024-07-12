@@ -4,33 +4,60 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { CustomText } from "@/components";
 import { COLORS } from "@/constants/theme";
 import { IPrescription } from "@/constants/types";
+import { useTranslation } from "react-i18next";
 
 const PrescriptionDetailsScreen: React.FC = () => {
+  const { t } = useTranslation(); // Initialize translation hook
+
   const { prescription } = useLocalSearchParams<{
     prescription: IPrescription;
   }>();
 
   if (!prescription) {
-    return <CustomText type="h1" >Prescription not found.</CustomText>;
+    return (
+      <CustomText type="h1">
+        {t("prescriptionDetails.notFound")}
+      </CustomText>
+    );
   }
 
   return (
     <ScrollView style={styles.container}>
-      <CustomText type="h2">Doctor: {prescription.doctorName}</CustomText>
-      <CustomText type="h4" >Patient: {prescription.patientName}</CustomText>
-      <CustomText type="h4" >
-        Instructions: {prescription.instructions || "None"}
+      <CustomText type="h2">{`${t("prescriptionDetails.doctor")} ${
+        prescription.doctorName
+      }`}</CustomText>
+      <CustomText type="h4">{`${t("prescriptionDetails.patient")} ${
+        prescription.patientName
+      }`}</CustomText>
+      <CustomText type="h4">{`${t(
+        "prescriptionDetails.instructions"
+      )} ${
+        prescription.instructions || t("prescriptionDetails.none")
+      }`}</CustomText>
+      <CustomText type="h4">{`${t(
+        "prescriptionDetails.investigation"
+      )} ${
+        prescription.investigation || t("prescriptionDetails.none")
+      }`}</CustomText>
+      <CustomText type="h2">
+        {t("prescriptionDetails.medications")}
       </CustomText>
-      <CustomText type="h4" >
-        Investigation: {prescription.investigation || "None"}
-      </CustomText>
-      <CustomText type="h2">Medications:</CustomText>
       {prescription?.medications?.map((med) => (
         <View key={med.id} style={styles.medicationCard}>
-          <CustomText type="h4" >Name: {med.name}</CustomText>
-          <CustomText type="h4" >Dosage: {med.dosage}</CustomText>
-          <CustomText type="h4" >Frequency: {med.frequency}</CustomText>
-          <CustomText type="h4" >Duration: {med.duration} days</CustomText>
+          <CustomText type="h4">{`${t(
+            "prescriptionDetails.medicationName"
+          )} ${med.name}`}</CustomText>
+          <CustomText type="h4">{`${t("prescriptionDetails.dosage")} ${
+            med.dosage
+          }`}</CustomText>
+          <CustomText type="h4">{`${t(
+            "prescriptionDetails.frequency"
+          )} ${med.frequency}`}</CustomText>
+          <CustomText type="h4">{`${t(
+            "prescriptionDetails.durationPrefix"
+          )} ${med.duration} ${t(
+            "prescriptionDetails.daysSuffix"
+          )}`}</CustomText>
         </View>
       ))}
     </ScrollView>

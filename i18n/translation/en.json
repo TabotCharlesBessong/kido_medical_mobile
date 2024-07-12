@@ -1,0 +1,398 @@
+{
+  "homescreen": {
+    "title1": "What we can help you with",
+    "help": {
+      "help1": "Book Appointment",
+      "help2": "Get consulted",
+      "help3": "Treated and attended to by a doctor"
+    },
+    "title2": "Doctors near you",
+    "title3": "Pharmacies near you",
+    "recent": "Recent Activities"
+  },
+  "layout": {
+    "one": "Home",
+    "tow": "Chats",
+    "three": "Appointments",
+    "four": "Setting",
+    "five": "Profile"
+  },
+  "appointments": {
+    "title": "Appointments",
+    "title1": "Upcoming Appointments",
+    "title2": "Past Appointments",
+    "button1": "Start",
+    "button2": "Cancel",
+    "button3": "Delete"
+  },
+  "settings": {
+    "profile": "Edit Profile",
+    "notification": "Notifications",
+    "privacy": "Privacy",
+    "money": "My Subscriptions",
+    "help": "Help & Support",
+    "terms": "Terms and Policies",
+    "save": "Data Saver",
+    "report": "Report a Problem",
+    "account": "Add Account",
+    "logout": "Log out",
+    "title": "Settings",
+    "security": "Security",
+    "delete": "Delete Data"
+  },
+  "profile": {
+    "text1": "Username",
+    "text2": "First Name",
+    "text3": "Last Name",
+    "text4": "Email",
+    "text5": "Account Status",
+    "text6": "Created At",
+    "button1": "Add Patient Information",
+    "button2": "Register as Doctor"
+  },
+  "complete": {
+    "yup": {
+      "req1": "Gender is required",
+      "pos": "Age must be a positive number",
+      "req2": "Age is required",
+      "req3": "Address 1 is required",
+      "re4": "Occupation is required",
+      "match": "Phone number must be 9 or 14 digits long",
+      "req5": "Phone number is required"
+    },
+    "text1": "Fill in information",
+    "form": {
+      "label1": "Gender",
+      "placeholder1": "Choose your Gender",
+      "label2": "Age",
+      "placeholder2": "Enter your Age",
+      "label3": "City",
+      "placeholder3": "Enter your City",
+      "label4": "quater",
+      "placeholder4": "Enter your quater",
+      "label5": "Occupation",
+      "placeholder5": "Enter your Occupation",
+      "label6": "Phone Number",
+      "placeholder6": "Enter your Phone Number"
+    },
+    "button": "Submit",
+    "loader": "Submitting...",
+    "options": {
+      "one": "MALE",
+      "two": "FEMALE"
+    }
+  },
+  "doctorRegistration": {
+    "yup": {
+      "req1": "Name is required",
+      "req2": "Speciality is required",
+      "req3": "Location is required",
+      "req4": "Documents are required",
+      "req5": "Experience is required",
+      "pos1": "Experience must be a positive number",
+      "req6": "Language is required",
+      "req7": "Fee is required",
+      "pos2": "Fee must be a positive number"
+    },
+    "text1": "Register as a Doctor",
+    "form": {
+      "label1": "Name",
+      "placeholder1": "Enter your Name",
+      "label2": "Specialization",
+      "placeholder2": "Enter your Specialization",
+      "label3": "Location",
+      "placeholder3": "Enter your Location",
+      "label4": "Experience",
+      "placeholder4": "Enter your Experience",
+      "label5": "Language",
+      "placeholder5": "Select your Languages",
+      "label6": "Fee",
+      "placeholder6": "Enter your Fee",
+      "label7": "Documents",
+      "placeholder7": "Enter your Documents"
+    },
+    "button": "Submit",
+    "loader": "Registering...",
+    "options": {
+      "one": "English",
+      "two": "French",
+      "three": "German",
+      "four": "Spanish"
+    }
+  },
+  "register": {
+    "yup": {
+      "firstname": {
+        "trim": "First Name is missing!",
+        "min": "Invalid name!",
+        "required": "First Name is required!"
+      },
+      "lastname": {
+        "trim": "Last Name is missing!",
+        "min": "Invalid name!",
+        "required": "Last Name is required!"
+      },
+      "email": {
+        "trim": "Email is missing!",
+        "email": "Invalid email!",
+        "required": "Email is required!"
+      },
+      "password": {
+        "trim": "Password is missing!",
+        "min": "Password is too short!",
+        "matches": "Password is too simple!",
+        "required": "Password is required!"
+      },
+      "confirmPassword": {
+        "oneOf": "Passwords must match",
+        "required": "Confirm Password is required!"
+      }
+    },
+    "title": "Create account",
+    "form": {
+      "label1": "First Name",
+      "placeholder1": "Charles Bessong",
+      "label2": "Last Name",
+      "placeholder2": "Tabot",
+      "label3": "Email Address",
+      "placeholder3": "ebezebeatrice@gmail.com",
+      "label4": "Password",
+      "placeholder4": "*************",
+      "label5": "Confirm Password",
+      "placeholder5": "*************"
+    },
+    "button": "Register now",
+    "loading": "Registering....",
+    "bottomText": "do you already have an account?",
+    "link": "login"
+  },
+  "login": {
+    "yup": {
+      "email": {
+        "trim": "Email is missing!",
+        "email": "Invalid email!",
+        "required": "Email is required!"
+      },
+      "password": {
+        "trim": "Password is missing!",
+        "min": "Password is too short!",
+        "matches": "Password is too simple!",
+        "required": "Password is required!"
+      }
+    },
+    "title": "Welcome back",
+    "form": {
+      "label1": "Email Address",
+      "placeholder1": "ebezebeatrice@gmail.com",
+      "label2": "Password",
+      "placeholder2": "*************"
+    },
+    "button": "Login",
+    "loading": "Logging in....",
+    "forgotText": "Forgot your password?",
+    "forgotLink": "Forgot password",
+    "registerText": "Don't yet have an account?",
+    "registerLink": "Register"
+  },
+  "reset": {
+    "yup": {
+      "password": {
+        "trim": "Password is missing!",
+        "min": "Password is too short!",
+        "matches": "Password is too simple!",
+        "required": "Password is required!"
+      },
+      "confirmPassword": {
+        "oneOf": "Passwords must match",
+        "required": "Confirm Password is required!"
+      },
+      "code": {
+        "matches": "Invalid code",
+        "required": "Code is required"
+      },
+      "email": {
+        "trim": "Email is missing!",
+        "email": "Invalid email!",
+        "required": "Email is required!"
+      }
+    },
+    "title": "Create your new password",
+    "form": {
+      "label1": "Enter the code sent to your mail",
+      "placeholder1": "XX4GBN",
+      "label2": "Email Address",
+      "placeholder2": "ebezebeatrice@gmail.com",
+      "label3": "Password",
+      "placeholder3": "*************",
+      "label4": "Confirm Password",
+      "placeholder4": "*************"
+    },
+    "button": "Reset Password",
+    "loading": "Resetting....",
+    "error": "The code you entered is incorrect."
+  },
+  "forgotPassword": {
+    "title": "You forgot your password, no problem you can reset it",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "ebezebeatrice@gmail.com",
+    "submitButton": "Forgot Password",
+    "loadingText": "Sending reset....",
+    "yup": {
+      "email": {
+        "trim": "Email is missing!",
+        "email": "Invalid email!",
+        "required": "Email is required!"
+      }
+    }
+  },
+  "bookAppointment": {
+    "title": "Book appointment with your doctor",
+    "appointmentReasonLabel": "Appointment Reason",
+    "appointmentReasonPlaceholder": "Enter appointment reason",
+    "selectDateLabel": "Select Date:",
+    "selectTimeLabel": "Choose Time Slot",
+    "selectTimePlaceholder": "Select a time slot",
+    "bookButton": "Book Appointment",
+    "loadingText": "Booking...",
+    "validation": {
+      "timeRequired": "Time is required",
+      "dateRequired": "Date is required",
+      "reasonRequired": "Reason is required"
+    }
+  },
+  "consultation": {
+    "title": "Consultation",
+    "presentingComplaintsLabel": "Presenting Complaints",
+    "presentingComplaintsPlaceholder": "Enter presenting complaints",
+    "pastHistoryLabel": "Past History",
+    "pastHistoryPlaceholder": "Enter past history",
+    "diagnosticImpressionLabel": "Diagnostic Impression",
+    "diagnosticImpressionPlaceholder": "Enter diagnostic impression",
+    "investigationsLabel": "Investigations",
+    "investigationsPlaceholder": "Enter investigations",
+    "treatmentLabel": "Treatment",
+    "treatmentPlaceholder": "Enter treatment",
+    "submitButton": "Submit",
+    "submittingText": "Submitting...",
+    "validation": {
+      "presentingComplaintsRequired": "Presenting Complaints are required",
+      "pastHistoryRequired": "Past History is required",
+      "diagnosticImpressionRequired": "Diagnostic Impression is required",
+      "investigationsRequired": "Investigations are required",
+      "treatmentRequired": "Treatment is required"
+    }
+  },
+  "createPost": {
+    "title": "Create Post",
+    "fields": {
+      "title": "Title",
+      "description": "Description",
+      "image": "Image URL"
+    },
+    "placeholders": {
+      "title": "Enter post title",
+      "description": "Enter post description",
+      "image": "Enter image URL"
+    },
+    "buttons": {
+      "submit": "Submit"
+    },
+    "validation": {
+      "titleRequired": "Title is required",
+      "descriptionRequired": "Description is required",
+      "invalidImageUrl": "Invalid URL",
+      "imageUrlRequired": "Image URL is required"
+    }
+  },
+  "createPrescription": {
+    "title": "Create Prescription",
+    "fields": {
+      "instructions": "Instructions",
+      "investigation": "Investigation",
+      "medicationName": "Medication Name",
+      "dosage": "Dosage",
+      "frequency": "Frequency",
+      "duration": "Duration"
+    },
+    "placeholders": {
+      "instructions": "Enter instructions",
+      "investigation": "Enter investigation",
+      "medicationName": "Enter medication name",
+      "dosage": "Enter dosage",
+      "frequency": "Enter frequency",
+      "duration": "Enter duration"
+    },
+    "buttons": {
+      "submit": "Submit",
+      "addMedication": "Add Medication",
+      "removeMedication": "Remove Medication"
+    },
+    "validation": {
+      "instructionsRequired": "Instructions are required",
+      "investigationRequired": "Investigation is required",
+      "medicationNameRequired": "Medication name is required",
+      "dosageRequired": "Dosage is required",
+      "frequencyRequired": "Frequency is required",
+      "durationRequired": "Duration is required",
+      "atLeastOneMedicationRequired": "At least one medication is required"
+    }
+  },
+  "prescriptionDetails": {
+    "notFound": "Prescription not found.",
+    "doctor": "Doctor:",
+    "patient": "Patient:",
+    "instructions": "Instructions:",
+    "investigation": "Investigation:",
+    "medications": "Medications:",
+    "medicationName": "Name:",
+    "dosage": "Dosage:",
+    "frequency": "Frequency:",
+    "durationPrefix": "Duration:",
+    "daysSuffix": "days",
+    "none": "None"
+  },
+  "prescriptions": {
+    "loading": "Loading...",
+    "error": "Failed to fetch prescriptions.",
+    "doctor": "Doctor:",
+    "patient": "Patient:",
+    "instructions": "Instructions:",
+    "investigation": "Investigation:",
+    "medications": "Medications:",
+    "none": "None"
+  },
+  "profiled": {
+    "back": "Back",
+    "doctorProfile": "Doctor Profile",
+    "speciality": "Speciality:",
+    "location": "Location:",
+    "experience": "Experience:",
+    "languages": "Languages:",
+    "consultationFee": "Consultation Fee:",
+    "summary": "Summary:",
+    "bookAppointment": "Book Appointment",
+    "consultPatient": "Consult Patient",
+    "prescribeToPatient": "Prescribe to Patient",
+    "viewPrescriptions": "View Prescriptions",
+    "createPost": "Create Post",
+    "timeSlot": "Time slot",
+    "description":"Dr Jason graduated from North Eastern University school of Medicine in 1992. He works in New York, NY and 2 other locations and specializes in Hand surgery, Orthopedic surgery, and Sports medicine. Dr. Smith is affiliated with Northeastern medicine laboratory"
+  },
+  "timeslot":{
+    "manageTimeSlots": "Manage Time Slots",
+    "available": "Available",
+    "notAvailable": "Not Available",
+    "weekly": "Weekly",
+    "addTimeSlot": "+ Add Time Slot",
+    "createTimeSlot": "Create Time Slot",
+    "selectStartTime": "Select Start Time",
+    "selectEndTime": "Select End Time",
+    "weeklyAvailability": "Weekly Availability",
+    "create": "Create",
+    "cancel": "Cancel",
+    "validationError": "Validation Error",
+    "selectBothTimes": "Please select both start and end times.",
+    "error": "Error",
+    "failedToCreateTimeSlot": "Failed to create time slot. Please try again."
+  }
+}

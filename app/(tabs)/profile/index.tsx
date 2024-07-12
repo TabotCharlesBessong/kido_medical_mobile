@@ -7,10 +7,12 @@ import { useRouter } from "expo-router";
 import { IUser } from "@/constants/types";
 import { mockUser } from "@/constants/data/user";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 const ProfileScreen = () => {
   const user:IUser = mockUser
   const router = useRouter();
+  const {t} = useTranslation()
 
   return (
     <SafeAreaView style={styles.container}>
@@ -23,23 +25,23 @@ const ProfileScreen = () => {
         </View>
         <View style={styles.infoContainer}>
           <View style={styles.infoItem}>
-            <CustomText type="body1">Username: </CustomText>
+            <CustomText type="body1">{t("profile.text1")}: </CustomText>
             <CustomText type="body2">{user.username}</CustomText>
           </View>
           <View style={styles.infoItem}>
-            <CustomText type="body1">First Name: </CustomText>
+            <CustomText type="body1">{t("profile.text2")}: </CustomText>
             <CustomText type="body2">{user.firstname}</CustomText>
           </View>
           <View style={styles.infoItem}>
-            <CustomText type="body1">Last Name: </CustomText>
+            <CustomText type="body1">{t("profile.text3")}: </CustomText>
             <CustomText type="body2">{user.lastname}</CustomText>
           </View>
           <View style={styles.infoItem}>
-            <CustomText type="body1">Email: </CustomText>
+            <CustomText type="body1">{t("profile.text4")}: </CustomText>
             <CustomText type="body2">{user.email}</CustomText>
           </View>
           <View style={styles.infoItem}>
-            <CustomText type="body1">Account Status: </CustomText>
+            <CustomText type="body1">{t("profile.text5")}: </CustomText>
             {user.isEmailVerified ? (
               <AntDesign name="checkcircle" size={28} color={COLORS.primary} />
             ) : (
@@ -47,7 +49,7 @@ const ProfileScreen = () => {
             )}
           </View>
           <View style={styles.infoItem}>
-            <CustomText type="body1">Created At: </CustomText>
+            <CustomText type="body1">{t("profile.text6")}: </CustomText>
             <CustomText type="body2">
               {user.createdAt.toDateString()}
             </CustomText>
@@ -61,13 +63,13 @@ const ProfileScreen = () => {
         </View>
         <View style={styles.buttonContainer}>
           <AppButton
-            title="Add Patient Information"
+            title={t("profile.button1")}
             onPress={() => router.push("/profile/complete")}
             backgroundColor={COLORS.primary}
             width={"45%"}
           />
           <AppButton
-            title="Register as Doctor"
+            title={t("profile.button2")}
             onPress={() => router.push("/profile/register")}
             backgroundColor={COLORS.primary}
             width={"45%"}

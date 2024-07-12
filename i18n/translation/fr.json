@@ -1,0 +1,397 @@
+{
+  "homescreen": {
+    "title1": "Comment pouvons-nous vous aider",
+    "help": {
+      "help1": "Prendre rendez-vous",
+      "help2": "Obtenir une consultation",
+      "help3": "Soigné et pris en charge par un médecin"
+    },
+    "title2": "Médecins près de chez vous",
+    "title3": "Pharmacies près de chez vous",
+    "recent": "Activités récentes"
+  },
+  "layout": {
+    "one": "Accueil",
+    "tow": "Chats",
+    "three": "Rendez-vous",
+    "four": "Paramètres",
+    "five": "Profil"
+  },
+  "appointments": {
+    "title": "Rendez-vous",
+    "title1": "Prochains rendez-vous",
+    "title2": "Rendez-vous passés",
+    "button1": "Commencer",
+    "button2": "Annuler",
+    "button3": "Supprimer"
+  },
+  "settings": {
+    "profile": "Modifier le profil",
+    "notification": "Notifications",
+    "privacy": "Confidentialité",
+    "money": "Mes abonnements",
+    "help": "Aide et support",
+    "terms": "Termes et politiques",
+    "save": "Économiseur de données",
+    "report": "Signaler un problème",
+    "account": "Ajouter un compte",
+    "logout": "Se déconnecter",
+    "security": "Securite",
+    "delete": "Suprimmer les données"
+  },
+  "complete": {
+    "yup": {
+      "req1": "Le sexe est requis",
+      "pos": "L'âge doit être un nombre positif",
+      "req2": "L'âge est requis",
+      "req3": "L'adresse 1 est requise",
+      "re4": "L'occupation est requise",
+      "match": "Le numéro de téléphone doit comporter 9 ou 14 chiffres",
+      "req5": "Le numéro de téléphone est requis"
+    },
+    "text1": "Remplir les informations",
+    "form": {
+      "label1": "Genre",
+      "placeholder1": "Choisissez votre Genre",
+      "label2": "Âge",
+      "placeholder2": "Entrez votre Âge",
+      "label3": "Ville",
+      "placeholder3": "Entrez votre Ville",
+      "label4": "Quartier",
+      "placeholder4": "Entrez votre Quartier",
+      "label5": "Occupation",
+      "placeholder5": "Entrez votre Occupation",
+      "label6": "Numéro de Téléphone",
+      "placeholder6": "Entrez votre Numéro de Téléphone"
+    },
+    "button": "Soumettre",
+    "loader": "Soumission...",
+    "options": {
+      "one": "MÂLE",
+      "two": "FEMELLE"
+    }
+  },
+  "doctorRegistration": {
+    "yup": {
+      "req1": "Le nom est requis",
+      "req2": "La spécialité est requise",
+      "req3": "L'emplacement est requis",
+      "req4": "Les documents sont requis",
+      "req5": "L'expérience est requise",
+      "pos1": "L'expérience doit être un nombre positif",
+      "req6": "La langue est requise",
+      "req7": "Les honoraires sont requis",
+      "pos2": "Les honoraires doivent être un nombre positif"
+    },
+    "text1": "S'inscrire en tant que Médecin",
+    "form": {
+      "label1": "Nom",
+      "placeholder1": "Entrez votre Nom",
+      "label2": "Spécialisation",
+      "placeholder2": "Entrez votre Spécialisation",
+      "label3": "Emplacement",
+      "placeholder3": "Entrez votre Emplacement",
+      "label4": "Expérience",
+      "placeholder4": "Entrez votre Expérience",
+      "label5": "Langue",
+      "placeholder5": "Sélectionnez vos Langues",
+      "label6": "Honoraires",
+      "placeholder6": "Entrez vos Honoraires",
+      "label7": "Documents",
+      "placeholder7": "Entrez vos Documents"
+    },
+    "button": "Soumettre",
+    "loader": "Inscription en cours...",
+    "options": {
+      "one": "Anglais",
+      "two": "Français",
+      "three": "Allemand",
+      "four": "Espagnol"
+    }
+  },
+  "profile": {
+    "text1": "Nom d'utilisateur",
+    "text2": "Prénom",
+    "text3": "Nom de famille",
+    "text4": "Email",
+    "text5": "Statut du compte",
+    "text6": "Créé le",
+    "button1": "Ajouter des Informations sur le Patient",
+    "button2": "S'inscrire en tant que Médecin"
+  },
+  "register": {
+    "yup": {
+      "firstname": {
+        "trim": "Le prénom est manquant !",
+        "min": "Nom invalide !",
+        "required": "Le prénom est requis !"
+      },
+      "lastname": {
+        "trim": "Le nom de famille est manquant !",
+        "min": "Nom invalide !",
+        "required": "Le nom de famille est requis !"
+      },
+      "email": {
+        "trim": "L'email est manquant !",
+        "email": "Email invalide !",
+        "required": "L'email est requis !"
+      },
+      "password": {
+        "trim": "Le mot de passe est manquant !",
+        "min": "Le mot de passe est trop court !",
+        "matches": "Le mot de passe est trop simple !",
+        "required": "Le mot de passe est requis !"
+      },
+      "confirmPassword": {
+        "oneOf": "Les mots de passe doivent correspondre",
+        "required": "La confirmation du mot de passe est requise !"
+      }
+    },
+    "title": "Créer un compte",
+    "form": {
+      "label1": "Prénom",
+      "placeholder1": "Charles Bessong",
+      "label2": "Nom de famille",
+      "placeholder2": "Tabot",
+      "label3": "Adresse e-mail",
+      "placeholder3": "ebezebeatrice@gmail.com",
+      "label4": "Mot de passe",
+      "placeholder4": "*************",
+      "label5": "Confirmer le mot de passe",
+      "placeholder5": "*************"
+    },
+    "button": "Inscrivez-vous maintenant",
+    "loading": "Enregistrement....",
+    "bottomText": "avez-vous déjà un compte?",
+    "link": "connexion"
+  },
+  "login": {
+    "yup": {
+      "email": {
+        "trim": "L'email est manquant !",
+        "email": "Email invalide !",
+        "required": "L'email est requis !"
+      },
+      "password": {
+        "trim": "Le mot de passe est manquant !",
+        "min": "Le mot de passe est trop court !",
+        "matches": "Le mot de passe est trop simple !",
+        "required": "Le mot de passe est requis !"
+      }
+    },
+    "title": "Bon retour",
+    "form": {
+      "label1": "Adresse e-mail",
+      "placeholder1": "ebezebeatrice@gmail.com",
+      "label2": "Mot de passe",
+      "placeholder2": "*************"
+    },
+    "button": "Connexion",
+    "loading": "Connexion en cours....",
+    "forgotText": "Vous avez oublié votre mot de passe?",
+    "forgotLink": "Mot de passe oublié",
+    "registerText": "Vous n'avez pas encore de compte?",
+    "registerLink": "S'inscrire"
+  },
+  "reset": {
+    "yup": {
+      "password": {
+        "trim": "Le mot de passe est manquant !",
+        "min": "Le mot de passe est trop court !",
+        "matches": "Le mot de passe est trop simple !",
+        "required": "Le mot de passe est requis !"
+      },
+      "confirmPassword": {
+        "oneOf": "Les mots de passe doivent correspondre",
+        "required": "La confirmation du mot de passe est requise !"
+      },
+      "code": {
+        "matches": "Code invalide",
+        "required": "Le code est requis"
+      },
+      "email": {
+        "trim": "L'email est manquant !",
+        "email": "Email invalide !",
+        "required": "L'email est requis !"
+      }
+    },
+    "title": "Créez votre nouveau mot de passe",
+    "form": {
+      "label1": "Entrez le code envoyé à votre email",
+      "placeholder1": "XX4GBN",
+      "label2": "Adresse e-mail",
+      "placeholder2": "ebezebeatrice@gmail.com",
+      "label3": "Mot de passe",
+      "placeholder3": "*************",
+      "label4": "Confirmer le mot de passe",
+      "placeholder4": "*************"
+    },
+    "button": "Réinitialiser le mot de passe",
+    "loading": "Réinitialisation....",
+    "error": "Le code que vous avez entré est incorrect."
+  },
+  "forgotPassword": {
+    "title": "Vous avez oublié votre mot de passe, pas de problème, vous pouvez le réinitialiser",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "ebezebeatrice@gmail.com",
+    "submitButton": "Mot de passe oublié",
+    "loadingText": "Envoi de la réinitialisation....",
+    "yup": {
+      "email": {
+        "trim": "L'email est manquant !",
+        "email": "Email invalide !",
+        "required": "L'email est requis !"
+      }
+    }
+  },
+  "bookAppointment": {
+    "title": "Prenez rendez-vous avec votre médecin",
+    "appointmentReasonLabel": "Motif du rendez-vous",
+    "appointmentReasonPlaceholder": "Entrez le motif du rendez-vous",
+    "selectDateLabel": "Sélectionner la date:",
+    "selectTimeLabel": "Choisir le créneau horaire",
+    "selectTimePlaceholder": "Sélectionnez un créneau horaire",
+    "bookButton": "Prendre rendez-vous",
+    "loadingText": "Réservation...",
+    "validation": {
+      "timeRequired": "L'heure est requise",
+      "dateRequired": "La date est requise",
+      "reasonRequired": "Le motif est requis"
+    }
+  },
+  "consultation": {
+    "title": "Consultation",
+    "presentingComplaintsLabel": "Motifs de consultation",
+    "presentingComplaintsPlaceholder": "Entrez les motifs de consultation",
+    "pastHistoryLabel": "Antécédents médicaux",
+    "pastHistoryPlaceholder": "Entrez les antécédents médicaux",
+    "diagnosticImpressionLabel": "Impression diagnostique",
+    "diagnosticImpressionPlaceholder": "Entrez l'impression diagnostique",
+    "investigationsLabel": "Examens",
+    "investigationsPlaceholder": "Entrez les examens",
+    "treatmentLabel": "Traitement",
+    "treatmentPlaceholder": "Entrez le traitement",
+    "submitButton": "Soumettre",
+    "submittingText": "Soumission en cours...",
+    "validation": {
+      "presentingComplaintsRequired": "Les motifs de consultation sont obligatoires",
+      "pastHistoryRequired": "Les antécédents médicaux sont obligatoires",
+      "diagnosticImpressionRequired": "L'impression diagnostique est obligatoire",
+      "investigationsRequired": "Les examens sont obligatoires",
+      "treatmentRequired": "Le traitement est obligatoire"
+    }
+  },
+  "createPost": {
+    "title": "Créer une publication",
+    "fields": {
+      "title": "Titre",
+      "description": "Description",
+      "image": "URL de l'image"
+    },
+    "placeholders": {
+      "title": "Entrez le titre de la publication",
+      "description": "Entrez la description de la publication",
+      "image": "Entrez l'URL de l'image"
+    },
+    "buttons": {
+      "submit": "Soumettre"
+    },
+    "validation": {
+      "titleRequired": "Le titre est requis",
+      "descriptionRequired": "La description est requise",
+      "invalidImageUrl": "URL invalide",
+      "imageUrlRequired": "L'URL de l'image est requise"
+    }
+  },
+  "createPrescription": {
+    "title": "Créer une Ordonnance",
+    "fields": {
+      "instructions": "Instructions",
+      "investigation": "Investigation",
+      "medicationName": "Nom du Médicament",
+      "dosage": "Dosage",
+      "frequency": "Fréquence",
+      "duration": "Durée"
+    },
+    "placeholders": {
+      "instructions": "Entrez les instructions",
+      "investigation": "Entrez l'investigation",
+      "medicationName": "Entrez le nom du médicament",
+      "dosage": "Entrez le dosage",
+      "frequency": "Entrez la fréquence",
+      "duration": "Entrez la durée"
+    },
+    "buttons": {
+      "submit": "Soumettre",
+      "addMedication": "Ajouter un Médicament",
+      "removeMedication": "Supprimer le Médicament"
+    },
+    "validation": {
+      "instructionsRequired": "Les instructions sont requises",
+      "investigationRequired": "L'investigation est requise",
+      "medicationNameRequired": "Le nom du médicament est requis",
+      "dosageRequired": "Le dosage est requis",
+      "frequencyRequired": "La fréquence est requise",
+      "durationRequired": "La durée est requise",
+      "atLeastOneMedicationRequired": "Au moins un médicament est requis"
+    }
+  },
+  "prescriptionDetails": {
+    "notFound": "Prescription non trouvée.",
+    "doctor": "Docteur :",
+    "patient": "Patient :",
+    "instructions": "Instructions :",
+    "investigation": "Investigation :",
+    "medications": "Médicaments :",
+    "medicationName": "Nom :",
+    "dosage": "Dosage :",
+    "frequency": "Fréquence :",
+    "durationPrefix": "Durée :",
+    "daysSuffix": "jours",
+    "none": "Aucun"
+  },
+  "prescriptions": {
+    "loading": "Chargement...",
+    "error": "Échec de la récupération des prescriptions.",
+    "doctor": "Docteur :",
+    "patient": "Patient :",
+    "instructions": "Instructions :",
+    "investigation": "Investigation :",
+    "medications": "Médicaments :",
+    "none": "Aucun"
+  },
+  "profiled": {
+    "back": "Retour",
+    "doctorProfile": "Profil du Médecin",
+    "speciality": "Spécialité :",
+    "location": "Emplacement :",
+    "experience": "Expérience :",
+    "languages": "Langues :",
+    "consultationFee": "Frais de Consultation :",
+    "summary": "Résumé :",
+    "bookAppointment": "Prendre Rendez-vous",
+    "consultPatient": "Consulter le Patient",
+    "prescribeToPatient": "Prescrire au Patient",
+    "viewPrescriptions": "Voir les Prescriptions",
+    "createPost": "Créer un Post",
+    "timeSlot": "Créneau Horaire",
+    "description": "Le Dr Jason est diplômé de l'école de médecine de l'Université du Nord-Est en 1992. Il travaille à New York, NY et dans 2 autres endroits et se spécialise en chirurgie de la main, en chirurgie orthopédique et en médecine du sport. Le Dr Smith est affilié au laboratoire de médecine du Nord-Est"
+  },
+  "timeslot":{
+    "manageTimeSlots": "Gérer les créneaux horaires",
+    "available": "Disponible",
+    "notAvailable": "Indisponible",
+    "weekly": "Hebdomadaire",
+    "addTimeSlot": "+ Ajouter un créneau",
+    "createTimeSlot": "Créer un créneau",
+    "selectStartTime": "Sélectionner l'heure de début",
+    "selectEndTime": "Sélectionner l'heure de fin",
+    "weeklyAvailability": "Disponibilité hebdomadaire",
+    "create": "Créer",
+    "cancel": "Annuler",
+    "validationError": "Erreur de validation",
+    "selectBothTimes": "Veuillez sélectionner à la fois l'heure de début et de fin.",
+    "error": "Erreur",
+    "failedToCreateTimeSlot": "Échec de la création du créneau. Veuillez réessayer."
+  }
+}

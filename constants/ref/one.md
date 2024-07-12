@@ -1,384 +1,433 @@
-Sure, I'll make the adjustments so that the data in the `AppointmentDetailsScreen` comes from the route params, and I'll add the `ChatScreen` and `CallScreen`.
+Here are the JSON translations for English, French, and German for the screen:
 
-### Updated AppointmentsScreen
-
-First, update the `AppointmentsScreen` to pass the appointment data in the route params when navigating to the details screen.
-
-```typescript
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { MaterialIcons } from "@expo/vector-icons";
-import { COLORS } from "@/constants/theme";
-import { useRouter } from "expo-router";
-import { AppButton, CustomText } from "@/components";
-import { generateRandomAppointments } from "@/utils/randomData";
-
-interface Appointment {
-  id: number;
-  doctorName: string;
-  doctorSpecialty: string;
-  date: string;
-  time: string;
-  reason: string;
-  appointmentStatus: "Pending" | "Approved" | "Cancelled";
+### English (en.json)
+```json
+{
+  "manageTimeSlots": "Manage Time Slots",
+  "available": "Available",
+  "notAvailable": "Not Available",
+  "weekly": "Weekly",
+  "addTimeSlot": "+ Add Time Slot",
+  "createTimeSlot": "Create Time Slot",
+  "selectStartTime": "Select Start Time",
+  "selectEndTime": "Select End Time",
+  "weeklyAvailability": "Weekly Availability",
+  "create": "Create",
+  "cancel": "Cancel",
+  "validationError": "Validation Error",
+  "selectBothTimes": "Please select both start and end times.",
+  "error": "Error",
+  "failedToCreateTimeSlot": "Failed to create time slot. Please try again."
 }
+```
 
-interface AppointmentsScreenProps {
-  // Props if any
+### French (fr.json)
+```json
+{
+  "manageTimeSlots": "Gérer les créneaux horaires",
+  "available": "Disponible",
+  "notAvailable": "Indisponible",
+  "weekly": "Hebdomadaire",
+  "addTimeSlot": "+ Ajouter un créneau",
+  "createTimeSlot": "Créer un créneau",
+  "selectStartTime": "Sélectionner l'heure de début",
+  "selectEndTime": "Sélectionner l'heure de fin",
+  "weeklyAvailability": "Disponibilité hebdomadaire",
+  "create": "Créer",
+  "cancel": "Annuler",
+  "validationError": "Erreur de validation",
+  "selectBothTimes": "Veuillez sélectionner à la fois l'heure de début et de fin.",
+  "error": "Erreur",
+  "failedToCreateTimeSlot": "Échec de la création du créneau. Veuillez réessayer."
 }
+```
 
-interface RenderAppointmentItemProps {
-  item: Appointment;
+### German (de.json)
+```json
+{
+  "manageTimeSlots": "Zeitfenster verwalten",
+  "available": "Verfügbar",
+  "notAvailable": "Nicht verfügbar",
+  "weekly": "Wöchentlich",
+  "addTimeSlot": "+ Zeitfenster hinzufügen",
+  "createTimeSlot": "Zeitfenster erstellen",
+  "selectStartTime": "Startzeit auswählen",
+  "selectEndTime": "Endzeit auswählen",
+  "weeklyAvailability": "Wöchentliche Verfügbarkeit",
+  "create": "Erstellen",
+  "cancel": "Abbrechen",
+  "validationError": "Validierungsfehler",
+  "selectBothTimes": "Bitte wählen Sie sowohl die Start- als auch die Endzeit aus.",
+  "error": "Fehler",
+  "failedToCreateTimeSlot": "Zeitfenster konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
 }
+```
 
-const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
-  const router = useRouter();
+### Implementing Translation into the Screens
 
-  const [upcomingAppointments, setUpcomingAppointments] = useState<Appointment[]>([]);
-  const [pastAppointments, setPastAppointments] = useState<Appointment[]>([]);
+First, install the necessary packages for translation:
+```bash
+npm install i18next react-i18next i18next-http-backend i18next-browser-languagedetector
+```
 
-  useEffect(() => {
-    const { upcoming, past } = generateRandomAppointments();
-    setUpcomingAppointments(upcoming);
-    setPastAppointments(past);
-  }, []);
+Next, configure the `i18n` setup:
 
-  const handleAppointmentDetails = (appointment: Appointment) => {
-    router.push({
-      pathname: "/appointment-details",
-      params: { appointment: JSON.stringify(appointment) },
-    });
-  };
+**i18n.js**
+```javascript
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import HttpBackend from 'i18next-http-backend';
+import LanguageDetector from 'i18next-browser-languagedetector';
 
-  const handleNewAppointment = () => {
-    router.push("/doctor/book-appointment");
-  };
+i18n
+  .use(HttpBackend)
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    fallbackLng: 'en',
+    debug: true,
+    interpolation: {
+      escapeValue: false, // react already safes from xss
+    },
+    backend: {
+      loadPath: '/locales/{{lng}}/{{ns}}.json',
+    },
+  });
 
-  const renderAppointmentItem = ({ item }: RenderAppointmentItemProps) => (
-    <TouchableOpacity
-      style={styles.appointmentItem}
-      onPress={() => handleAppointmentDetails(item)}
-    >
-      <View style={styles.appointmentHeader}>
-        <CustomText type="body3">{item.doctorName}</CustomText>
-        <MaterialIcons
-          name={
-            item.appointmentStatus === "Approved"
-              ? "check-circle"
-              : item.appointmentStatus === "Pending"
-              ? "hourglass-empty"
-              : "cancel"
-          }
-          size={24}
-          color={
-            item.appointmentStatus === "Approved"
-              ? COLORS.success
-              : item.appointmentStatus === "Pending"
-              ? COLORS.warning
-              : COLORS.danger
-          }
-        />
-      </View>
-      <CustomText type="body4">{item.doctorSpecialty}</CustomText>
-      <CustomText type="body4">
-        {item.date} - {item.time}
-      </CustomText>
-      <CustomText type="body4">{item.reason}</CustomText>
-      <View style={styles.buttonContainer}>
-        <View style={{ width: "40%" }}>
-          <AppButton title="Start" onPress={() => {}} />
-        </View>
-        <View style={{ width: "40%" }}>
-          <AppButton
-            backgroundColor={COLORS.danger}
-            title="Cancel"
-            onPress={() => {}}
-          />
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+export default i18n;
+```
 
-  const renderPastAppointmentItem = ({ item }: RenderAppointmentItemProps) => (
-    <TouchableOpacity
-      style={styles.appointmentItem}
-      onPress={() => handleAppointmentDetails(item)}
-    >
-      <View style={styles.appointmentHeader}>
-        <CustomText type="body3">{item.doctorName}</CustomText>
-        <MaterialIcons
-          name={
-            item.appointmentStatus === "Approved"
-              ? "check-circle"
-              : item.appointmentStatus === "Pending"
-              ? "hourglass-empty"
-              : "cancel"
-          }
-          size={24}
-          color={
-            item.appointmentStatus === "Approved"
-              ? COLORS.success
-              : item.appointmentStatus === "Pending"
-              ? COLORS.warning
-              : COLORS.danger
-          }
-        />
-      </View>
-      <CustomText type="body4">{item.doctorSpecialty}</CustomText>
-      <CustomText type="body4">
-        {item.date} - {item.time}
-      </CustomText>
-      <CustomText type="body4">{item.reason}</CustomText>
-      <View style={styles.buttonContainer}>
-        <View style={{ width: "40%" }}>
-          <AppButton
-            backgroundColor={COLORS.danger}
-            title="Delete"
-            onPress={() => {}}
-          />
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+Create a folder structure for the translations:
 
+```
+public
+└── locales
+    ├── en
+    │   └── translation.json
+    ├── fr
+    │   └── translation.json
+    └── de
+        └── translation.json
+```
+
+Place the respective JSON files in the corresponding folders.
+
+**App.js**
+```javascript
+import React from 'react';
+import { I18nextProvider } from 'react-i18next';
+import i18n from './i18n';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import TimeSlotScreen from './TimeSlotScreen';
+
+const App = () => {
   return (
-    <ScrollView>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <CustomText type="h1">Appointments</CustomText>
-          <TouchableOpacity onPress={handleNewAppointment}>
-            <MaterialIcons
-              name="add-circle-outline"
-              size={28}
-              color={COLORS.primary}
-            />
-          </TouchableOpacity>
-        </View>
-
-        <CustomText type="h2">Upcoming Appointments</CustomText>
-        <FlatList
-          data={upcomingAppointments}
-          renderItem={renderAppointmentItem}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.appointmentList}
-        />
-
-        <CustomText type="h2">Past Appointments</CustomText>
-        <FlatList
-          data={pastAppointments}
-          renderItem={renderPastAppointmentItem}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.appointmentList}
-        />
-      </SafeAreaView>
-    </ScrollView>
+    <SafeAreaProvider>
+      <I18nextProvider i18n={i18n}>
+        <TimeSlotScreen />
+      </I18nextProvider>
+    </SafeAreaProvider>
   );
 };
+
+export default App;
+```
+
+**TimeSlotScreen.js**
+```javascript
+import React, { useState } from "react";
+import { View, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useTranslation } from 'react-i18next';
+
+import { COLORS } from "@/constants/theme";
+import { CustomText, TimeslotModal } from "@/components";
+import { TimeSlot, generateRandomTimeSlots } from "@/constants/data/timeslot";
+import { useRouter } from "expo-router";
+import { AppDispatch } from "@/redux/store";
+import { useDispatch } from "react-redux";
+
+const TimeSlotScreen: React.FC = () => {
+  const { t } = useTranslation();
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(generateRandomTimeSlots(8));
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const dispatch: AppDispatch = useDispatch();
+  const router = useRouter();
+
+  const handleCreateTimeSlot = (startTime: string, endTime: string, isWeekly: boolean) => {
+    const newSlot: TimeSlot = {
+      id: Date.now().toString(),
+      startTime,
+      endTime,
+      isAvailable: true,
+      isWeekly,
+    };
+    setTimeSlots((prevSlots) => [...prevSlots, newSlot]);
+  };
+
+  const toggleModal = () => {
+    setIsModalVisible(!isModalVisible);
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView style={styles.scrollView}>
+        <CustomText type="h3">{t('manageTimeSlots')}</CustomText>
+        {timeSlots.map((slot) => (
+          <View key={slot.id} style={styles.timeSlotItem}>
+            <View style={{display:"flex",flexDirection:"row",alignItems:"center",justifyContent:"space-between"}} >
+              <CustomText type="body3">
+                {slot.isAvailable ? t('available') : t('notAvailable')}
+              </CustomText>
+              <CustomText type="body1">
+                {`${slot.startTime} - ${slot.endTime}`}
+              </CustomText>
+            </View>
+            {slot.isWeekly && <CustomText type="body2">{t('weekly')}</CustomText>}
+          </View>
+        ))}
+        <TouchableOpacity style={styles.addButton} onPress={toggleModal}>
+          <CustomText type="body1">{t('addTimeSlot')}</CustomText>
+        </TouchableOpacity>
+      </ScrollView>
+      <TimeslotModal
+        isVisible={isModalVisible}
+        onClose={toggleModal}
+        onCreate={handleCreateTimeSlot}
+      />
+    </SafeAreaView>
+  );
+};
+
+export default TimeSlotScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.gray,
+  },
+  scrollView: {
     paddingHorizontal: 16,
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     marginVertical: 20,
   },
-  appointmentList: {
-    marginBottom: 20,
-  },
-  appointmentItem: {
-    padding: 16,
-    backgroundColor: COLORS.gray,
-    borderRadius: 8,
+  timeSlotItem: {
+    padding: 15,
+    backgroundColor: COLORS.white,
+    borderRadius: 10,
     marginVertical: 5,
   },
-  appointmentHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  available: {
+    color: COLORS.primary,
+  },
+  notAvailable: {
+    color: COLORS.danger,
+  },
+  weekly: {
+    color: "blue",
+  },
+  addButton: {
+    padding: 15,
+    backgroundColor: COLORS.primary,
+    borderRadius: 10,
     alignItems: "center",
+    marginVertical: 20,
   },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 10,
+  addButtonText: {
+    color: COLORS.white,
+    fontWeight: "bold",
   },
 });
-
-export default AppointmentsScreen;
 ```
 
-### AppointmentDetailsScreen
-
-Now, let's update the `AppointmentDetailsScreen` to read the appointment data from the route params.
-
-```typescript
-import React from "react";
-import { View, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useSearchParams } from "expo-router";
-import { AppButton, CustomText } from "@/components";
+**TimeslotModal.js**
+```javascript
+import React, { useState } from "react";
+import {
+  Modal,
+  View,
+  Button,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { COLORS } from "@/constants/theme";
+import { AppButton, AuthCheckbox, CustomText } from "@/components";
+import { useTranslation } from 'react-i18next';
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/redux/store";
+import { createTimeSlot } from "@/redux/actions/timeslot.action";
 
-const AppointmentDetailsScreen: React.FC = () => {
-  const router = useRouter();
-  const { appointment } = useSearchParams();
-  const appointmentData = JSON.parse(appointment);
+interface TimeSlotModalProps {
+  isVisible: boolean;
+  onClose: () => void;
+  onCreate: (startTime: string, endTime: string, isWeekly: boolean) => void;
+}
 
-  const handleChat = () => {
-    router.push(`/chat/${appointmentData.id}`);
+const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
+  isVisible,
+  onClose,
+  onCreate,
+}) => {
+  const { t } = useTranslation();
+  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [endTime, setEndTime] = useState<Date | null>(null);
+  const [isWeekly, setIsWeekly] = useState(false);
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false
+
+);
+  const dispatch: AppDispatch = useDispatch();
+
+  const onStartTimeChange = (event: any, selectedDate?: Date) => {
+    setShowStartPicker(false);
+    if (selectedDate) {
+      setStartTime(selectedDate);
+    }
   };
 
-  const handleCall = () => {
-    router.push(`/call/${appointmentData.id}`);
+  const onEndTimeChange = (event: any, selectedDate?: Date) => {
+    setShowEndPicker(false);
+    if (selectedDate) {
+      setEndTime(selectedDate);
+    }
   };
 
-  const handlePrescribe = () => {
-    router.push(`/prescribe/${appointmentData.id}`);
+  const formatTime = (date: Date) => {
+    return `${date.getHours().toString().padStart(2, "0")}:${date
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  const handleCreate = async () => {
+    if (startTime && endTime) {
+      const doctorId = 1; // Replace with actual doctor ID
+      const newTimeSlot = {
+        doctorId,
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString(),
+        isAvailable: true,
+      };
+
+      try {
+        await dispatch(createTimeSlot(newTimeSlot));
+        onCreate(formatTime(startTime), formatTime(endTime), isWeekly);
+        onClose();
+      } catch (error) {
+        Alert.alert(t('error'), t('failedToCreateTimeSlot'));
+      }
+    } else {
+      Alert.alert(t('validationError'), t('selectBothTimes'));
+    }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <CustomText type="h1">Appointment Details</CustomText>
+    <Modal
+      transparent={true}
+      animationType="slide"
+      visible={isVisible}
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <CustomText type="h3">{t('createTimeSlot')}</CustomText>
+
+          <TouchableOpacity
+            onPress={() => setShowStartPicker(true)}
+            style={styles.timePickerButton}
+          >
+            <CustomText type="body1">
+              {startTime ? formatTime(startTime) : t('selectStartTime')}
+            </CustomText>
+          </TouchableOpacity>
+          {showStartPicker && (
+            <DateTimePicker
+              value={startTime || new Date()}
+              mode="time"
+              display="default"
+              onChange={onStartTimeChange}
+            />
+          )}
+
+          <TouchableOpacity
+            onPress={() => setShowEndPicker(true)}
+            style={styles.timePickerButton}
+          >
+            <CustomText type="body1">
+              {endTime ? formatTime(endTime) : t('selectEndTime')}
+            </CustomText>
+          </TouchableOpacity>
+          {showEndPicker && (
+            <DateTimePicker
+              value={endTime || new Date()}
+              mode="time"
+              display="default"
+              onChange={onEndTimeChange}
+            />
+          )}
+
+          <AuthCheckbox
+            isChecked={isWeekly}
+            onPress={() => setIsWeekly(!isWeekly)}
+            title={t('weeklyAvailability')}
+          />
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-around",
+              marginTop: 12,
+            }}
+          >
+            <AppButton
+              title={t('create')}
+              onPress={handleCreate}
+              width={120}
+              backgroundColor={COLORS.primary}
+            />
+            <AppButton
+              title={t('cancel')}
+              onPress={onClose}
+              width={120}
+              backgroundColor={COLORS.danger}
+            />
+          </View>
+        </View>
       </View>
-      <View style={styles.detailsContainer}>
-        <CustomText type="body3">Doctor: {appointmentData.doctorName}</CustomText>
-        <CustomText type="body4">Specialty: {appointmentData.doctorSpecialty}</CustomText>
-        <CustomText type="body4">Date: {appointmentData.date}</CustomText>
-        <CustomText type="body4">Time: {appointmentData.time}</CustomText>
-        <CustomText type="body4">Reason: {appointmentData.reason}</CustomText>
-        <CustomText type="body4">Status: {appointmentData.appointmentStatus}</CustomText>
-      </View>
-      <View style={styles.buttonContainer}>
-        <AppButton title="Chat" onPress={handleChat} />
-        <AppButton title="Call" onPress={handleCall} />
-        <AppButton title="Prescribe" onPress={handlePrescribe} />
-      </View>
-    </SafeAreaView>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.white,
-    paddingHorizontal: 16,
-  },
-  header: {
-    marginVertical: 20,
-  },
-  detailsContainer: {
-    marginBottom: 20,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 20,
-  },
-});
-
-export default AppointmentDetailsScreen;
-```
-
-### ChatScreen and CallScreen
-
-Now, let's create simple `ChatScreen` and `CallScreen` components.
-
-```typescript
-import React from "react";
-import { View, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useSearchParams } from "expo-router";
-import { CustomText } from "@/components";
-import { COLORS } from "@/constants/theme";
-
-const ChatScreen: React
-
-.FC = () => {
-  const { appointmentId } = useSearchParams();
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <CustomText type="h1">Chat</CustomText>
-      </View>
-      <View style={styles.chatContainer}>
-        <CustomText type="body3">Chat for appointment ID: {appointmentId}</CustomText>
-      </View>
-    </SafeAreaView>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.white,
-    paddingHorizontal: 16,
-  },
-  header: {
-    marginVertical: 20,
-  },
-  chatContainer: {
+  modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
-});
-
-export default ChatScreen;
-```
-
-```typescript
-import React from "react";
-import { View, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useSearchParams } from "expo-router";
-import { CustomText } from "@/components";
-import { COLORS } from "@/constants/theme";
-
-const CallScreen: React.FC = () => {
-  const { appointmentId } = useSearchParams();
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <CustomText type="h1">Call</CustomText>
-      </View>
-      <View style={styles.callContainer}>
-        <CustomText type="body3">Call for appointment ID: {appointmentId}</CustomText>
-      </View>
-    </SafeAreaView>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  modalContent: {
+    width: "80%",
+    padding: 20,
     backgroundColor: COLORS.white,
-    paddingHorizontal: 16,
+    borderRadius: 10,
   },
-  header: {
-    marginVertical: 20,
-  },
-  callContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+  timePickerButton: {
+    padding: 10,
+    marginVertical: 10,
+    backgroundColor: COLORS.gray,
+    borderRadius: 5,
   },
 });
 
-export default CallScreen;
+export default TimeSlotModal;
 ```
 
-With these updates, the appointment details will be passed as route params, and you will have screens for chat and call functionality that display the appointment ID.
+With these changes, the Time Slot screen and modal should now support translations in English, French, and German. The text displayed in the UI will be dynamically fetched from the respective JSON files based on the user's language preference.
+
+### Notes
+
+generate the english, french and german json text for the translation of the screen above and also implement the translation into the  screen

@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { IPatient } from "@/constants/types";
-import { AppButton, AuthInputField, CustomText } from "@/components";
+import { AppButton, AuthInputField, AuthSelectField, CustomText } from "@/components";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
 import { Formik, FormikHelpers } from "formik";
@@ -16,6 +16,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { COLORS } from "@/constants/theme";
 import { baseUrl } from "@/utils/variables";
+import { useTranslation } from 'react-i18next';
+// import LanguageSelector from "@/components/LanguageSelector";
+// import AuthSelectField from "@/components/AuthSelectField";
 
 interface CompleteValues {
   gender: string;
@@ -44,6 +47,7 @@ const CompleteScreen: React.FC = () => {
 
   const router = useRouter();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const initialValues: CompleteValues = {
     gender: "",
@@ -57,19 +61,19 @@ const CompleteScreen: React.FC = () => {
   const completionSchema = yup.object().shape({
     gender: yup
       .string()
-      .oneOf(["MALE", "FEMALE"])
-      .required("Gender is required"),
+      .oneOf([t('complete.options.one'), t('complete.options.two')])
+      .required(t('complete.yup.req1')),
     age: yup
       .number()
-      .positive("Age must be a positive number")
-      .required("Age is required"),
-    address1: yup.string().required("Address 1 is required"),
+      .positive(t('complete.yup.pos'))
+      .required(t('complete.yup.req2')),
+    address1: yup.string().required(t('complete.yup.req3')),
     address2: yup.string(),
-    occupation: yup.string().required("Occupation is required"),
+    occupation: yup.string().required(t('complete.yup.re4')),
     phone: yup
       .string()
-      .matches(/^(?:\d{9}|\d{14})$/, "Phone number must be 9 or 14 digits long")
-      .required("Phone number is required"),
+      .matches(/^(?:\d{9}|\d{14})$/, t('complete.yup.match'))
+      .required(t('complete.yup.req5')),
   });
 
   const handleInputChange = (name: keyof IPatient, value: string | number) => {
@@ -159,7 +163,8 @@ const CompleteScreen: React.FC = () => {
 
   return (
     <KeyboardAvoidingView behavior="height" style={styles.container}>
-      <CustomText type="larger">Create account</CustomText>
+      {/* <LanguageSelector /> */}
+      <CustomText type="larger">{t('complete.text1')}</CustomText>
       <Formik
         initialValues={initialValues}
         validationSchema={completionSchema}
@@ -167,49 +172,47 @@ const CompleteScreen: React.FC = () => {
       >
         {({ handleSubmit }) => (
           <KeyboardAvoidingView style={styles.container}>
-            <AuthInputField
+            <AuthSelectField
               name="gender"
-              label="Gender"
-              placeholder="Enter your gender"
-              // onChangeText={(value:string) => handleInputChange("gender", value)}
+              label={t('complete.form.label1')}
+              options={[
+                { label: t('complete.options.one'), value: 'MALE' },
+                { label: t('complete.options.two'), value: 'FEMALE' },
+              ]}
+              placeholder={t('complete.form.placeholder1')}
             />
             <AuthInputField
               name="age"
-              label="Age"
-              placeholder="Enter your age"
+              label={t('complete.form.label2')}
+              placeholder={t('complete.form.placeholder2')}
               keyboardType="numeric"
-              // onChangeText={(value) => handleInputChange("age", Number(value))}
             />
             <AuthInputField
               name="address1"
-              label="City"
-              placeholder="Enter your city"
-              // onChangeText={(value) => handleInputChange("address1", value)}
+              label={t('complete.form.label3')}
+              placeholder={t('complete.form.placeholder3')}
             />
             <AuthInputField
               name="address2"
-              label="Quarter"
-              placeholder="Enter your quarter"
-              // onChangeText={(value) => handleInputChange("address2", value)}
+              label={t('complete.form.label4')}
+              placeholder={t('complete.form.placeholder4')}
             />
             <AuthInputField
               name="occupation"
-              label="Occupation"
-              placeholder="Enter your occupation"
-              // onChangeText={(value) => handleInputChange("occupation", value)}
+              label={t('complete.form.label5')}
+              placeholder={t('complete.form.placeholder5')}
             />
             <AuthInputField
               name="phone"
-              label="Phone"
-              placeholder="Enter your phone number"
+              label={t('complete.form.label6')}
+              placeholder={t('complete.form.placeholder6')}
               keyboardType="phone-pad"
-              // onChangeText={(value) => handleInputChange("phone", Number(value))}
             />
             <AppButton
-              title="Submit"
+              title={t('complete.button')}
               backgroundColor={COLORS.primary}
               loading={loading}
-              loadingText="Completing..."
+              loadingText={t('complete.loader')}
               onPress={handleSubmit}
             />
           </KeyboardAvoidingView>

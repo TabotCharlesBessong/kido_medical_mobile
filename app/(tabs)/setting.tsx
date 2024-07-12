@@ -5,6 +5,7 @@ import { COLORS, FONTS } from "@/constants/theme";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { CustomText } from "@/components";
+import { useTranslation } from "react-i18next";
 
 interface SettingItemsProps {
   icon:string,
@@ -14,6 +15,7 @@ interface SettingItemsProps {
 
 const SettingsScreen = () => {
   const router = useRouter();
+  const {t} = useTranslation()
 
   const navigateToEditProfile = () => {
     router.push("/EditProfile");
@@ -66,28 +68,40 @@ const SettingsScreen = () => {
   const accountItems = [
     {
       icon: "person-outline",
-      text: "Edit Profile",
+      text: t("settings.profile"), // "Edit Profile"
       action: navigateToEditProfile,
     },
-    { icon: "security", text: "Security", action: navigateToSecurity },
+    {
+      icon: "security",
+      text: t("settings.security"),
+      action: navigateToSecurity,
+    },
     {
       icon: "notifications-none",
-      text: "Notifications",
+      text: t("settings.notification"), // "Notifications"
       action: navigateToNotifications,
     },
-    { icon: "lock-outline", text: "Privacy", action: navigateToPrivacy },
+    {
+      icon: "lock-outline",
+      text: t("settings.privacy"),
+      action: navigateToPrivacy,
+    },
   ];
 
   const supportItems = [
     {
       icon: "credit-card",
-      text: "My Subscription",
+      text: t("settings.money"), // "My Subscriptions"
       action: navigateToSubscription,
     },
-    { icon: "help-outline", text: "Help & Support", action: navigateToSupport },
+    {
+      icon: "help-outline",
+      text: t("settings.help"),
+      action: navigateToSupport,
+    },
     {
       icon: "info-outline",
-      text: "Terms and Policies",
+      text: t("settings.terms"), // "Terms and Policies"
       action: navigateToTermsAndPolicies,
     },
   ];
@@ -95,20 +109,20 @@ const SettingsScreen = () => {
   const cacheAndCellularItems = [
     {
       icon: "delete-outline",
-      text: "Free up space",
+      text: t("settings.delete"), // "Free up space"
       action: navigateToFreeSpace,
     },
-    { icon: "save-alt", text: "Data Saver", action: navigateToDataSaver },
+    { icon: "save-alt", text: t("settings.save"), action: navigateToDataSaver },
   ];
 
   const actionsItems = [
     {
       icon: "outlined-flag",
-      text: "Report a problem",
+      text: t("settings.report"), // "Report a problem"
       action: navigateToReportProblem,
     },
-    { icon: "people-outline", text: "Add Account", action: addAccount },
-    { icon: "logout", text: "Log out", action: logout },
+    { icon: "people-outline", text: t("settings.account"), action: addAccount },
+    { icon: "logout", text: t("settings.logout"), action: logout },
   ];
 
   const renderSettingsItem:FC<SettingItemsProps> = ({ icon, text, action }) => (
