@@ -10,10 +10,10 @@ import {
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { COLORS } from "@/constants/theme";
 import { AppButton, AuthCheckbox, CustomText } from "@/components";
+import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 import { createTimeSlot } from "@/redux/actions/timeslot.action";
-
 
 interface TimeSlotModalProps {
   isVisible: boolean;
@@ -26,6 +26,7 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
   onClose,
   onCreate,
 }) => {
+  const { t } = useTranslation();
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [endTime, setEndTime] = useState<Date | null>(null);
   const [isWeekly, setIsWeekly] = useState(false);
@@ -69,13 +70,10 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
         onCreate(formatTime(startTime), formatTime(endTime), isWeekly);
         onClose();
       } catch (error) {
-        Alert.alert("Error", "Failed to create time slot. Please try again.");
+        Alert.alert("Error", t("timeslot.failedToCreateTimeSlot"));
       }
     } else {
-      Alert.alert(
-        "Validation Error",
-        "Please select both start and end times."
-      );
+      Alert.alert(t("timeslot.validationError"), t("timeslot.selectBothTimes"));
     }
   };
 
@@ -88,14 +86,14 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <CustomText type="h3">Create Time Slot</CustomText>
+          <CustomText type="h3">{t("timeslot.createTimeSlot")}</CustomText>
 
           <TouchableOpacity
             onPress={() => setShowStartPicker(true)}
             style={styles.timePickerButton}
           >
             <CustomText type="body1">
-              {startTime ? formatTime(startTime) : "Select Start Time"}
+              {startTime ? formatTime(startTime) : t("timeslot.selectStartTime")}
             </CustomText>
           </TouchableOpacity>
           {showStartPicker && (
@@ -112,7 +110,7 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
             style={styles.timePickerButton}
           >
             <CustomText type="body1">
-              {endTime ? formatTime(endTime) : "Select End Time"}
+              {endTime ? formatTime(endTime) : t("timeslot.selectEndTime")}
             </CustomText>
           </TouchableOpacity>
           {showEndPicker && (
@@ -127,7 +125,7 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
           <AuthCheckbox
             isChecked={isWeekly}
             onPress={() => setIsWeekly(!isWeekly)}
-            title="Weekly Availability"
+            title={t("timeslot.weeklyAvailability")}
           />
           <View
             style={{
@@ -139,23 +137,13 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
             }}
           >
             <AppButton
-              title="Create"
-              onPress={() => {
-                if (startTime && endTime) {
-                  onCreate(
-                    formatTime(startTime),
-                    formatTime(endTime),
-                    isWeekly
-                  );
-                  onClose();
-                }
-              }}
-              // onPress={handleCreate}
+              title={t("timeslot.create")}
+              onPress={handleCreate}
               width={120}
               backgroundColor={COLORS.primary}
             />
             <AppButton
-              title="Cancel"
+              title={t("timeslot.cancel")}
               onPress={onClose}
               width={120}
               backgroundColor={COLORS.danger}
@@ -179,7 +167,6 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: COLORS.white,
     borderRadius: 10,
-    // alignItems: "center",
   },
   timePickerButton: {
     padding: 10,

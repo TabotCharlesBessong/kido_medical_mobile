@@ -349,5 +349,49 @@
     "durationPrefix": "Durée :",
     "daysSuffix": "jours",
     "none": "Aucun"
+  },
+  "prescriptions": {
+    "loading": "Chargement...",
+    "error": "Échec de la récupération des prescriptions.",
+    "doctor": "Docteur :",
+    "patient": "Patient :",
+    "instructions": "Instructions :",
+    "investigation": "Investigation :",
+    "medications": "Médicaments :",
+    "none": "Aucun"
+  },
+  "profiled": {
+    "back": "Retour",
+    "doctorProfile": "Profil du Médecin",
+    "speciality": "Spécialité :",
+    "location": "Emplacement :",
+    "experience": "Expérience :",
+    "languages": "Langues :",
+    "consultationFee": "Frais de Consultation :",
+    "summary": "Résumé :",
+    "bookAppointment": "Prendre Rendez-vous",
+    "consultPatient": "Consulter le Patient",
+    "prescribeToPatient": "Prescrire au Patient",
+    "viewPrescriptions": "Voir les Prescriptions",
+    "createPost": "Créer un Post",
+    "timeSlot": "Créneau Horaire",
+    "description": "Le Dr Jason est diplômé de l'école de médecine de l'Université du Nord-Est en 1992. Il travaille à New York, NY et dans 2 autres endroits et se spécialise en chirurgie de la main, en chirurgie orthopédique et en médecine du sport. Le Dr Smith est affilié au laboratoire de médecine du Nord-Est"
+  },
+  "timeslot":{
+    "manageTimeSlots": "Gérer les créneaux horaires",
+    "available": "Disponible",
+    "notAvailable": "Indisponible",
+    "weekly": "Hebdomadaire",
+    "addTimeSlot": "+ Ajouter un créneau",
+    "createTimeSlot": "Créer un créneau",
+    "selectStartTime": "Sélectionner l'heure de début",
+    "selectEndTime": "Sélectionner l'heure de fin",
+    "weeklyAvailability": "Disponibilité hebdomadaire",
+    "create": "Créer",
+    "cancel": "Annuler",
+    "validationError": "Erreur de validation",
+    "selectBothTimes": "Veuillez sélectionner à la fois l'heure de début et de fin.",
+    "error": "Erreur",
+    "failedToCreateTimeSlot": "Échec de la création du créneau. Veuillez réessayer."
   }
 }

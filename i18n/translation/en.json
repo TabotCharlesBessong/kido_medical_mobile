@@ -350,5 +350,49 @@
     "durationPrefix": "Duration:",
     "daysSuffix": "days",
     "none": "None"
+  },
+  "prescriptions": {
+    "loading": "Loading...",
+    "error": "Failed to fetch prescriptions.",
+    "doctor": "Doctor:",
+    "patient": "Patient:",
+    "instructions": "Instructions:",
+    "investigation": "Investigation:",
+    "medications": "Medications:",
+    "none": "None"
+  },
+  "profiled": {
+    "back": "Back",
+    "doctorProfile": "Doctor Profile",
+    "speciality": "Speciality:",
+    "location": "Location:",
+    "experience": "Experience:",
+    "languages": "Languages:",
+    "consultationFee": "Consultation Fee:",
+    "summary": "Summary:",
+    "bookAppointment": "Book Appointment",
+    "consultPatient": "Consult Patient",
+    "prescribeToPatient": "Prescribe to Patient",
+    "viewPrescriptions": "View Prescriptions",
+    "createPost": "Create Post",
+    "timeSlot": "Time slot",
+    "description":"Dr Jason graduated from North Eastern University school of Medicine in 1992. He works in New York, NY and 2 other locations and specializes in Hand surgery, Orthopedic surgery, and Sports medicine. Dr. Smith is affiliated with Northeastern medicine laboratory"
+  },
+  "timeslot":{
+    "manageTimeSlots": "Manage Time Slots",
+    "available": "Available",
+    "notAvailable": "Not Available",
+    "weekly": "Weekly",
+    "addTimeSlot": "+ Add Time Slot",
+    "createTimeSlot": "Create Time Slot",
+    "selectStartTime": "Select Start Time",
+    "selectEndTime": "Select End Time",
+    "weeklyAvailability": "Weekly Availability",
+    "create": "Create",
+    "cancel": "Cancel",
+    "validationError": "Validation Error",
+    "selectBothTimes": "Please select both start and end times.",
+    "error": "Error",
+    "failedToCreateTimeSlot": "Failed to create time slot. Please try again."
   }
 }

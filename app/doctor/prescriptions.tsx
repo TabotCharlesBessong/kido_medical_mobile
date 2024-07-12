@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  Text,
-  TouchableOpacity,
-} from "react-native";
+import { View, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import axios from "axios";
 import { baseUrl } from "@/utils/variables";
@@ -13,8 +7,11 @@ import { IPrescription } from "@/constants/types";
 import { COLORS } from "@/constants/theme";
 import { CustomText } from "@/components";
 import { generatePrescription } from "@/constants/data/prescription";
+import { useTranslation } from "react-i18next";
 
 const PrescriptionsScreen: React.FC = () => {
+  const { t } = useTranslation(); // Initialize translation hook
+
   const [prescriptions, setPrescriptions] = useState<IPrescription[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -34,7 +31,7 @@ const PrescriptionsScreen: React.FC = () => {
         setPrescriptions(prescriptionData);
         setLoading(false);
       } catch (error) {
-        setErrorMessage("Failed to fetch prescriptions.");
+        setErrorMessage(t("prescriptions.error"));
         setLoading(false);
       }
     };
@@ -52,15 +49,25 @@ const PrescriptionsScreen: React.FC = () => {
         })
       }
     >
-      <CustomText type="h2">Doctor: {item.doctorName}</CustomText>
-      <CustomText type="h4">Patient: {item.patientName}</CustomText>
+      <CustomText type="h2">{`${t("prescriptions.doctor")} ${
+        item.doctorName
+      }`}</CustomText>
+      <CustomText type="h4">{`${t("prescriptions.patient")} ${
+        item.patientName
+      }`}</CustomText>
       <CustomText type="h4">
-        Instructions: {item.instructions || "None"}
+        {`${t("prescriptions.instructions")} ${
+          item.instructions || t("prescriptions.none")
+        }`}
       </CustomText>
       <CustomText type="h4">
-        Investigation: {item.investigation || "None"}
+        {`${t("prescriptions.investigation")} ${
+          item.investigation || t("prescriptions.none")
+        }`}
       </CustomText>
-      <CustomText type="h4">Medications:</CustomText>
+      <CustomText type="h4">
+        {t("prescriptions.medications")}
+      </CustomText>
       {item.medications.map((med) => (
         <CustomText type="h4" key={med.id}>
           {med.name}
@@ -70,7 +77,9 @@ const PrescriptionsScreen: React.FC = () => {
   );
 
   if (loading) {
-    return <CustomText type="h4">Loading...</CustomText>;
+    return (
+      <CustomText type="h4">{t("prescriptions.loading")}</CustomText>
+    );
   }
 
   if (errorMessage) {

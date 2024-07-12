@@ -16,47 +16,47 @@ const PrescriptionDetailsScreen: React.FC = () => {
   if (!prescription) {
     return (
       <CustomText type="h1">
-        {t("screens.prescriptionDetails.notFound")}
+        {t("prescriptionDetails.notFound")}
       </CustomText>
     );
   }
 
   return (
     <ScrollView style={styles.container}>
-      <CustomText type="h2">{`${t("screens.prescriptionDetails.doctor")} ${
+      <CustomText type="h2">{`${t("prescriptionDetails.doctor")} ${
         prescription.doctorName
       }`}</CustomText>
-      <CustomText type="h4">{`${t("screens.prescriptionDetails.patient")} ${
+      <CustomText type="h4">{`${t("prescriptionDetails.patient")} ${
         prescription.patientName
       }`}</CustomText>
       <CustomText type="h4">{`${t(
-        "screens.prescriptionDetails.instructions"
+        "prescriptionDetails.instructions"
       )} ${
-        prescription.instructions || t("screens.prescriptionDetails.none")
+        prescription.instructions || t("prescriptionDetails.none")
       }`}</CustomText>
       <CustomText type="h4">{`${t(
-        "screens.prescriptionDetails.investigation"
+        "prescriptionDetails.investigation"
       )} ${
-        prescription.investigation || t("screens.prescriptionDetails.none")
+        prescription.investigation || t("prescriptionDetails.none")
       }`}</CustomText>
       <CustomText type="h2">
-        {t("screens.prescriptionDetails.medications")}
+        {t("prescriptionDetails.medications")}
       </CustomText>
       {prescription?.medications?.map((med) => (
         <View key={med.id} style={styles.medicationCard}>
           <CustomText type="h4">{`${t(
-            "screens.prescriptionDetails.medicationName"
+            "prescriptionDetails.medicationName"
           )} ${med.name}`}</CustomText>
-          <CustomText type="h4">{`${t("screens.prescriptionDetails.dosage")} ${
+          <CustomText type="h4">{`${t("prescriptionDetails.dosage")} ${
             med.dosage
           }`}</CustomText>
           <CustomText type="h4">{`${t(
-            "screens.prescriptionDetails.frequency"
+            "prescriptionDetails.frequency"
           )} ${med.frequency}`}</CustomText>
           <CustomText type="h4">{`${t(
-            "screens.prescriptionDetails.durationPrefix"
+            "prescriptionDetails.durationPrefix"
           )} ${med.duration} ${t(
-            "screens.prescriptionDetails.daysSuffix"
+            "prescriptionDetails.daysSuffix"
           )}`}</CustomText>
         </View>
       ))}

@@ -349,5 +349,49 @@
     "durationPrefix": "Dauer :",
     "daysSuffix": "Tage",
     "none": "Keine"
+  },
+  "prescriptions": {
+    "loading": "Wird geladen...",
+    "error": "Abrufen der Rezepte fehlgeschlagen.",
+    "doctor": "Arzt :",
+    "patient": "Patient :",
+    "instructions": "Anweisungen :",
+    "investigation": "Untersuchung :",
+    "medications": "Medikamente :",
+    "none": "Keine"
+  },
+  "profiled": {
+    "back": "Zurück",
+    "doctorProfile": "Arztprofil",
+    "speciality": "Spezialität:",
+    "location": "Ort:",
+    "experience": "Erfahrung:",
+    "languages": "Sprachen:",
+    "consultationFee": "Beratungsgebühr:",
+    "summary": "Zusammenfassung:",
+    "bookAppointment": "Termin Buchen",
+    "consultPatient": "Patient Beraten",
+    "prescribeToPatient": "Verschreiben",
+    "viewPrescriptions": "Rezepte Anzeigen",
+    "createPost": "Beitrag Erstellen",
+    "timeSlot": "Zeitschlitz",
+    "description": "Dr. Jason schloss 1992 sein Medizinstudium an der North Eastern University ab. Er arbeitet in New York, NY und an zwei weiteren Standorten und ist auf Handchirurgie, orthopädische Chirurgie und Sportmedizin spezialisiert. Dr. Smith ist mit dem Northeastern Medicine Laboratory verbunden."
+  },
+  "timeslot":{
+    "manageTimeSlots": "Zeitfenster verwalten",
+    "available": "Verfügbar",
+    "notAvailable": "Nicht verfügbar",
+    "weekly": "Wöchentlich",
+    "addTimeSlot": "+ Zeitfenster hinzufügen",
+    "createTimeSlot": "Zeitfenster erstellen",
+    "selectStartTime": "Startzeit auswählen",
+    "selectEndTime": "Endzeit auswählen",
+    "weeklyAvailability": "Wöchentliche Verfügbarkeit",
+    "create": "Erstellen",
+    "cancel": "Abbrechen",
+    "validationError": "Validierungsfehler",
+    "selectBothTimes": "Bitte wählen Sie sowohl die Start- als auch die Endzeit aus.",
+    "error": "Fehler",
+    "failedToCreateTimeSlot": "Zeitfenster konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
   }
 }
