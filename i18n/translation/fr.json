@@ -34,7 +34,7 @@
     "terms": "Termes et politiques",
     "save": "Économiseur de données",
     "report": "Signaler un problème",
-    "account": "Ajouter un compte",
+    "account": "Choisir La Langue",
     "logout": "Se déconnecter",
     "security": "Securite",
     "delete": "Suprimmer les données"
@@ -377,7 +377,7 @@
     "timeSlot": "Créneau Horaire",
     "description": "Le Dr Jason est diplômé de l'école de médecine de l'Université du Nord-Est en 1992. Il travaille à New York, NY et dans 2 autres endroits et se spécialise en chirurgie de la main, en chirurgie orthopédique et en médecine du sport. Le Dr Smith est affilié au laboratoire de médecine du Nord-Est"
   },
-  "timeslot":{
+  "timeslot": {
     "manageTimeSlots": "Gérer les créneaux horaires",
     "available": "Disponible",
     "notAvailable": "Indisponible",
@@ -393,5 +393,12 @@
     "selectBothTimes": "Veuillez sélectionner à la fois l'heure de début et de fin.",
     "error": "Erreur",
     "failedToCreateTimeSlot": "Échec de la création du créneau. Veuillez réessayer."
+  },
+  "translate": {
+    "en": "Anglais 🇬🇧",
+    "fr": "Français 🇫🇷",
+    "de": "Allemand 🇩🇪",
+    "selectLanguage":"Choisir La Language",
+    "close":"Fermer"
   }
 }

@@ -34,7 +34,7 @@
     "terms": "Bedingungen und Richtlinien",
     "save": "Datensparer",
     "report": "Ein Problem melden",
-    "account": "Konto hinzufügen",
+    "account": "Sprache wählen",
     "logout": "Abmelden",
     "security": "Sicherheit",
     "delete": "Daten löschen"
@@ -377,7 +377,7 @@
     "timeSlot": "Zeitschlitz",
     "description": "Dr. Jason schloss 1992 sein Medizinstudium an der North Eastern University ab. Er arbeitet in New York, NY und an zwei weiteren Standorten und ist auf Handchirurgie, orthopädische Chirurgie und Sportmedizin spezialisiert. Dr. Smith ist mit dem Northeastern Medicine Laboratory verbunden."
   },
-  "timeslot":{
+  "timeslot": {
     "manageTimeSlots": "Zeitfenster verwalten",
     "available": "Verfügbar",
     "notAvailable": "Nicht verfügbar",
@@ -393,5 +393,12 @@
     "selectBothTimes": "Bitte wählen Sie sowohl die Start- als auch die Endzeit aus.",
     "error": "Fehler",
     "failedToCreateTimeSlot": "Zeitfenster konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
+  },
+  "translate": {
+    "en": "Englisch 🇬🇧",
+    "fr": "Französisch 🇫🇷",
+    "de": "Deutsch 🇩🇪",
+    "selectLanguage":"Sprache auswählen",
+    "close":"Schließen"
   }
 }

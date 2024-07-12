@@ -34,7 +34,7 @@
     "terms": "Terms and Policies",
     "save": "Data Saver",
     "report": "Report a Problem",
-    "account": "Add Account",
+    "account": "Choose Language",
     "logout": "Log out",
     "title": "Settings",
     "security": "Security",
@@ -394,5 +394,12 @@
     "selectBothTimes": "Please select both start and end times.",
     "error": "Error",
     "failedToCreateTimeSlot": "Failed to create time slot. Please try again."
+  },
+  "translate":{
+    "en":"English 🇬🇧",
+    "fr":"French 🇫🇷",
+    "de":"German 🇩🇪",
+    "selectLanguage":"Select Language",
+    "close":"Close"
   }
 }
