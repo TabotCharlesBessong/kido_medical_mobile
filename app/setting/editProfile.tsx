@@ -5,9 +5,11 @@ import { COLORS } from "@/constants/theme";
 import { CustomText } from "@/components";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 const EditProfile = () => {
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -22,24 +24,27 @@ const EditProfile = () => {
             color={COLORS.black}
           />
         </TouchableOpacity>
-        <CustomText type="h2">Edit Profile</CustomText>
+        <CustomText type="h2">{t("editProfile.title")}</CustomText>
       </View>
       <View style={styles.form}>
-        <CustomText type="body1">
-          Name
-        </CustomText>
-        <TextInput style={styles.input} placeholder="Enter your name" />
-        <CustomText type="body1" >
-          Email
-        </CustomText>
-        <TextInput style={styles.input} placeholder="Enter your email" />
-        <CustomText type="body1" >
-          Phone
-        </CustomText>
-        <TextInput style={styles.input} placeholder="Enter your phone number" />
+        <CustomText type="body1">{t("editProfile.name")}</CustomText>
+        <TextInput
+          style={styles.input}
+          placeholder={t("editProfile.placeholderName")}
+        />
+        <CustomText type="body1">{t("editProfile.email")}</CustomText>
+        <TextInput
+          style={styles.input}
+          placeholder={t("editProfile.placeholderEmail")}
+        />
+        <CustomText type="body1">{t("editProfile.phone")}</CustomText>
+        <TextInput
+          style={styles.input}
+          placeholder={t("editProfile.placeholderPhone")}
+        />
         <TouchableOpacity style={styles.saveButton}>
-          <CustomText type="body1" >
-            Save Changes
+          <CustomText type="body1">
+            {t("editProfile.saveChanges")}
           </CustomText>
         </TouchableOpacity>
       </View>

@@ -398,7 +398,75 @@
     "en": "Englisch 🇬🇧",
     "fr": "Französisch 🇫🇷",
     "de": "Deutsch 🇩🇪",
-    "selectLanguage":"Sprache auswählen",
-    "close":"Schließen"
+    "selectLanguage": "Sprache auswählen",
+    "close": "Schließen"
+  },
+  "editProfile": {
+    "title": "Profil bearbeiten",
+    "name": "Name",
+    "placeholderName": "Geben Sie Ihren Namen ein",
+    "email": "E-Mail",
+    "placeholderEmail": "Geben Sie Ihre E-Mail ein",
+    "phone": "Telefon",
+    "placeholderPhone": "Geben Sie Ihre Telefonnummer ein",
+    "saveChanges": "Änderungen speichern"
+  },
+  "termsAndPolicies": {
+    "title": "Bedingungen und Richtlinien",
+    "introduction": "Einführung",
+    "introText": "Willkommen auf unserer Telemedizin-Plattform. Durch die Nutzung unserer Dienste stimmen Sie den folgenden Bedingungen zu.",
+    "privacyPolicy": "Datenschutz-Bestimmungen",
+    "privacyText": "Ihre Privatsphäre ist uns wichtig. Wir verpflichten uns, Ihre persönlichen Informationen zu schützen und ihre Vertraulichkeit zu gewährleisten.",
+    "userResponsibilities": "Benutzerpflichten",
+    "userResponsibilitiesText": "Benutzer sind verpflichtet, genaue Informationen bereitzustellen und die von unseren Gesundheitsfachkräften bereitgestellten Richtlinien einzuhalten.",
+    "limitationOfLiability": "Haftungsbeschränkung",
+    "limitationText": "Unsere Plattform ist nicht verantwortlich für Schäden, die sich aus der Nutzung unserer Dienste ergeben. Benutzer sollten in Notfällen sofort medizinische Hilfe in Anspruch nehmen.",
+    "contactInformation": "Kontaktinformationen",
+    "contactText": "Wenn Sie Fragen oder Bedenken haben, kontaktieren Sie uns bitte unter support@telemedicine.com."
+  },
+  "dataSaver": {
+    "title": "Datensparmodus",
+    "enable": "Datensparmodus aktivieren"
+  },
+  "freeSpace": {
+    "title": "Speicher freigeben",
+    "clearCache": "Cache leeren",
+    "clearDownloads": "Downloads löschen"
+  },
+  "logout": {
+    "title": "Abmelden",
+    "confirmation": "Möchten Sie sich wirklich abmelden?",
+    "logoutButton": "Abmelden",
+    "cancelButton": "Abbrechen"
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "email": "E-Mail-Benachrichtigungen",
+    "push": "Push-Benachrichtigungen"
+  },
+  "privacy": {
+    "title": "Datenschutz",
+    "dataSharing": "Datenfreigabe-Einstellungen",
+    "placeholder": "Geben Sie Ihre Präferenzen ein",
+    "saveChanges": "Änderungen speichern"
+  },
+  "reportProblem": {
+    "title": "Ein Problem melden",
+    "description": "Beschreiben Sie das aufgetretene Problem:",
+    "placeholder": "Geben Sie hier die Beschreibung Ihres Problems ein",
+    "submit": "Absenden"
+  },
+  "subscription": {
+    "title": "Abonnement",
+    "current": "Ihr aktuelles Abonnement:",
+    "plan": "Premium-Plan",
+    "expires": "Läuft ab am:",
+    "renew": "Abonnement erneuern"
+  },
+  "support": {
+    "title": "Support",
+    "help": "Wie können wir Ihnen helfen?",
+    "placeholder": "Beschreiben Sie Ihr Problem oder Ihre Frage",
+    "submit": "Absenden"
   }
 }

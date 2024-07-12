@@ -7,9 +7,11 @@ import { useRouter } from "expo-router";
 import { useDispatch } from "react-redux";
 // import { logout } from "@/store/slices/authSlice";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 const Logout = () => {
   const router = useRouter();
+  const { t } = useTranslation();
   const dispatch = useDispatch();
 
   const handleLogout = () => {
@@ -30,24 +32,18 @@ const Logout = () => {
             color={COLORS.black}
           />
         </TouchableOpacity>
-        <CustomText type="h2">Logout</CustomText>
+        <CustomText type="h2">{t("logout.title")}</CustomText>
       </View>
       <View style={styles.content}>
-        <CustomText type="body1">
-          Are you sure you want to logout?
-        </CustomText>
+        <CustomText type="body1">{t("logout.confirmation")}</CustomText>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <CustomText type="body1">
-            Logout
-          </CustomText>
+          <CustomText type="body1">{t("logout.logoutButton")}</CustomText>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.cancelButton}
           onPress={() => router.back()}
         >
-          <CustomText type="body1">
-            Cancel
-          </CustomText>
+          <CustomText type="body1">{t("logout.cancelButton")}</CustomText>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

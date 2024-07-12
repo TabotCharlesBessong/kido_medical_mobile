@@ -376,9 +376,9 @@
     "viewPrescriptions": "View Prescriptions",
     "createPost": "Create Post",
     "timeSlot": "Time slot",
-    "description":"Dr Jason graduated from North Eastern University school of Medicine in 1992. He works in New York, NY and 2 other locations and specializes in Hand surgery, Orthopedic surgery, and Sports medicine. Dr. Smith is affiliated with Northeastern medicine laboratory"
+    "description": "Dr Jason graduated from North Eastern University school of Medicine in 1992. He works in New York, NY and 2 other locations and specializes in Hand surgery, Orthopedic surgery, and Sports medicine. Dr. Smith is affiliated with Northeastern medicine laboratory"
   },
-  "timeslot":{
+  "timeslot": {
     "manageTimeSlots": "Manage Time Slots",
     "available": "Available",
     "notAvailable": "Not Available",
@@ -395,11 +395,79 @@
     "error": "Error",
     "failedToCreateTimeSlot": "Failed to create time slot. Please try again."
   },
-  "translate":{
-    "en":"English 🇬🇧",
-    "fr":"French 🇫🇷",
-    "de":"German 🇩🇪",
-    "selectLanguage":"Select Language",
-    "close":"Close"
+  "translate": {
+    "en": "English 🇬🇧",
+    "fr": "French 🇫🇷",
+    "de": "German 🇩🇪",
+    "selectLanguage": "Select Language",
+    "close": "Close"
+  },
+  "editProfile": {
+    "title": "Edit Profile",
+    "name": "Name",
+    "placeholderName": "Enter your name",
+    "email": "Email",
+    "placeholderEmail": "Enter your email",
+    "phone": "Phone",
+    "placeholderPhone": "Enter your phone number",
+    "saveChanges": "Save Changes"
+  },
+  "termsAndPolicies": {
+    "title": "Terms and Policies",
+    "introduction": "Introduction",
+    "introText": "Welcome to our telemedicine platform. By using our services, you agree to the following terms and conditions.",
+    "privacyPolicy": "Privacy Policy",
+    "privacyText": "Your privacy is important to us. We are committed to protecting your personal information and ensuring its confidentiality.",
+    "userResponsibilities": "User Responsibilities",
+    "userResponsibilitiesText": "Users are expected to provide accurate information and comply with the guidelines provided by our healthcare professionals.",
+    "limitationOfLiability": "Limitation of Liability",
+    "limitationText": "Our platform is not responsible for any damages arising from the use of our services. Users should seek immediate medical attention in emergencies.",
+    "contactInformation": "Contact Information",
+    "contactText": "If you have any questions or concerns, please contact us at support@telemedicine.com."
+  },
+  "dataSaver": {
+    "title": "Data Saver",
+    "enable": "Enable Data Saver"
+  },
+  "freeSpace": {
+    "title": "Free Up Space",
+    "clearCache": "Clear Cache",
+    "clearDownloads": "Clear Downloads"
+  },
+  "logout": {
+    "title": "Logout",
+    "confirmation": "Are you sure you want to logout?",
+    "logoutButton": "Logout",
+    "cancelButton": "Cancel"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "email": "Email Notifications",
+    "push": "Push Notifications"
+  },
+  "privacy": {
+    "title": "Privacy",
+    "dataSharing": "Data Sharing Preferences",
+    "placeholder": "Enter your preferences",
+    "saveChanges": "Save Changes"
+  },
+  "reportProblem": {
+    "title": "Report a Problem",
+    "description": "Describe the problem you encountered:",
+    "placeholder": "Enter your problem description here",
+    "submit": "Submit"
+  },
+  "subscription": {
+    "title": "Subscription",
+    "current": "Your current subscription:",
+    "plan": "Premium Plan",
+    "expires": "Expires on:",
+    "renew": "Renew Subscription"
+  },
+  "support": {
+    "title": "Support",
+    "help": "How can we help you?",
+    "placeholder": "Describe your issue or question",
+    "submit": "Submit"
   }
 }

@@ -5,9 +5,11 @@ import { COLORS } from "@/constants/theme";
 import { CustomText } from "@/components";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 const DataSaver = () => {
   const router = useRouter();
+  const { t } = useTranslation();
   const [isDataSaverEnabled, setIsDataSaverEnabled] = useState(false);
 
   const toggleDataSaver = () => {
@@ -27,11 +29,11 @@ const DataSaver = () => {
             color={COLORS.black}
           />
         </TouchableOpacity>
-        <CustomText type="h2">Data Saver</CustomText>
+        <CustomText type="h2">{t("dataSaver.title")}</CustomText>
       </View>
       <View style={styles.content}>
         <View style={styles.optionContainer}>
-          <CustomText type="body1">Enable Data Saver</CustomText>
+          <CustomText type="body1">{t("dataSaver.enable")}</CustomText>
           <Switch
             value={isDataSaverEnabled}
             onValueChange={toggleDataSaver}

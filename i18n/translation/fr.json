@@ -398,7 +398,75 @@
     "en": "Anglais 🇬🇧",
     "fr": "Français 🇫🇷",
     "de": "Allemand 🇩🇪",
-    "selectLanguage":"Choisir La Language",
-    "close":"Fermer"
+    "selectLanguage": "Choisir La Language",
+    "close": "Fermer"
+  },
+  "editProfile": {
+    "title": "Modifier le profil",
+    "name": "Nom",
+    "placeholderName": "Entrez votre nom",
+    "email": "Email",
+    "placeholderEmail": "Entrez votre email",
+    "phone": "Téléphone",
+    "placeholderPhone": "Entrez votre numéro de téléphone",
+    "saveChanges": "Enregistrer les modifications"
+  },
+  "termsAndPolicies": {
+    "title": "Conditions générales et politiques",
+    "introduction": "Introduction",
+    "introText": "Bienvenue sur notre plateforme de télémédecine. En utilisant nos services, vous acceptez les conditions générales suivantes.",
+    "privacyPolicy": "Politique de confidentialité",
+    "privacyText": "Votre vie privée est importante pour nous. Nous nous engageons à protéger vos informations personnelles et à garantir leur confidentialité.",
+    "userResponsibilities": "Responsabilités de l'utilisateur",
+    "userResponsibilitiesText": "Les utilisateurs sont tenus de fournir des informations exactes et de se conformer aux directives fournies par nos professionnels de la santé.",
+    "limitationOfLiability": "Limitation de responsabilité",
+    "limitationText": "Notre plateforme n'est pas responsable des dommages résultant de l'utilisation de nos services. Les utilisateurs doivent demander une attention médicale immédiate en cas d'urgence.",
+    "contactInformation": "Informations de contact",
+    "contactText": "Si vous avez des questions ou des préoccupations, veuillez nous contacter à support@telemedicine.com."
+  },
+  "dataSaver": {
+    "title": "Économiseur de données",
+    "enable": "Activer l'économiseur de données"
+  },
+  "freeSpace": {
+    "title": "Libérer de l'espace",
+    "clearCache": "Vider le cache",
+    "clearDownloads": "Effacer les téléchargements"
+  },
+  "logout": {
+    "title": "Déconnexion",
+    "confirmation": "Êtes-vous sûr de vouloir vous déconnecter?",
+    "logoutButton": "Déconnexion",
+    "cancelButton": "Annuler"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "email": "Notifications par e-mail",
+    "push": "Notifications push"
+  },
+  "privacy": {
+    "title": "Confidentialité",
+    "dataSharing": "Préférences de partage des données",
+    "placeholder": "Entrez vos préférences",
+    "saveChanges": "Enregistrer les modifications"
+  },
+  "reportProblem": {
+    "title": "Signaler un problème",
+    "description": "Décrivez le problème que vous avez rencontré:",
+    "placeholder": "Entrez la description de votre problème ici",
+    "submit": "Soumettre"
+  },
+  "subscription": {
+    "title": "Abonnement",
+    "current": "Votre abonnement actuel:",
+    "plan": "Plan Premium",
+    "expires": "Expire le:",
+    "renew": "Renouveler l'abonnement"
+  },
+  "support": {
+    "title": "Support",
+    "help": "Comment pouvons-nous vous aider?",
+    "placeholder": "Décrivez votre problème ou question",
+    "submit": "Soumettre"
   }
 }

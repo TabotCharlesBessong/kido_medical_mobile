@@ -5,9 +5,11 @@ import { COLORS } from "@/constants/theme";
 import { CustomText } from "@/components";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 const Subscription = () => {
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -22,22 +24,16 @@ const Subscription = () => {
             color={COLORS.black}
           />
         </TouchableOpacity>
-        <CustomText type="h2">Subscription</CustomText>
+        <CustomText type="h2">{t("subscription.title")}</CustomText>
       </View>
       <View style={styles.content}>
+        <CustomText type="body1">{t("subscription.current")}</CustomText>
+        <CustomText type="h3">{t("subscription.plan")}</CustomText>
         <CustomText type="body1">
-          Your current subscription:
-        </CustomText>
-        <CustomText type="h3">
-          Premium Plan
-        </CustomText>
-        <CustomText type="body1">
-          Expires on: 2024-12-31
+          {t("subscription.expires")} 2024-12-31
         </CustomText>
         <TouchableOpacity style={styles.renewButton}>
-          <CustomText type="body1">
-            Renew Subscription
-          </CustomText>
+          <CustomText type="body1">{t("subscription.renew")}</CustomText>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

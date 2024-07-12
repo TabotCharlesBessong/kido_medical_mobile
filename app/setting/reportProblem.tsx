@@ -5,9 +5,11 @@ import { COLORS } from "@/constants/theme";
 import { CustomText, AppButton } from "@/components";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 const ReportProblem = () => {
   const router = useRouter();
+  const { t } = useTranslation();
   const [problemDescription, setProblemDescription] = useState("");
 
   const handleReportProblem = () => {
@@ -33,22 +35,20 @@ const ReportProblem = () => {
             color={COLORS.black}
           />
         </TouchableOpacity>
-        <CustomText type="h2">Report a Problem</CustomText>
+        <CustomText type="h2">{t("reportProblem.title")}</CustomText>
       </View>
       <View style={styles.content}>
-        <CustomText type="body1">
-          Describe the problem you encountered:
-        </CustomText>
+        <CustomText type="body1">{t("reportProblem.description")}</CustomText>
         <TextInput
           style={styles.input}
           multiline
           numberOfLines={4}
           value={problemDescription}
           onChangeText={setProblemDescription}
-          placeholder="Enter your problem description here"
+          placeholder={t("reportProblem.placeholder")}
         />
         <AppButton
-          title="Submit"
+          title={t("reportProblem.submit")}
           onPress={handleReportProblem}
           backgroundColor={COLORS.primary}
           width={120}
