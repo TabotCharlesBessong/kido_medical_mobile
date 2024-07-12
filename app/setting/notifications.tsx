@@ -5,9 +5,11 @@ import { COLORS } from "@/constants/theme";
 import { CustomText } from "@/components";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 const Notifications = () => {
   const router = useRouter();
+  const { t } = useTranslation();
   const [emailNotifications, setEmailNotifications] = React.useState(false);
   const [pushNotifications, setPushNotifications] = React.useState(false);
 
@@ -24,18 +26,18 @@ const Notifications = () => {
             color={COLORS.black}
           />
         </TouchableOpacity>
-        <CustomText type="h2">Notifications</CustomText>
+        <CustomText type="h2">{t("notifications.title")}</CustomText>
       </View>
       <View style={styles.settings}>
         <View style={styles.settingItem}>
-          <CustomText type="body1">Email Notifications</CustomText>
+          <CustomText type="body1">{t("notifications.email")}</CustomText>
           <Switch
             value={emailNotifications}
             onValueChange={setEmailNotifications}
           />
         </View>
         <View style={styles.settingItem}>
-          <CustomText type="body1">Push Notifications</CustomText>
+          <CustomText type="body1">{t("notifications.push")}</CustomText>
           <Switch
             value={pushNotifications}
             onValueChange={setPushNotifications}

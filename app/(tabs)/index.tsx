@@ -57,7 +57,7 @@ const index = () => {
       // const response = await axios.get(`${baseUrl}/prescriptions`);
       // setPrescriptions(response.data.data);
 
-      const postData = generatePosts(17); // Replace with actual API call
+      const postData = generatePosts(2); // Replace with actual API call
       setPosts(postData);
       console.log(posts)
       setLoading(false);

@@ -1,13 +1,15 @@
 import React from "react";
 import { View, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { COLORS, FONTS } from "@/constants/theme";
+import { COLORS } from "@/constants/theme";
 import { CustomText } from "@/components";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 const TermsAndPolicies = () => {
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -22,48 +24,36 @@ const TermsAndPolicies = () => {
             color={COLORS.black}
           />
         </TouchableOpacity>
-        <CustomText type="h2">Terms and Policies</CustomText>
+        <CustomText type="h2">{t("termsAndPolicies.title")}</CustomText>
       </View>
       <ScrollView style={styles.scrollView}>
-        <CustomText type="h3">
-          Introduction
-        </CustomText>
+        <CustomText type="h3">{t("termsAndPolicies.introduction")}</CustomText>
+        <CustomText type="body1">{t("termsAndPolicies.introText")}</CustomText>
+
+        <CustomText type="h3">{t("termsAndPolicies.privacyPolicy")}</CustomText>
         <CustomText type="body1">
-          Welcome to our telemedicine platform. By using our services, you agree
-          to the following terms and conditions.
+          {t("termsAndPolicies.privacyText")}
         </CustomText>
 
         <CustomText type="h3">
-          Privacy Policy
+          {t("termsAndPolicies.userResponsibilities")}
         </CustomText>
         <CustomText type="body1">
-          Your privacy is important to us. We are committed to protecting your
-          personal information and ensuring its confidentiality.
+          {t("termsAndPolicies.userResponsibilitiesText")}
         </CustomText>
 
         <CustomText type="h3">
-          User Responsibilities
+          {t("termsAndPolicies.limitationOfLiability")}
         </CustomText>
         <CustomText type="body1">
-          Users are expected to provide accurate information and comply with the
-          guidelines provided by our healthcare professionals.
+          {t("termsAndPolicies.limitationText")}
         </CustomText>
 
         <CustomText type="h3">
-          Limitation of Liability
+          {t("termsAndPolicies.contactInformation")}
         </CustomText>
         <CustomText type="body1">
-          Our platform is not responsible for any damages arising from the use
-          of our services. Users should seek immediate medical attention in
-          emergencies.
-        </CustomText>
-
-        <CustomText type="h3">
-          Contact Information
-        </CustomText>
-        <CustomText type="body1">
-          If you have any questions or concerns, please contact us at
-          support@telemedicine.com.
+          {t("termsAndPolicies.contactText")}
         </CustomText>
       </ScrollView>
     </SafeAreaView>

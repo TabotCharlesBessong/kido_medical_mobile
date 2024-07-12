@@ -5,9 +5,11 @@ import { COLORS } from "@/constants/theme";
 import { CustomText } from "@/components";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 const Privacy = () => {
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -22,22 +24,18 @@ const Privacy = () => {
             color={COLORS.black}
           />
         </TouchableOpacity>
-        <CustomText type="h2">Privacy</CustomText>
+        <CustomText type="h2">{t("privacy.title")}</CustomText>
       </View>
       <View style={styles.form}>
-        <CustomText type="body1">
-          Data Sharing Preferences
-        </CustomText>
+        <CustomText type="body1">{t("privacy.dataSharing")}</CustomText>
         <TextInput
           style={styles.input}
-          placeholder="Enter your preferences"
+          placeholder={t("privacy.placeholder")}
           multiline
           numberOfLines={4}
         />
         <TouchableOpacity style={styles.saveButton}>
-          <CustomText type="body1">
-            Save Changes
-          </CustomText>
+          <CustomText type="body1">{t("privacy.saveChanges")}</CustomText>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -57,9 +55,6 @@ const styles = StyleSheet.create({
   backButton: {},
   form: {
     padding: 12,
-  },
-  label: {
-    marginVertical: 8,
   },
   input: {
     borderWidth: 1,

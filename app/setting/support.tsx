@@ -5,9 +5,11 @@ import { COLORS } from "@/constants/theme";
 import { CustomText } from "@/components";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 const Support = () => {
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -22,22 +24,18 @@ const Support = () => {
             color={COLORS.black}
           />
         </TouchableOpacity>
-        <CustomText type="h2">Support</CustomText>
+        <CustomText type="h2">{t("support.title")}</CustomText>
       </View>
       <View style={styles.form}>
-        <CustomText type="body1">
-          How can we help you?
-        </CustomText>
+        <CustomText type="body1">{t("support.help")}</CustomText>
         <TextInput
           style={styles.input}
-          placeholder="Describe your issue or question"
+          placeholder={t("support.placeholder")}
           multiline
           numberOfLines={4}
         />
         <TouchableOpacity style={styles.submitButton}>
-          <CustomText type="body1">
-            Submit
-          </CustomText>
+          <CustomText type="body1">{t("support.submit")}</CustomText>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -57,9 +55,6 @@ const styles = StyleSheet.create({
   backButton: {},
   form: {
     padding: 12,
-  },
-  label: {
-    marginVertical: 8,
   },
   input: {
     borderWidth: 1,
