@@ -69,7 +69,7 @@ const login = () => {
       setLoading(true);
       // dispatch(signInStart());
       setErrorMessage("");
-      const res = await fetch("http:192.168.1.152:5000/api/user/login", {
+      const res = await fetch("http:192.168.1.185:5000/api/user/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
