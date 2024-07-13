@@ -1,433 +1,639 @@
-Here are the JSON translations for English, French, and German for the screen:
+Let's start by organizing your Redux setup with separate files for reducers and actions. We'll also configure Axios with interceptors for handling the token.
 
-### English (en.json)
-```json
-{
-  "manageTimeSlots": "Manage Time Slots",
-  "available": "Available",
-  "notAvailable": "Not Available",
-  "weekly": "Weekly",
-  "addTimeSlot": "+ Add Time Slot",
-  "createTimeSlot": "Create Time Slot",
-  "selectStartTime": "Select Start Time",
-  "selectEndTime": "Select End Time",
-  "weeklyAvailability": "Weekly Availability",
-  "create": "Create",
-  "cancel": "Cancel",
-  "validationError": "Validation Error",
-  "selectBothTimes": "Please select both start and end times.",
-  "error": "Error",
-  "failedToCreateTimeSlot": "Failed to create time slot. Please try again."
+### 1. Redux Setup
+
+#### a. Slice (authSlice.ts)
+```typescript
+import { createSlice } from "@reduxjs/toolkit";
+import { IUser } from "@/constants/types";
+
+interface AuthState {
+  currentUser: IUser | null;
+  token: string | null;
+  loading: boolean;
+  error: string | null;
 }
-```
 
-### French (fr.json)
-```json
-{
-  "manageTimeSlots": "Gérer les créneaux horaires",
-  "available": "Disponible",
-  "notAvailable": "Indisponible",
-  "weekly": "Hebdomadaire",
-  "addTimeSlot": "+ Ajouter un créneau",
-  "createTimeSlot": "Créer un créneau",
-  "selectStartTime": "Sélectionner l'heure de début",
-  "selectEndTime": "Sélectionner l'heure de fin",
-  "weeklyAvailability": "Disponibilité hebdomadaire",
-  "create": "Créer",
-  "cancel": "Annuler",
-  "validationError": "Erreur de validation",
-  "selectBothTimes": "Veuillez sélectionner à la fois l'heure de début et de fin.",
-  "error": "Erreur",
-  "failedToCreateTimeSlot": "Échec de la création du créneau. Veuillez réessayer."
-}
-```
-
-### German (de.json)
-```json
-{
-  "manageTimeSlots": "Zeitfenster verwalten",
-  "available": "Verfügbar",
-  "notAvailable": "Nicht verfügbar",
-  "weekly": "Wöchentlich",
-  "addTimeSlot": "+ Zeitfenster hinzufügen",
-  "createTimeSlot": "Zeitfenster erstellen",
-  "selectStartTime": "Startzeit auswählen",
-  "selectEndTime": "Endzeit auswählen",
-  "weeklyAvailability": "Wöchentliche Verfügbarkeit",
-  "create": "Erstellen",
-  "cancel": "Abbrechen",
-  "validationError": "Validierungsfehler",
-  "selectBothTimes": "Bitte wählen Sie sowohl die Start- als auch die Endzeit aus.",
-  "error": "Fehler",
-  "failedToCreateTimeSlot": "Zeitfenster konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
-}
-```
-
-### Implementing Translation into the Screens
-
-First, install the necessary packages for translation:
-```bash
-npm install i18next react-i18next i18next-http-backend i18next-browser-languagedetector
-```
-
-Next, configure the `i18n` setup:
-
-**i18n.js**
-```javascript
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import HttpBackend from 'i18next-http-backend';
-import LanguageDetector from 'i18next-browser-languagedetector';
-
-i18n
-  .use(HttpBackend)
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
-    fallbackLng: 'en',
-    debug: true,
-    interpolation: {
-      escapeValue: false, // react already safes from xss
-    },
-    backend: {
-      loadPath: '/locales/{{lng}}/{{ns}}.json',
-    },
-  });
-
-export default i18n;
-```
-
-Create a folder structure for the translations:
-
-```
-public
-└── locales
-    ├── en
-    │   └── translation.json
-    ├── fr
-    │   └── translation.json
-    └── de
-        └── translation.json
-```
-
-Place the respective JSON files in the corresponding folders.
-
-**App.js**
-```javascript
-import React from 'react';
-import { I18nextProvider } from 'react-i18next';
-import i18n from './i18n';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import TimeSlotScreen from './TimeSlotScreen';
-
-const App = () => {
-  return (
-    <SafeAreaProvider>
-      <I18nextProvider i18n={i18n}>
-        <TimeSlotScreen />
-      </I18nextProvider>
-    </SafeAreaProvider>
-  );
+const initialState: AuthState = {
+  currentUser: null,
+  token: null,
+  loading: false,
+  error: null,
 };
 
-export default App;
-```
-
-**TimeSlotScreen.js**
-```javascript
-import React, { useState } from "react";
-import { View, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useTranslation } from 'react-i18next';
-
-import { COLORS } from "@/constants/theme";
-import { CustomText, TimeslotModal } from "@/components";
-import { TimeSlot, generateRandomTimeSlots } from "@/constants/data/timeslot";
-import { useRouter } from "expo-router";
-import { AppDispatch } from "@/redux/store";
-import { useDispatch } from "react-redux";
-
-const TimeSlotScreen: React.FC = () => {
-  const { t } = useTranslation();
-  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(generateRandomTimeSlots(8));
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const dispatch: AppDispatch = useDispatch();
-  const router = useRouter();
-
-  const handleCreateTimeSlot = (startTime: string, endTime: string, isWeekly: boolean) => {
-    const newSlot: TimeSlot = {
-      id: Date.now().toString(),
-      startTime,
-      endTime,
-      isAvailable: true,
-      isWeekly,
-    };
-    setTimeSlots((prevSlots) => [...prevSlots, newSlot]);
-  };
-
-  const toggleModal = () => {
-    setIsModalVisible(!isModalVisible);
-  };
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        <CustomText type="h3">{t('manageTimeSlots')}</CustomText>
-        {timeSlots.map((slot) => (
-          <View key={slot.id} style={styles.timeSlotItem}>
-            <View style={{display:"flex",flexDirection:"row",alignItems:"center",justifyContent:"space-between"}} >
-              <CustomText type="body3">
-                {slot.isAvailable ? t('available') : t('notAvailable')}
-              </CustomText>
-              <CustomText type="body1">
-                {`${slot.startTime} - ${slot.endTime}`}
-              </CustomText>
-            </View>
-            {slot.isWeekly && <CustomText type="body2">{t('weekly')}</CustomText>}
-          </View>
-        ))}
-        <TouchableOpacity style={styles.addButton} onPress={toggleModal}>
-          <CustomText type="body1">{t('addTimeSlot')}</CustomText>
-        </TouchableOpacity>
-      </ScrollView>
-      <TimeslotModal
-        isVisible={isModalVisible}
-        onClose={toggleModal}
-        onCreate={handleCreateTimeSlot}
-      />
-    </SafeAreaView>
-  );
-};
-
-export default TimeSlotScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.gray,
-  },
-  scrollView: {
-    paddingHorizontal: 16,
-  },
-  header: {
-    marginVertical: 20,
-  },
-  timeSlotItem: {
-    padding: 15,
-    backgroundColor: COLORS.white,
-    borderRadius: 10,
-    marginVertical: 5,
-  },
-  available: {
-    color: COLORS.primary,
-  },
-  notAvailable: {
-    color: COLORS.danger,
-  },
-  weekly: {
-    color: "blue",
-  },
-  addButton: {
-    padding: 15,
-    backgroundColor: COLORS.primary,
-    borderRadius: 10,
-    alignItems: "center",
-    marginVertical: 20,
-  },
-  addButtonText: {
-    color: COLORS.white,
-    fontWeight: "bold",
+const authSlice = createSlice({
+  name: "auth",
+  initialState,
+  reducers: {
+    signInStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    signInSuccess: (state, action) => {
+      state.currentUser = action.payload.user;
+      state.token = action.payload.token;
+      state.loading = false;
+      state.error = null;
+    },
+    signInFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    signUpStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    signUpSuccess: (state, action) => {
+      state.currentUser = action.payload.user;
+      state.token = action.payload.token;
+      state.loading = false;
+      state.error = null;
+    },
+    signUpFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    forgotPasswordStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    forgotPasswordSuccess: (state, action) => {
+      state.loading = false;
+      state.error = null;
+    },
+    forgotPasswordFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    resetPasswordStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    resetPasswordSuccess: (state, action) => {
+      state.loading = false;
+      state.error = null;
+    },
+    resetPasswordFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
   },
 });
+
+export const {
+  signInFailure,
+  signInStart,
+  signInSuccess,
+  signUpFailure,
+  signUpStart,
+  signUpSuccess,
+  forgotPasswordFailure,
+  forgotPasswordStart,
+  forgotPasswordSuccess,
+  resetPasswordFailure,
+  resetPasswordStart,
+  resetPasswordSuccess
+} = authSlice.actions;
+
+export default authSlice.reducer;
 ```
 
-**TimeslotModal.js**
-```javascript
-import React, { useState } from "react";
+#### b. Actions (authActions.ts)
+```typescript
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-  Modal,
-  View,
-  Button,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { COLORS } from "@/constants/theme";
-import { AppButton, AuthCheckbox, CustomText } from "@/components";
-import { useTranslation } from 'react-i18next';
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
-import { createTimeSlot } from "@/redux/actions/timeslot.action";
+  signInStart,
+  signInSuccess,
+  signInFailure,
+  signUpStart,
+  signUpSuccess,
+  signUpFailure,
+} from "./authSlice";
 
-interface TimeSlotModalProps {
-  isVisible: boolean;
-  onClose: () => void;
-  onCreate: (startTime: string, endTime: string, isWeekly: boolean) => void;
-}
+const API_URL = "http://192.168.1.152:5000/api/user"; // Adjust the URL accordingly
 
-const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
-  isVisible,
-  onClose,
-  onCreate,
-}) => {
-  const { t } = useTranslation();
-  const [startTime, setStartTime] = useState<Date | null>(null);
-  const [endTime, setEndTime] = useState<Date | null>(null);
-  const [isWeekly, setIsWeekly] = useState(false);
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false
-
-);
-  const dispatch: AppDispatch = useDispatch();
-
-  const onStartTimeChange = (event: any, selectedDate?: Date) => {
-    setShowStartPicker(false);
-    if (selectedDate) {
-      setStartTime(selectedDate);
-    }
-  };
-
-  const onEndTimeChange = (event: any, selectedDate?: Date) => {
-    setShowEndPicker(false);
-    if (selectedDate) {
-      setEndTime(selectedDate);
-    }
-  };
-
-  const formatTime = (date: Date) => {
-    return `${date.getHours().toString().padStart(2, "0")}:${date
-      .getMinutes()
-      .toString()
-      .padStart(2, "0")}`;
-  };
-
-  const handleCreate = async () => {
-    if (startTime && endTime) {
-      const doctorId = 1; // Replace with actual doctor ID
-      const newTimeSlot = {
-        doctorId,
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString(),
-        isAvailable: true,
-      };
-
-      try {
-        await dispatch(createTimeSlot(newTimeSlot));
-        onCreate(formatTime(startTime), formatTime(endTime), isWeekly);
-        onClose();
-      } catch (error) {
-        Alert.alert(t('error'), t('failedToCreateTimeSlot'));
+export const signIn = createAsyncThunk(
+  "auth/signIn",
+  async (values: { email: string; password: string }, { dispatch }) => {
+    dispatch(signInStart());
+    try {
+      const response = await axios.post(`${API_URL}/login`, values);
+      const data = response.data;
+      if (data.success) {
+        await AsyncStorage.setItem("userToken", data.data.token);
+        await AsyncStorage.setItem("userData", JSON.stringify(data.data.user));
+        dispatch(signInSuccess({ user: data.data.user, token: data.data.token }));
+      } else {
+        dispatch(signInFailure(data.message));
       }
-    } else {
-      Alert.alert(t('validationError'), t('selectBothTimes'));
+    } catch (error) {
+      dispatch(signInFailure(error.message));
     }
-  };
+  }
+);
 
-  return (
-    <Modal
-      transparent={true}
-      animationType="slide"
-      visible={isVisible}
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <CustomText type="h3">{t('createTimeSlot')}</CustomText>
+export const signUp = createAsyncThunk(
+  "auth/signUp",
+  async (values: { email: string; password: string }, { dispatch }) => {
+    dispatch(signUpStart());
+    try {
+      const response = await axios.post(`${API_URL}/register`, values);
+      const data = response.data;
+      if (data.success) {
+        await AsyncStorage.setItem("userToken", data.data.token);
+        await AsyncStorage.setItem("userData", JSON.stringify(data.data.user));
+        dispatch(signUpSuccess({ user: data.data.user, token: data.data.token }));
+      } else {
+        dispatch(signUpFailure(data.message));
+      }
+    } catch (error) {
+      dispatch(signUpFailure(error.message));
+    }
+  }
+);
+```
 
-          <TouchableOpacity
-            onPress={() => setShowStartPicker(true)}
-            style={styles.timePickerButton}
-          >
-            <CustomText type="body1">
-              {startTime ? formatTime(startTime) : t('selectStartTime')}
-            </CustomText>
-          </TouchableOpacity>
-          {showStartPicker && (
-            <DateTimePicker
-              value={startTime || new Date()}
-              mode="time"
-              display="default"
-              onChange={onStartTimeChange}
-            />
-          )}
+### 2. Axios Instance with Interceptors
 
-          <TouchableOpacity
-            onPress={() => setShowEndPicker(true)}
-            style={styles.timePickerButton}
-          >
-            <CustomText type="body1">
-              {endTime ? formatTime(endTime) : t('selectEndTime')}
-            </CustomText>
-          </TouchableOpacity>
-          {showEndPicker && (
-            <DateTimePicker
-              value={endTime || new Date()}
-              mode="time"
-              display="default"
-              onChange={onEndTimeChange}
-            />
-          )}
+#### axiosInstance.ts
+```typescript
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-          <AuthCheckbox
-            isChecked={isWeekly}
-            onPress={() => setIsWeekly(!isWeekly)}
-            title={t('weeklyAvailability')}
-          />
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-around",
-              marginTop: 12,
-            }}
-          >
-            <AppButton
-              title={t('create')}
-              onPress={handleCreate}
-              width={120}
-              backgroundColor={COLORS.primary}
-            />
-            <AppButton
-              title={t('cancel')}
-              onPress={onClose}
-              width={120}
-              backgroundColor={COLORS.danger}
-            />
-          </View>
-        </View>
-      </View>
-    </Modal>
-  );
-};
-
-const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalContent: {
-    width: "80%",
-    padding: 20,
-    backgroundColor: COLORS.white,
-    borderRadius: 10,
-  },
-  timePickerButton: {
-    padding: 10,
-    marginVertical: 10,
-    backgroundColor: COLORS.gray,
-    borderRadius: 5,
+const instance = axios.create({
+  baseURL: "http://192.168.1.152:5000/api", // Adjust the URL accordingly
+  headers: {
+    "Content-Type": "application/json",
   },
 });
 
-export default TimeSlotModal;
+instance.interceptors.request.use(
+  async (config) => {
+    const token = await AsyncStorage.getItem("userToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+instance.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+export default instance;
 ```
 
-With these changes, the Time Slot screen and modal should now support translations in English, French, and German. The text displayed in the UI will be dynamically fetched from the respective JSON files based on the user's language preference.
+### 3. Updating Submit Functions
 
-### Notes
+#### For Login:
+```typescript
+import { signIn } from "@/redux/actions/authActions";
+import { useDispatch } from "react-redux";
 
-generate the english, french and german json text for the translation of the screen above and also implement the translation into the  screen
+const handleSubmit = async (
+  values: SigninValues,
+  actions: FormikHelpers<SigninValues>
+) => {
+  const dispatch = useDispatch();
+  dispatch(signIn(values));
+};
+```
+
+#### For Signup:
+```typescript
+import { signUp } from "@/redux/actions/authActions";
+import { useDispatch } from "react-redux";
+
+const handleSubmit = async (
+  values: SignupValues,
+  actions: FormikHelpers<SignupValues>
+) => {
+  const dispatch = useDispatch();
+  dispatch(signUp(values));
+};
+```
+
+### 4. Example of Secure API Request with Axios Instance
+
+#### createPatient.ts
+```typescript
+import instance from "@/utils/axiosInstance";
+
+const createPatient = async (values: CompleteValues) => {
+  try {
+    const response = await instance.post("/patient/create", values);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+```
+
+#### In your component:
+```typescript
+const handleSubmit = async (
+  values: CompleteValues,
+  actions: FormikHelpers<CompleteValues>
+) => {
+  try {
+    setLoading(true);
+    setErrorMessage("");
+    const data = await createPatient(values);
+    if (data.success) {
+      setLoading(false);
+      router.push("(tabs)");
+    } else {
+      setErrorMessage(data.message);
+    }
+  } catch (error) {
+    setErrorMessage(error.message);
+    setLoading(false);
+  }
+};
+```
+
+This structure separates concerns, making your code more maintainable and organized. It also ensures that API requests are made securely and consistently using Axios interceptors. You can follow similar patterns for other actions and reducers as needed.
+
+
+Let's extend the Redux setup by adding slices, actions, and async operations for the patient, doctor, post creation, and timeslot management. Here's how you can structure the Redux Toolkit setup:
+
+### 1. Patient Slice
+
+#### a. Patient Slice (patientSlice.ts)
+```typescript
+import { createSlice } from "@reduxjs/toolkit";
+import { IPatient } from "@/constants/types";
+
+interface PatientState {
+  patients: IPatient[];
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: PatientState = {
+  patients: [],
+  loading: false,
+  error: null,
+};
+
+const patientSlice = createSlice({
+  name: "patient",
+  initialState,
+  reducers: {
+    createPatientStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    createPatientSuccess: (state, action) => {
+      state.patients.push(action.payload);
+      state.loading = false;
+      state.error = null;
+    },
+    createPatientFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+  },
+});
+
+export const {
+  createPatientStart,
+  createPatientSuccess,
+  createPatientFailure,
+} = patientSlice.actions;
+
+export default patientSlice.reducer;
+```
+
+#### b. Patient Actions (patientActions.ts)
+```typescript
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import instance from "@/utils/axiosInstance";
+import {
+  createPatientStart,
+  createPatientSuccess,
+  createPatientFailure,
+} from "./patientSlice";
+
+export const createPatient = createAsyncThunk(
+  "patient/createPatient",
+  async (values: { name: string; age: number; gender: string }, { dispatch }) => {
+    dispatch(createPatientStart());
+    try {
+      const response = await instance.post("/patient/create", values);
+      const data = response.data;
+      if (data.success) {
+        dispatch(createPatientSuccess(data.data));
+      } else {
+        dispatch(createPatientFailure(data.message));
+      }
+    } catch (error) {
+      dispatch(createPatientFailure(error.message));
+    }
+  }
+);
+```
+
+### 2. Doctor Slice
+
+#### a. Doctor Slice (doctorSlice.ts)
+```typescript
+import { createSlice } from "@reduxjs/toolkit";
+import { IDoctor } from "@/constants/types";
+
+interface DoctorState {
+  doctors: IDoctor[];
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: DoctorState = {
+  doctors: [],
+  loading: false,
+  error: null,
+};
+
+const doctorSlice = createSlice({
+  name: "doctor",
+  initialState,
+  reducers: {
+    createDoctorStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    createDoctorSuccess: (state, action) => {
+      state.doctors.push(action.payload);
+      state.loading = false;
+      state.error = null;
+    },
+    createDoctorFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+  },
+});
+
+export const {
+  createDoctorStart,
+  createDoctorSuccess,
+  createDoctorFailure,
+} = doctorSlice.actions;
+
+export default doctorSlice.reducer;
+```
+
+#### b. Doctor Actions (doctorActions.ts)
+```typescript
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import instance from "@/utils/axiosInstance";
+import {
+  createDoctorStart,
+  createDoctorSuccess,
+  createDoctorFailure,
+} from "./doctorSlice";
+
+export const createDoctor = createAsyncThunk(
+  "doctor/createDoctor",
+  async (values: { name: string; specialization: string }, { dispatch }) => {
+    dispatch(createDoctorStart());
+    try {
+      const response = await instance.post("/doctor/create", values);
+      const data = response.data;
+      if (data.success) {
+        dispatch(createDoctorSuccess(data.data));
+      } else {
+        dispatch(createDoctorFailure(data.message));
+      }
+    } catch (error) {
+      dispatch(createDoctorFailure(error.message));
+    }
+  }
+);
+```
+
+### 3. Post Slice
+
+#### a. Post Slice (postSlice.ts)
+```typescript
+import { createSlice } from "@reduxjs/toolkit";
+import { IPost } from "@/constants/types";
+
+interface PostState {
+  posts: IPost[];
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: PostState = {
+  posts: [],
+  loading: false,
+  error: null,
+};
+
+const postSlice = createSlice({
+  name: "post",
+  initialState,
+  reducers: {
+    createPostStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    createPostSuccess: (state, action) => {
+      state.posts.push(action.payload);
+      state.loading = false;
+      state.error = null;
+    },
+    createPostFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+  },
+});
+
+export const {
+  createPostStart,
+  createPostSuccess,
+  createPostFailure,
+} = postSlice.actions;
+
+export default postSlice.reducer;
+```
+
+#### b. Post Actions (postActions.ts)
+```typescript
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import instance from "@/utils/axiosInstance";
+import {
+  createPostStart,
+  createPostSuccess,
+  createPostFailure,
+} from "./postSlice";
+
+export const createPost = createAsyncThunk(
+  "post/createPost",
+  async (values: { title: string; description: string; imageUrl: string }, { dispatch }) => {
+    dispatch(createPostStart());
+    try {
+      const response = await instance.post("/post/create", values);
+      const data = response.data;
+      if (data.success) {
+        dispatch(createPostSuccess(data.data));
+      } else {
+        dispatch(createPostFailure(data.message));
+      }
+    } catch (error) {
+      dispatch(createPostFailure(error.message));
+    }
+  }
+);
+```
+
+### 4. Timeslot Slice
+
+#### a. Timeslot Slice (timeslotSlice.ts)
+```typescript
+import { createSlice } from "@reduxjs/toolkit";
+import { ITimeslot } from "@/constants/types";
+
+interface TimeslotState {
+  timeslots: ITimeslot[];
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: TimeslotState = {
+  timeslots: [],
+  loading: false,
+  error: null,
+};
+
+const timeslotSlice = createSlice({
+  name: "timeslot",
+  initialState,
+  reducers: {
+    createTimeslotStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    createTimeslotSuccess: (state, action) => {
+      state.timeslots.push(action.payload);
+      state.loading = false;
+      state.error = null;
+    },
+    createTimeslotFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+  },
+});
+
+export const {
+  createTimeslotStart,
+  createTimeslotSuccess,
+  createTimeslotFailure,
+} = timeslotSlice.actions;
+
+export default timeslotSlice.reducer;
+```
+
+#### b. Timeslot Actions (timeslotActions.ts)
+```typescript
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import instance from "@/utils/axiosInstance";
+import {
+  createTimeslotStart,
+  createTimeslotSuccess,
+  createTimeslotFailure,
+} from "./timeslotSlice";
+
+export const createTimeslot = createAsyncThunk(
+  "timeslot/createTimeslot",
+  async (values: { doctorId: string; date: string; time: string }, { dispatch }) => {
+    dispatch(createTimeslotStart());
+    try {
+      const response = await instance.post("/timeslot/create", values);
+      const data = response.data;
+      if (data.success) {
+        dispatch(createTimeslotSuccess(data.data));
+      } else {
+        dispatch(createTimeslotFailure(data.message));
+      }
+    } catch (error) {
+      dispatch(createTimeslotFailure(error.message));
+    }
+  }
+);
+```
+
+### 5. Integration with Components
+
+#### a. Patient Creation Example
+```typescript
+import { createPatient } from "@/redux/actions/patientActions";
+import { useDispatch } from "react-redux";
+
+const handleSubmit = async (
+  values: CompleteValues,
+  actions: FormikHelpers<CompleteValues>
+) => {
+  const dispatch = useDispatch();
+  dispatch(createPatient(values));
+};
+```
+
+#### b. Doctor Creation Example
+```typescript
+import { createDoctor } from "@/redux/actions/doctorActions";
+import { useDispatch } from "react-redux";
+
+const handleSubmit = async (
+  values: DoctorValues,
+  actions: FormikHelpers<DoctorValues>
+) => {
+  const dispatch = useDispatch();
+  dispatch(createDoctor(values));
+};
+```
+
+#### c. Post Creation Example
+```typescript
+import { createPost } from "@/redux/actions/postActions";
+import { useDispatch } from "react-redux";
+
+const handleSubmit = async (
+  values: PostValues,
+  actions: FormikHelpers<PostValues>
+) => {
+  const dispatch = useDispatch();
+  dispatch(createPost(values));
+};
+```
+
+#### d. Timeslot Creation Example
+```typescript
+import { createTimeslot } from "@/redux/actions/timeslotActions";
+import { useDispatch } from "react-redux";
+
+const handleSubmit = async (
+  values: TimeslotValues,
+  actions: FormikHelpers<TimeslotValues>
+) => {
+  const dispatch = useDispatch();
+  dispatch(createTimeslot(values));
+};
+```
+
+This setup ensures that you have separate files for reducers and actions for each part of your application, adhering to the best practices of Redux Toolkit. Each entity (patient, doctor, post, timeslot) has its own slice and actions to manage
+
+ the state and asynchronous operations effectively.
