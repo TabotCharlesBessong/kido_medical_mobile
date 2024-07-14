@@ -108,7 +108,7 @@ const register = () => {
         onSubmit={handleSubmit}
       >
         {({ handleSubmit }) => (
-          <KeyboardAvoidingView style={styles.container}>
+          <KeyboardAvoidingView behavior="height" style={styles.container}>
             <AuthInputField
               name="firstname"
               placeholder={t("register.form.placeholder1")}
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    flex: 1,
+    // flex: 1,
     width: "100%",
   },
   bottomLinks:{

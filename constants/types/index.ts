@@ -43,7 +43,7 @@ export interface IPatient {
   address1:string; // city
   address2:string; // quater
   occupation:string;
-  phone:number;
+  phoneNumber:number;
   createdAt: Date;
   updatedAt: Date;
 }
