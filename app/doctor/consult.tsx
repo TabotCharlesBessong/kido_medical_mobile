@@ -114,7 +114,7 @@ const ConsultationScreen: React.FC = () => {
 
   return (
     <KeyboardAvoidingView behavior="height" style={styles.container}>
-      <CustomText type="larger">{t("consultation.title")}</CustomText>
+      <CustomText type="h1">{t("consultation.title")}</CustomText>
       <Formik
         initialValues={initialValues}
         validationSchema={consultationSchema}
