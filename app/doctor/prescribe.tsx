@@ -7,7 +7,7 @@ import {
   Text,
   Button,
 } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, Stack } from "expo-router";
 import { AppButton, AuthInputField, CustomText } from "@/components";
 import * as yup from "yup";
 import { Formik, FieldArray, FormikHelpers } from "formik";
@@ -161,15 +161,15 @@ const CreatePrescriptionScreen: React.FC = () => {
   };
 
   return (
-    <KeyboardAvoidingView behavior="height" style={styles.container}>
-      <CustomText type="larger">{t("createPrescription.title")}</CustomText>
+    <ScrollView style={styles.container}>
+      <CustomText type="h1">{t("createPrescription.title")}</CustomText>
       <Formik
         initialValues={initialValues}
         validationSchema={prescriptionSchema}
         onSubmit={handleSubmit}
       >
         {({ handleSubmit, values }) => (
-          <ScrollView>
+          <KeyboardAvoidingView behavior="height">
             <AuthInputField
               name="instructions"
               label={t("createPrescription.fields.instructions")}
@@ -213,13 +213,18 @@ const CreatePrescriptionScreen: React.FC = () => {
                           "createPrescription.placeholders.duration"
                         )}
                       />
-                      <Button
+                      <AppButton
                         title={t("createPrescription.buttons.removeMedication")}
                         onPress={() => remove(index)}
+                        containerStyle={{
+                          backgroundColor: COLORS.danger,
+                          marginTop: 16,
+                          width: "100%",
+                        }}
                       />
                     </View>
                   ))}
-                  <Button
+                  <AppButton
                     title={t("createPrescription.buttons.addMedication")}
                     onPress={() =>
                       push({
@@ -229,6 +234,11 @@ const CreatePrescriptionScreen: React.FC = () => {
                         duration: "",
                       })
                     }
+                    containerStyle={{
+                      backgroundColor: COLORS.primary,
+                      marginVertical: 16,
+                      width: "100%",
+                    }}
                   />
                 </View>
               )}
@@ -239,14 +249,16 @@ const CreatePrescriptionScreen: React.FC = () => {
               loading={loading}
               loadingText={t("createPrescription.buttons.submitting")}
               onPress={handleSubmit}
+              width={"100%"}
+              containerStyle={{marginBottom:32}}
             />
             {errorMessage && (
               <Text style={styles.errorText}>{errorMessage}</Text>
             )}
-          </ScrollView>
+          </KeyboardAvoidingView>
         )}
       </Formik>
-    </KeyboardAvoidingView>
+    </ScrollView>
   );
 };
 
@@ -254,6 +266,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    paddingBottom:24
   },
   medicationContainer: {
     marginBottom: 16,

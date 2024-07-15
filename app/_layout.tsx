@@ -12,6 +12,7 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "@/redux/store";
 import  "../i18n/i18n.config"
+import { ToastProvider } from "react-native-toast-notifications";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -58,8 +59,10 @@ export default function RootLayout() {
   return (
     <Provider store={store} >
       <PersistGate loading={null} persistor={persistor} >
+      <ToastProvider>
 
       <RootLayoutNav />
+      </ToastProvider>
       </PersistGate>
     </Provider>
 )
@@ -136,6 +139,34 @@ function RootLayoutNav() {
           name="doctor/profile"
           options={{
             title: "Profile Screen",
+            headerBackTitle: "",
+            headerShadowVisible: false,
+            headerStyle: {},
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="arrow-back" size={36} color="black" />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+        <Stack.Screen
+          name="doctor/prescribe"
+          options={{
+            title: "Prescription Screen",
+            headerBackTitle: "",
+            headerShadowVisible: false,
+            headerStyle: {},
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="arrow-back" size={36} color="black" />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+        <Stack.Screen
+          name="doctor/consult"
+          options={{
+            title: "Consultation Screen",
             headerBackTitle: "",
             headerShadowVisible: false,
             headerStyle: {},

@@ -218,7 +218,7 @@ const BookAppointmentScreen: React.FC = () => {
             </View>
             <AppButton
               title={t("bookAppointment.bookButton")}
-              width={"95%"}
+              width={"100%"}
               backgroundColor={COLORS.primary}
               onPress={handleSubmit}
               loading={loading}

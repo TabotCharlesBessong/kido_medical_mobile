@@ -20,7 +20,7 @@ const CreatePostScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
-  const { doctorId } = useLocalSearchParams();
+  // const { doctorId } = useLocalSearchParams();
   const {t} = useTranslation()
 
   const initialValues: PostValues = {
@@ -58,7 +58,7 @@ const CreatePostScreen: React.FC = () => {
         },
       });
 
-      const res = await instance.post("/post/create", { ...values, doctorId });
+      const res = await instance.post("/post/create", { ...values });
       const data = res.data;
 
       if (data.success === false) {
@@ -66,7 +66,7 @@ const CreatePostScreen: React.FC = () => {
       } else {
         setLoading(false);
         if (res.status === 200) {
-          router.push("/posts");
+          router.push("(tabs)");
         }
       }
     } catch (error) {
