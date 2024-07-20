@@ -1,60 +1,57 @@
 /* eslint-disable */
 
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit'
 
-import { loginUserThunk } from "../thunks/auth.thunk";
-import {
-  ApiRequestStatus,
-  StoredErrorResponseType,
-} from "@/types/api.types";
-import { LocalStorage } from "../../../../services/storage/local-storage.service";
-import { UserTypes } from "@/types/login.type";
+import { loginUserThunk } from '../thunks/auth.thunk'
+import { ApiRequestStatus, StoredErrorResponseType } from '@/types/api.types'
+import { LocalStorage } from '../../../../services/storage/local-storage.service'
+import { UserTypes } from '@/types/login.type'
 
 type InitialStateTypes = {
-     user: UserTypes;
-  accessToken: string | null;
-  status: ApiRequestStatus;
-  message: string;
-};
+  user: UserTypes
+  accessToken: string | null
+  status: ApiRequestStatus
+  message: string
+}
 
 const initialState: InitialStateTypes = {
-    user: {} as UserTypes,
+  user: {} as UserTypes,
   status: ApiRequestStatus.IDLE,
-  accessToken: "",
-  message: "",
-};
+  accessToken: '',
+  message: '',
+}
 
 const loginSlice = createSlice({
-  name: "loginSlice",
+  name: 'loginSlice',
   initialState: initialState,
   reducers: {
-    resetLoginState: (state) => {
-      state.status = ApiRequestStatus.IDLE;
+    resetLoginState: state => {
+      state.status = ApiRequestStatus.IDLE
     },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
       .addCase(loginUserThunk.pending, (state, _action) => {
-        (state.status = ApiRequestStatus.PENDING),
-          (state.accessToken = ""),
-          (state.user = {} as UserTypes);
+        ;(state.status = ApiRequestStatus.PENDING),
+          (state.accessToken = ''),
+          (state.user = {} as UserTypes)
       })
       .addCase(loginUserThunk.fulfilled, (state, action) => {
-        (state.status = ApiRequestStatus.FULFILLED),
+        ;(state.status = ApiRequestStatus.FULFILLED),
           (state.accessToken = action.payload.data.token),
-          (state.user = action.payload.data.user);
-        console.log(action.payload);
+          (state.user = action.payload.data.user)
+        console.log(action.payload)
 
-        LocalStorage.storeLoginData(action.payload);
+        LocalStorage.storeLoginData(action.payload)
       })
       .addCase(loginUserThunk.rejected, (state, action) => {
-        state.status = ApiRequestStatus.REJECTED;
-        state.accessToken = "";
-        state.user = {} as UserTypes;
-        state.message = (action.payload as StoredErrorResponseType).message;
-      });
+        state.status = ApiRequestStatus.REJECTED
+        state.accessToken = ''
+        state.user = {} as UserTypes
+        state.message = (action.payload as StoredErrorResponseType).message
+      })
   },
-});
+})
 
-export const { resetLoginState } = loginSlice.actions;
-export default loginSlice.reducer;
+export const { resetLoginState } = loginSlice.actions
+export default loginSlice.reducer

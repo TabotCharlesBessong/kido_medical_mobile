@@ -1,7 +1,7 @@
 ---
 name: Custom issue template
 about: Creating and implementing features per design and description
-title: ""
+title: ''
 labels: documentation, enhancement, good first issue
 assignees: ''
 ---

@@ -1,33 +1,38 @@
-import { DoctorCardProps } from "../types";
+import { DoctorCardProps } from '../types'
 
 const generateMockData = (): DoctorCardProps[] => {
   const specialities = [
-    "Cardiology",
-    "Dermatology",
-    "Endocrinology",
-    "Gastroenterology",
-    "Neurology",
-    "Ophthalmology",
-    "Orthopedics",
-    "Pediatrics",
-    "Psychiatry",
-    "Urology",
-  ];
+    'Cardiology',
+    'Dermatology',
+    'Endocrinology',
+    'Gastroenterology',
+    'Neurology',
+    'Ophthalmology',
+    'Orthopedics',
+    'Pediatrics',
+    'Psychiatry',
+    'Urology',
+  ]
 
-  const languages = ["English", "French", "Spanish", "German", "Italian"];
+  const languages = ['English', 'French', 'Spanish', 'German', 'Italian']
 
-  const names = ["Smith Wodel","Barry Tan","Hello Stark","Blaise Tonk"]
+  const names = ['Smith Wodel', 'Barry Tan', 'Hello Stark', 'Blaise Tonk']
 
-  const location = ["Douala, Cameroon","Buea, Cameroon","Yaounde, Cameroon","Ouesso Congo","Limbe, Cameroon","Oyom Cameroon"]
+  const location = [
+    'Douala, Cameroon',
+    'Buea, Cameroon',
+    'Yaounde, Cameroon',
+    'Ouesso Congo',
+    'Limbe, Cameroon',
+    'Oyom Cameroon',
+  ]
 
-  const data: DoctorCardProps[] = [];
+  const data: DoctorCardProps[] = []
 
   for (let i = 1; i <= 10; i++) {
-    const randomSpeciality =
-      specialities[Math.floor(Math.random() * specialities.length)];
+    const randomSpeciality = specialities[Math.floor(Math.random() * specialities.length)]
 
-    const randomLanguages = 
-      languages[Math.floor(Math.random() * languages.length)];
+    const randomLanguages = languages[Math.floor(Math.random() * languages.length)]
 
     const randomName = names[Math.floor(Math.random() * names.length)]
 
@@ -43,12 +48,12 @@ const generateMockData = (): DoctorCardProps[] => {
       speciality: randomSpeciality,
       language: randomLanguages,
       fee: Math.floor(Math.random() * 5000) + 1000,
-    };
+    }
 
-    data.push(doctor);
+    data.push(doctor)
   }
 
-  return data;
-};
+  return data
+}
 
 export default generateMockData

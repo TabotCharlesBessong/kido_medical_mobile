@@ -8,22 +8,20 @@ export enum ApiRequestStatus {
 export type ApiRequestErrorType = {
   response: {
     data: {
-      message: string;
-    };
-    status: number;
-  };
-};
+      message: string
+    }
+    status: number
+  }
+}
 
 export type StoredErrorResponseType = {
-  message: string;
-  code: number;
-};
+  message: string
+  code: number
+}
 
 // eslint-disable-next-line
 export type ApiRequestDataType<DataType = any> = {
-  status: ApiRequestStatus;
-  error?: StoredErrorResponseType;
-  data?: DataType;
-};
-
-
+  status: ApiRequestStatus
+  error?: StoredErrorResponseType
+  data?: DataType
+}

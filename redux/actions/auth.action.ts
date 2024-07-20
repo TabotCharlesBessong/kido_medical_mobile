@@ -1,5 +1,5 @@
-import api from "@/utils/api";
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import api from '@/utils/api'
+import { createAsyncThunk } from '@reduxjs/toolkit'
 import {
   forgotPasswordFailure,
   forgotPasswordStart,
@@ -13,107 +13,104 @@ import {
   signUpFailure,
   signUpStart,
   signUpSuccess,
-} from "../slice/auth.slice";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+} from '../slice/auth.slice'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export const loginUser = createAsyncThunk(
-  "user/loginUser",
+  'user/loginUser',
   async (values: { email: string; password: string }, { dispatch }) => {
-    dispatch(signInStart());
+    dispatch(signInStart())
     try {
-      const response = await api.post("/user/login", values);
-      const data = response.data;
+      const response = await api.post('/user/login', values)
+      const data = response.data
       if (data.success) {
-        dispatch(signInSuccess(data.data));
-        await AsyncStorage.setItem("userToken", response.data.data.token);
-        await AsyncStorage.setItem(
-          "userData",
-          JSON.stringify(response.data.data.user)
-        );
+        dispatch(signInSuccess(data.data))
+        await AsyncStorage.setItem('userToken', response.data.data.token)
+        await AsyncStorage.setItem('userData', JSON.stringify(response.data.data.user))
       } else {
-        dispatch(signInFailure(data.message));
+        dispatch(signInFailure(data.message))
       }
     } catch (error) {
-      dispatch(signInFailure((error as TypeError).message));
+      dispatch(signInFailure((error as TypeError).message))
     }
-  }
-);
+  },
+)
 
 export const createUser = createAsyncThunk(
-  "user/createUser",
+  'user/createUser',
   async (
     values: {
-      email: string;
-      firstname: string;
-      lastname: string;
-      password: string;
-      confirmPassword: string;
+      email: string
+      firstname: string
+      lastname: string
+      password: string
+      confirmPassword: string
     },
-    { dispatch }
+    { dispatch },
   ) => {
-    dispatch(signUpStart());
+    dispatch(signUpStart())
     try {
-      const response = await api.post("/user/register", values);
-      const data = response.data;
+      const response = await api.post('/user/register', values)
+      const data = response.data
       if (data.success) {
-        dispatch(signUpSuccess(data.data));
+        dispatch(signUpSuccess(data.data))
       } else {
-        dispatch(signUpFailure(data.message));
+        dispatch(signUpFailure(data.message))
       }
     } catch (error) {
-      dispatch(signUpFailure((error as TypeError).message));
+      dispatch(signUpFailure((error as TypeError).message))
     }
-  }
-);
+  },
+)
 
 export const forgotPassword = createAsyncThunk(
-  "user/forgotPassword",
+  'user/forgotPassword',
   async (values: { email: string }, { dispatch }) => {
-    dispatch(forgotPasswordStart());
+    dispatch(forgotPasswordStart())
     try {
-      const response = await api.post("/user/forgot-password", values);
-      const data = response.data;
+      const response = await api.post('/user/forgot-password', values)
+      const data = response.data
       if (data.success) {
-        dispatch(forgotPasswordSuccess(data.data));
-        await AsyncStorage.setItem("resetCode", data.data.token.code);
+        dispatch(forgotPasswordSuccess(data.data))
+        await AsyncStorage.setItem('resetCode', data.data.token.code)
       } else {
-        dispatch(forgotPasswordFailure(data.message));
+        dispatch(forgotPasswordFailure(data.message))
       }
     } catch (error) {
-      dispatch(forgotPasswordFailure((error as TypeError).message));
+      dispatch(forgotPasswordFailure((error as TypeError).message))
     }
-  }
-);
+  },
+)
 
 export const resetPassword = createAsyncThunk(
-  "/user/resetPassword",
+  '/user/resetPassword',
   async (
     values: {
-      password: string;
-      confirmPassword: string;
-      code: string;
-      email: string;
+      password: string
+      confirmPassword: string
+      code: string
+      email: string
     },
-    { dispatch }
+    { dispatch },
   ) => {
-    dispatch(resetPasswordStart());
+    dispatch(resetPasswordStart())
     try {
-      const storedCode = await AsyncStorage.getItem("resetCode");
-      console.log(storedCode);
+      const storedCode = await AsyncStorage.getItem('resetCode')
+      console.log(storedCode)
 
       if (storedCode !== values.code) {
-        resetPasswordFailure("The code you entered is incorrect.");
-        return;
+        resetPasswordFailure('The code you entered is incorrect.')
+        return
       }
-      const response = await api.post("/user/reset-password", values);
-      const data = response.data;
+      const response = await api.post('/user/reset-password', values)
+      const data = response.data
       if (data.success) {
-        dispatch(resetPasswordSuccess(data.data));
+        dispatch(resetPasswordSuccess(data.data))
       } else {
-        dispatch(resetPasswordFailure(data.message));
+        dispatch(resetPasswordFailure(data.message))
       }
     } catch (error) {
-      dispatch(resetPasswordFailure((error as TypeError).message));
+      dispatch(resetPasswordFailure((error as TypeError).message))
     }
-  }
-);
+  },
+)

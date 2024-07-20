@@ -6,31 +6,36 @@ This Telemedicine Application is a comprehensive solution designed to facilitate
 
 ## Features
 
-1. **User Authentication**: 
+1. **User Authentication**:
+
    - Login
    - Signup
    - Password reset
    - Forgot password
    - Logout
 
-2. **Patient Management**: 
+2. **Patient Management**:
+
    - Patient registration
    - Viewing patient details
    - Updating patient information
 
 3. **Doctor Management**:
+
    - Doctor registration
    - Viewing doctor profiles
    - Managing consultation timeslots
    - Handling consultations, vital signs, prescriptions, and treatments
 
 4. **Post Management**:
+
    - Creating posts with title, description, and image
    - Viewing and displaying posts
    - Detailed post view including comments and sharing functionality
    - The purpose of the post is for the doctors to educate the public
 
 5. **Prescription Management**:
+
    - Displaying all prescriptions given by a doctor
    - Detailed view of each prescription including medication details
 
@@ -49,18 +54,21 @@ This Telemedicine Application is a comprehensive solution designed to facilitate
 ### Setup
 
 1. **Clone the repository**:
+
    ```bash
    git clone https://github.com/TabotCharlesBessong/kido_medical_mobile.git
    cd kido_medical_mobile
    ```
 
 2. **Install dependencies**:
+
    ```bash
    yarn install
    ```
 
 3. **Set up environment variables**:
    Create a `.env` file in the root directory and add your environment variables. Example:
+
    ```
    BASE_URL=http://localhost:5000/api
    ```
@@ -77,6 +85,7 @@ Ensure that you have the backend API running. Refer to the backend repository fo
 ## Running the Application
 
 1. **Start the Expo development server**:
+
    ```bash
    npx expo start
    ```
@@ -84,7 +93,6 @@ Ensure that you have the backend API running. Refer to the backend repository fo
 2. **Run on Android/iOS emulator or physical device**:
    - Follow the instructions displayed in the terminal to run the app on your preferred platform.
    - For physical devices, use the Expo Go app available on the Play Store/App Store to scan the QR code.
-
 
 ## Contributing
 

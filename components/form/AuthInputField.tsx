@@ -1,5 +1,5 @@
-import { useFormikContext } from "formik";
-import { FC, ReactNode, useEffect } from "react";
+import { useFormikContext } from 'formik'
+import { FC, ReactNode, useEffect } from 'react'
 import {
   View,
   StyleSheet,
@@ -8,28 +8,26 @@ import {
   StyleProp,
   ViewStyle,
   Pressable,
-} from "react-native";
-import AppInput from "../ui/form/AppInput";
-import { COLORS } from "@/constants/theme";
+} from 'react-native'
+import AppInput from '../ui/form/AppInput'
+import { COLORS } from '@/constants/theme'
 
 interface Props {
-  name: string;
-  label?: string;
-  placeholder?: string;
-  keyboardType?: TextInputProps["keyboardType"];
-  autoCapitalize?: TextInputProps["autoCapitalize"];
-  secureTextEntry?: boolean;
-  containerStyle?: StyleProp<ViewStyle>;
-  rightIcon?: ReactNode;
-  onRightIconPress?(): void;
+  name: string
+  label?: string
+  placeholder?: string
+  keyboardType?: TextInputProps['keyboardType']
+  autoCapitalize?: TextInputProps['autoCapitalize']
+  secureTextEntry?: boolean
+  containerStyle?: StyleProp<ViewStyle>
+  rightIcon?: ReactNode
+  onRightIconPress?(): void
 }
 
-const AuthInputField: FC<Props> = (props) => {
-
-  const { handleChange, values, errors, handleBlur, touched } =
-    useFormikContext<{
-      [key: string]: string;
-    }>();
+const AuthInputField: FC<Props> = props => {
+  const { handleChange, values, errors, handleBlur, touched } = useFormikContext<{
+    [key: string]: string
+  }>()
 
   const {
     label,
@@ -41,13 +39,12 @@ const AuthInputField: FC<Props> = (props) => {
     name,
     rightIcon,
     onRightIconPress,
-  } = props;
+  } = props
 
-  const errorMsg = touched[name] && errors[name] ? errors[name] : "";
-
+  const errorMsg = touched[name] && errors[name] ? errors[name] : ''
 
   return (
-    <View style={[containerStyle,{width:"100%"}]}>
+    <View style={[containerStyle, { width: '100%' }]}>
       <View style={styles.labelContainer}>
         <Text style={styles.label}>{label}</Text>
         <Text style={styles.errorMsg}>{errorMsg}</Text>
@@ -70,14 +67,14 @@ const AuthInputField: FC<Props> = (props) => {
         ) : null}
       </View>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   labelContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     padding: 5,
   },
   label: {
@@ -89,12 +86,12 @@ const styles = StyleSheet.create({
   rightIcon: {
     width: 45,
     height: 45,
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     right: 0,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-});
+})
 
-export default AuthInputField;
+export default AuthInputField

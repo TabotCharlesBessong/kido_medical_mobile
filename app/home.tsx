@@ -6,10 +6,8 @@ const home = () => {
   const router = useRouter()
   return (
     <View>
-      <TouchableOpacity onPress={() => router.push("register")} >
-        <Text>
-          Create Account
-        </Text>
+      <TouchableOpacity onPress={() => router.push('register')}>
+        <Text>Create Account</Text>
       </TouchableOpacity>
     </View>
   )

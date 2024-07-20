@@ -1,10 +1,9 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: ""
+title: ''
 labels: ''
 assignees: ''
-
 ---
 
 ## Feature Description

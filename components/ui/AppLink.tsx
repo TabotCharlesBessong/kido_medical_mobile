@@ -1,20 +1,20 @@
-import { COLORS } from "@/constants/theme";
-import { FC } from "react";
-import { Pressable, StyleSheet, Text } from "react-native";
-import CustomText from "../texts/CustomText";
+import { COLORS } from '@/constants/theme'
+import { FC } from 'react'
+import { Pressable, StyleSheet, Text } from 'react-native'
+import CustomText from '../texts/CustomText'
 
 interface Props {
-  title: string;
-  onPress?(): void;
+  title: string
+  onPress?(): void
 }
 
 const AppLink: FC<Props> = ({ title, onPress }) => {
   return (
     <Pressable onPress={onPress} style={styles.container}>
-      <CustomText type="body5">{title}</CustomText>
+      <CustomText type='body5'>{title}</CustomText>
     </Pressable>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -24,6 +24,6 @@ const styles = StyleSheet.create({
   title: {
     color: COLORS.primary,
   },
-});
+})
 
-export default AppLink;
+export default AppLink

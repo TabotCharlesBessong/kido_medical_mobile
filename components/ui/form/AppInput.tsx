@@ -1,25 +1,21 @@
-import colors from "@/constants/Colors";
-import { COLORS } from "@/constants/theme";
-import React, { FC } from "react";
-import {
-  StyleSheet,
-  TextInput,
-  TextInputProps
-} from "react-native";
+import colors from '@/constants/Colors'
+import { COLORS } from '@/constants/theme'
+import React, { FC } from 'react'
+import { StyleSheet, TextInput, TextInputProps } from 'react-native'
 
 interface Props extends TextInputProps {}
 
-const AppInput: FC<Props> = (props) => {
+const AppInput: FC<Props> = props => {
   return (
     <TextInput
       {...props}
       placeholderTextColor={colors.INACTIVE_CONTRAST}
       style={[styles.input, props.style]}
     />
-  );
-};
+  )
+}
 
-export default AppInput;
+export default AppInput
 
 const styles = StyleSheet.create({
   input: {
@@ -30,4 +26,4 @@ const styles = StyleSheet.create({
     color: colors.CONTRAST,
     padding: 10,
   },
-});
+})

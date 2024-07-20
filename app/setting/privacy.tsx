@@ -1,46 +1,39 @@
-import React from "react";
-import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { COLORS } from "@/constants/theme";
-import { CustomText } from "@/components";
-import { useRouter } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
-import { useTranslation } from "react-i18next";
+import React from 'react'
+import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { COLORS } from '@/constants/theme'
+import { CustomText } from '@/components'
+import { useRouter } from 'expo-router'
+import { MaterialIcons } from '@expo/vector-icons'
+import { useTranslation } from 'react-i18next'
 
 const Privacy = () => {
-  const router = useRouter();
-  const { t } = useTranslation();
+  const router = useRouter()
+  const { t } = useTranslation()
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <MaterialIcons
-            name="keyboard-arrow-left"
-            size={24}
-            color={COLORS.black}
-          />
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <MaterialIcons name='keyboard-arrow-left' size={24} color={COLORS.black} />
         </TouchableOpacity>
-        <CustomText type="h2">{t("privacy.title")}</CustomText>
+        <CustomText type='h2'>{t('privacy.title')}</CustomText>
       </View>
       <View style={styles.form}>
-        <CustomText type="body1">{t("privacy.dataSharing")}</CustomText>
+        <CustomText type='body1'>{t('privacy.dataSharing')}</CustomText>
         <TextInput
           style={styles.input}
-          placeholder={t("privacy.placeholder")}
+          placeholder={t('privacy.placeholder')}
           multiline
           numberOfLines={4}
         />
         <TouchableOpacity style={styles.saveButton}>
-          <CustomText type="body1">{t("privacy.saveChanges")}</CustomText>
+          <CustomText type='body1'>{t('privacy.saveChanges')}</CustomText>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -48,8 +41,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     margin: 12,
   },
   backButton: {},
@@ -67,11 +60,11 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     padding: 12,
     borderRadius: 8,
-    alignItems: "center",
+    alignItems: 'center',
   },
   saveButtonText: {
     color: COLORS.white,
   },
-});
+})
 
-export default Privacy;
+export default Privacy

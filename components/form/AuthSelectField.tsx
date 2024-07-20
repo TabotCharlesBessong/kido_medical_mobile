@@ -1,16 +1,16 @@
-import colors from "@/constants/Colors";
-import { COLORS } from "@/constants/theme";
-import React, { FC, useState } from "react";
-import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
-import RNPickerSelect from "react-native-picker-select";
+import colors from '@/constants/Colors'
+import { COLORS } from '@/constants/theme'
+import React, { FC, useState } from 'react'
+import { StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native'
+import RNPickerSelect from 'react-native-picker-select'
 
 interface AuthSelectFieldProps {
-  name: string;
-  label?: string;
-  options: { label: string; value: string }[];
-  containerStyle?: StyleProp<ViewStyle>;
-  placeholder?: string;
-  multiple?: boolean; // Add multiple prop
+  name: string
+  label?: string
+  options: { label: string; value: string }[]
+  containerStyle?: StyleProp<ViewStyle>
+  placeholder?: string
+  multiple?: boolean // Add multiple prop
 }
 
 const AuthSelectField: FC<AuthSelectFieldProps> = ({
@@ -21,9 +21,7 @@ const AuthSelectField: FC<AuthSelectFieldProps> = ({
   placeholder,
   multiple,
 }) => {
-  const [selectedValue, setSelectedValue] = useState<string | string[] | null>(
-    null
-  ); // Update state type
+  const [selectedValue, setSelectedValue] = useState<string | string[] | null>(null) // Update state type
 
   return (
     <View style={containerStyle}>
@@ -35,29 +33,29 @@ const AuthSelectField: FC<AuthSelectFieldProps> = ({
           placeholder={{
             label: placeholder,
             value: null,
-            color: "green",
+            color: 'green',
           }}
           name={name}
           items={options}
-          onValueChange={(value) => setSelectedValue(value)}
+          onValueChange={value => setSelectedValue(value)}
           value={selectedValue}
           style={{
             inputIOS: styles.pickerInput,
             inputAndroid: styles.pickerInput,
           }}
           useNativeAndroidPickerStyle={false} // Use this to enable multi-select on Android
-          mode={multiple ? "multiple" : "default"} // Set mode to "multiple" if multiple prop is true
+          mode={multiple ? 'multiple' : 'default'} // Set mode to "multiple" if multiple prop is true
           onOpen={() => {
             // Reset selected value when the picker is opened
-            setSelectedValue(multiple ? [] : null);
+            setSelectedValue(multiple ? [] : null)
           }}
         />
       </View>
     </View>
-  );
-};
+  )
+}
 
-export default AuthSelectField;
+export default AuthSelectField
 
 const styles = StyleSheet.create({
   input: {
@@ -67,22 +65,22 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     color: colors.CONTRAST,
     padding: 10,
-    textAlign: "left",
+    textAlign: 'left',
   },
   label: {
-    color: "green",
+    color: 'green',
     width: 380,
     marginBottom: 16,
     left: 4,
   },
   pickerInput: {
-    color: "green",
-    textAlign: "left",
+    color: 'green',
+    textAlign: 'left',
   },
   containerStyle: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
   },
-});
+})

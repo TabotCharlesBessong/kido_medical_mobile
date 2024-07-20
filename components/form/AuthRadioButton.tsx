@@ -6,26 +6,26 @@ import {
   TouchableOpacity,
   View,
   ViewStyle,
-} from "react-native";
-import React, { FC } from "react";
+} from 'react-native'
+import React, { FC } from 'react'
 
 export interface AuthRadioButtonProps {
-  options: string[];
-  activeButton: string;
-  onChange: (label:string) => void;
-  containerOptions?: ScrollViewProps;
-  buttonStyle?: ViewStyle;
-  labelStyle?: TextStyle;
-  radioSize?: number;
+  options: string[]
+  activeButton: string
+  onChange: (label: string) => void
+  containerOptions?: ScrollViewProps
+  buttonStyle?: ViewStyle
+  labelStyle?: TextStyle
+  radioSize?: number
 }
 
 export interface RadioButtonProps {
-  label: string;
-  onChange: (label: string) => void;
-  buttonStyle?: ViewStyle;
-  activeButton: string;
-  labelStyle?: TextStyle;
-  radioSize?: number;
+  label: string
+  onChange: (label: string) => void
+  buttonStyle?: ViewStyle
+  activeButton: string
+  labelStyle?: TextStyle
+  radioSize?: number
 }
 
 const AuthRadioButton: FC<AuthRadioButtonProps> = ({
@@ -38,7 +38,7 @@ const AuthRadioButton: FC<AuthRadioButtonProps> = ({
 }) => {
   return (
     <View {...containerOptions}>
-      {options.map((data) => {
+      {options.map(data => {
         return (
           <RadioButton
             label={data}
@@ -47,13 +47,13 @@ const AuthRadioButton: FC<AuthRadioButtonProps> = ({
             onChange={onChange}
             radioSize={radioSize}
           />
-        );
+        )
       })}
     </View>
-  );
-};
+  )
+}
 
-export default AuthRadioButton;
+export default AuthRadioButton
 
 const RadioButton: FC<RadioButtonProps> = ({
   label,
@@ -98,26 +98,26 @@ const RadioButton: FC<RadioButtonProps> = ({
       </View>
       <Text style={{ marginLeft: 8 }}>{label}</Text>
     </TouchableOpacity>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   buttonStyle: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   radio: {
     width: 20,
     height: 20,
     borderWidth: 3 / 2,
     borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   fill: {
-    backgroundColor: "green",
+    backgroundColor: 'green',
     width: 12,
     height: 12,
     borderRadius: 6,
   },
-});
+})
