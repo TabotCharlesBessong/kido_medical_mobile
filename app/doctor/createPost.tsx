@@ -77,7 +77,7 @@ const CreatePostScreen: React.FC = () => {
 
   return (
     <KeyboardAvoidingView behavior="height" style={styles.container}>
-      <CustomText type="larger">Create Post</CustomText>
+      <CustomText type="h1">Create Post</CustomText>
       <Formik
         initialValues={initialValues}
         validationSchema={postSchema}
