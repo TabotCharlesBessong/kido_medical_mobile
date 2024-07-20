@@ -21,7 +21,7 @@ const forgot = () => {
   const initialValues: ForgotValues = {
     email: "",
   };
-  const {t} = useTranslation()
+  const { t } = useTranslation();
 
   const signupSchema = yup.object({
     email: yup
@@ -55,9 +55,9 @@ const forgot = () => {
       if (data.success === false) return setErrorMessage(data.message);
 
       // storring the code
-      await AsyncStorage.setItem("resetCode",data.data.token.code)
-      const rcode = data.data.token.code
-      console.log(rcode)
+      await AsyncStorage.setItem("resetCode", data.data.token.code);
+      const rcode = data.data.token.code;
+      console.log(rcode);
       setLoading(false);
       if (res.ok) router.push("auth/reset");
     } catch (error) {

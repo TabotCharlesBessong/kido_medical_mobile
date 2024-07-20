@@ -10,7 +10,7 @@ import { COLORS } from "@/constants/theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   KeyboardAvoidingView,
@@ -19,21 +19,29 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
+import { loginUserThunk } from "../feature/auth/thunks/auth.thunk";
+import { ApiRequestStatus } from "@/types/api.types";
+import { RootState, useAppDispatch } from "@/redux/store";
 
 interface SigninValues {
   email: string;
   password: string;
 }
 
-const login = () => {
+const auth2 = () => {
   const [secureTextEntry, setSecureTextEntry] = useState<boolean>(false);
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
+    const loginSlice = useSelector((state:RootState) => state.login);
 
-  const dispatch = useDispatch();
+    console.log(loginSlice, 'sasa');
+    
+
+
+  const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const initialValues: SigninValues = {
     email: "",
@@ -71,35 +79,29 @@ const login = () => {
     actions: FormikHelpers<SigninValues>
   ) => {
     console.log(values);
-    try {
-      setLoading(true);
-      // dispatch(signInStart());
-      setErrorMessage("");
-      const res = await fetch("http://192.168.1.194:5000/api/user/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-      console.log(res);
-      const data = await res.json();
-      console.log(data);
-      if (data.success === false) return setErrorMessage(data.message);
-
-      await AsyncStorage.setItem("userToken", data.data.token);
-      await AsyncStorage.setItem("userData", JSON.stringify(data.data.user));
-      setLoading(false);
-      if (res.ok) {
-        // dispatch(signInSuccess(data));
-        router.push("(tabs)");
-      }
-    } catch (error) {
-      console.log(error);
-      setErrorMessage((error as TypeError).message);
-      setLoading(false);
-    }
+        dispatch(loginUserThunk(values));
+              setLoading(true);
+                    setErrorMessage("");
+                    console.log(loginSlice,'jhg slice');
+                    
   };
+
+
+  useEffect(() => {
+        if (loginSlice.status === ApiRequestStatus.FULFILLED) {
+          router.push("(tabs)");
+                      setLoading(false);
+
+        }
+
+        if (loginSlice.status === ApiRequestStatus.REJECTED) {
+            console.log(loginSlice.message);
+            setLoading(false);
+                  setErrorMessage(loginSlice?.message);
+
+        }
+
+  },[loginSlice])
 
   return (
     <KeyboardAvoidingView style={styles.container}>
@@ -159,7 +161,7 @@ const login = () => {
   );
 };
 
-export default login;
+export default auth2;
 
 const styles = StyleSheet.create({
   container: {

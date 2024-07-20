@@ -60,7 +60,14 @@ const CompleteScreen: React.FC = () => {
       .required(t("complete.yup.req5")),
   });
 
-  const handleSubmit = async (
+
+  const handleSubmit = () => {
+    console.log('hello world');
+    
+  }
+
+
+  const testfun = async (
     values: CompleteValues,
     actions: FormikHelpers<CompleteValues>
   ) => {
@@ -72,29 +79,34 @@ const CompleteScreen: React.FC = () => {
       // Get the bearer token from async storage
       const token = await AsyncStorage.getItem("userToken");
       console.log(token);
+      setTimeout(() => {
+        
+        setLoading(false);
+      }, 2500);
+      console.log("Charlie charlie")
 
       // Make the API request using fetch
-      const res = await fetch(`${baseUrl}/patient/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(values),
-      });
+      // const res = await fetch(`${baseUrl}/patient/create`, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      //   body: JSON.stringify(values),
+      // });
 
-      const data = await res.json();
-      console.log(data);
+      // const data = await res.json();
+      // console.log(data);
 
-      // Handle success and redirect
-      if (data.success === false) {
-        setErrorMessage(data.message);
-      } else {
-        setLoading(false);
-        if (res.ok) {
-          router.push("(tabs)");
-        }
-      }
+      // // Handle success and redirect
+      // if (data.success === false) {
+      //   setErrorMessage(data.message);
+      // } else {
+      //   setLoading(false);
+      //   if (res.ok) {
+      //     router.push("(tabs)");
+      //   }
+      // }
     } catch (error) {
       console.log(error);
       setErrorMessage((error as TypeError).message);
@@ -102,9 +114,51 @@ const CompleteScreen: React.FC = () => {
     }
   };
 
+  // const handleSubmit = async (
+  //   values: CompleteValues,
+  //   actions: FormikHelpers<CompleteValues>
+  // ) => {
+  //   console.log(values);
+  //   try {
+  //     setLoading(true);
+  //     setErrorMessage("");
+
+  //     // Get the bearer token from async storage
+  //     const token = await AsyncStorage.getItem("userToken");
+  //     console.log(token);
+
+  //     // Make the API request using fetch
+  //     const res = await fetch(`${baseUrl}/patient/create`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       body: JSON.stringify(values),
+  //     });
+
+  //     const data = await res.json();
+  //     console.log(data);
+
+  //     // Handle success and redirect
+  //     if (data.success === false) {
+  //       setErrorMessage(data.message);
+  //     } else {
+  //       setLoading(false);
+  //       if (res.ok) {
+  //         router.push("(tabs)");
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     setErrorMessage((error as TypeError).message);
+  //     setLoading(false);
+  //   }
+  // };
+
   return (
     <KeyboardAvoidingView behavior="height" style={styles.container}>
-      <CustomText type="larger">{t("complete.text1")}</CustomText>
+      <CustomText type="h1">{t("complete.text1")}</CustomText>
       <Formik
         initialValues={initialValues}
         validationSchema={completionSchema}
@@ -153,7 +207,8 @@ const CompleteScreen: React.FC = () => {
               backgroundColor={COLORS.primary}
               loading={loading}
               loadingText={t("complete.loader")}
-              onPress={handleSubmit}
+              onPress={testfun
+              }
             />
           </KeyboardAvoidingView>
         )}

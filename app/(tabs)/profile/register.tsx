@@ -55,6 +55,85 @@ const DoctorRegistrationScreen: React.FC = () => {
       .min(0, t("doctorRegistration.yup.pos2")),
   });
 
+  const testSomething = async (
+    values: RegisterDoctorValues,
+    actions: FormikHelpers<RegisterDoctorValues>
+  ) => {
+    console.log("Submitting values:", values);
+    try {
+      setLoading(true);
+      setErrorMessage("");
+
+      // Get the bearer token from async storage
+      const token = await AsyncStorage.getItem("userToken");
+      console.log("Bearer token:", token);
+
+      // Create an instance of axios with default headers
+      const instance = axios.create({
+        baseURL: baseUrl,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Add request interceptor to handle authorization
+      instance.interceptors.request.use(
+        async (config) => {
+          // Refresh the bearer token if expired or not available
+          const newToken = await AsyncStorage.getItem("userToken");
+          if (newToken) {
+            config.headers.Authorization = `Bearer ${newToken}`;
+          }
+          return config;
+        },
+        (error) => {
+          return Promise.reject(error);
+        }
+      );
+
+      // Add response interceptor to handle errors
+      instance.interceptors.response.use(
+        (response) => {
+          return response;
+        },
+        (error) => {
+          if (error.response) {
+            // Handle HTTP errors
+            console.log("HTTP error response:", error.response.data);
+            setErrorMessage(error.response.data.message);
+          } else {
+            // Handle network errors
+            console.log("Network error:", error.message);
+            setErrorMessage(error.message);
+          }
+          return Promise.reject(error);
+        }
+      );
+
+      // Make the API request
+      const res = await instance.post("/doctor/create", values);
+      console.log("API response:", res);
+      const data = res.data;
+      console.log("API response data:", data);
+
+      // Handle success and redirect
+      if (data.success === false) {
+        setErrorMessage(data.message);
+      } else {
+        if (res.status === 200) {
+          router.push("(tabs)");
+        }
+      }
+    } catch (error) {
+      console.log("Error:", error);
+      setErrorMessage((error as TypeError).message);
+    } finally {
+      setLoading(false);
+      actions.setSubmitting(false);
+    }
+  };
+
   const handleSubmit = async (
     values: RegisterDoctorValues,
     actions: FormikHelpers<RegisterDoctorValues>
@@ -190,7 +269,7 @@ const DoctorRegistrationScreen: React.FC = () => {
             <AppButton
               containerStyle={{ marginTop: 24 }}
               title={t("doctorRegistration.button")}
-              onPress={handleSubmit}
+              onPress={testSomething}
               width={"100%"}
               backgroundColor={COLORS.primary}
               loading={loading}

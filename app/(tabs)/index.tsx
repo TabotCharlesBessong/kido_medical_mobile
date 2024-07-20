@@ -25,16 +25,27 @@ import { Post } from "@/constants/types";
 import { generatePosts } from "@/constants/data/posts";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
+import { RootState, useAppDispatch } from "@/redux/store";
+import { PostThunk } from "../feature/post/thunks/posts.thunk";
+import { useSelector } from "react-redux";
+import { ApiRequestStatus } from "@/types/api.types";
+import { resetPostState } from "../feature/post/slices/posts.slice";
+import { CommentsType } from "@/types/login.type";
 
 const index = () => {
   const router = useRouter();
   const doctorData = doctorsData();
-  const {t,i18n} = useTranslation()
+  const { t, i18n } = useTranslation();
   const pharmacyData = generateRandomPharmaciesData();
   // console.log(pharmacyData);
   const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);const [errorMessage, setErrorMessage] = useState<string>("");
-  console.log(posts)
+  const [loading, setLoading] = useState<boolean>(true);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  console.log(posts);
+
+  const postSlice = useSelector((state: RootState) => state.post);
+
+  const dispatch = useAppDispatch();
 
   const getData = async () => {
     const token = await AsyncStorage.getItem("userToken");
@@ -46,9 +57,9 @@ const index = () => {
   };
 
   const changeLanguage = () => {
-    if(i18n.language === 'en')  i18n.changeLanguage('fr')
-    else i18n.changeLanguage('en')
-  }
+    if (i18n.language === "en") i18n.changeLanguage("fr");
+    else i18n.changeLanguage("en");
+  };
 
   const fetchPosts = async () => {
     try {
@@ -59,18 +70,33 @@ const index = () => {
       const response = await axios.get(
         "http:192.168.1.194:5000/api/posts/post/all"
       );
-      console.log(response)
+      console.log(response);
       setPosts(response.data);
 
       // const postData = generatePosts(2); // Replace with actual API call
       // setPosts(postData);
-      console.log(posts)
+      console.log(posts);
       setLoading(false);
     } catch (error) {
       setErrorMessage("Failed to fetch prescriptions.");
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    dispatch(PostThunk());
+  }, []);
+
+  useEffect(() => {
+    if (postSlice.status === ApiRequestStatus.FULFILLED) {
+      console.log(postSlice.posts)
+      dispatch(resetPostState())
+      console.log("hurray got posts🎉");
+    }
+    if (postSlice.status === ApiRequestStatus.REJECTED) {
+      console.log("🥲");
+    }
+  }, [postSlice]);
 
   const renderPost = ({ item }: { item: Post }) => (
     <TouchableOpacity onPress={() => router.push(`/posts/${item.id}`)}>
@@ -97,7 +123,7 @@ const index = () => {
 
   useEffect(() => {
     getData();
-    fetchPosts()
+    fetchPosts();
   }, []);
   return (
     <ScrollView style={styles.container}>
@@ -114,7 +140,7 @@ const index = () => {
         </View>
         <View style={styles.headerRight}>
           <AntDesign name="bells" size={32} color={COLORS.primary} />
-          <TouchableOpacity onPress={() => router.push("auth/register")}>
+          <TouchableOpacity onPress={() => router.push("auth/auth2")}>
             <Image
               source={{ uri: "https://via.placeholder.com/50" }}
               style={styles.profileImage}

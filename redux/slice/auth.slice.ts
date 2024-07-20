@@ -1,11 +1,22 @@
 import { IUser } from "@/constants/types";
 import { createSlice } from "@reduxjs/toolkit";
+import { ApiRequestStatus,StoredErrorResponseType } from "@/types/api.types";
+import { LocalStorage } from "@/services/storage/local-storage.service";
+import { UserTypes } from "@/types/login.type";
+import { loginUserThunk } from "@/app/feature/auth/thunks/auth.thunk";
+
+
 
 interface AuthState {
   currentUser: IUser | null;
   token: string | null;
   loading: boolean;
   error: string | null;
+
+  user: UserTypes;
+  accessToken: string | null;
+  status: ApiRequestStatus;
+  message: string;
 }
 
 const initialState: AuthState = {
@@ -13,12 +24,20 @@ const initialState: AuthState = {
   token: null,
   loading: false,
   error: null,
+
+  user: {} as UserTypes,
+  status: ApiRequestStatus.IDLE,
+  accessToken: "",
+  message: "",
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
+    resetLoginState: (state) => {
+      state.status = ApiRequestStatus.IDLE;
+    },
     signInStart: (state) => {
       state.loading = true;
       state.error = null;
@@ -72,6 +91,28 @@ const authSlice = createSlice({
       state.error = action.payload;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(loginUserThunk.pending, (state, _action) => {
+        (state.status = ApiRequestStatus.PENDING),
+          (state.accessToken = ""),
+          (state.user = {} as UserTypes);
+      })
+      .addCase(loginUserThunk.fulfilled, (state, action) => {
+        (state.status = ApiRequestStatus.FULFILLED),
+          (state.accessToken = action.payload.data.token),
+          (state.user = action.payload.data.user);
+        console.log(action.payload);
+
+        LocalStorage.storeLoginData(action.payload);
+      })
+      .addCase(loginUserThunk.rejected, (state, action) => {
+        state.status = ApiRequestStatus.REJECTED;
+        state.accessToken = "";
+        state.user = {} as UserTypes;
+        state.message = (action.payload as StoredErrorResponseType).message;
+      });
+  },
 });
 
 export const {
@@ -86,6 +127,7 @@ export const {
   forgotPasswordSuccess,
   resetPasswordFailure,
   resetPasswordStart,
-  resetPasswordSuccess
+  resetPasswordSuccess,
+  resetLoginState
 } = authSlice.actions;
 export default authSlice.reducer;
