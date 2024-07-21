@@ -7,6 +7,7 @@ import {
   SubmitButton
 } from "@/components";
 import { COLORS } from "@/constants/theme";
+import { baseUrl } from "@/utils/variables";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
@@ -69,13 +70,14 @@ const login = () => {
       setLoading(true);
       // dispatch(signInStart());
       setErrorMessage("");
-      const res = await fetch("http://192.168.1.194:5000/api/user/login", {
+      const res = await fetch(`${baseUrl}/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(values),
       });
+      // 
       console.log(res);
       const data = await res.json();
       console.log(data);

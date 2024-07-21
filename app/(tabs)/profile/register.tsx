@@ -21,11 +21,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { baseUrl } from "@/utils/variables";
 import { useTranslation } from "react-i18next";
+import { Toast } from "react-native-toast-notifications";
 
 const DoctorRegistrationScreen: React.FC = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -55,87 +57,65 @@ const DoctorRegistrationScreen: React.FC = () => {
       .min(0, t("doctorRegistration.yup.pos2")),
   });
 
-  // const handleSubmit = async (
-  //   values: RegisterDoctorValues,
-  //   actions: FormikHelpers<RegisterDoctorValues>
-  // ) => {
-  //   console.log("Submitting values:", values);
-  //   try {
-  //     setLoading(true);
-  //     setErrorMessage("");
+  const registerDoctor = () => {
+    setLoading(true);
 
-  //     // Get the bearer token from async storage
-  //     const token = await AsyncStorage.getItem("userToken");
-  //     console.log("Bearer token:", token);
+    setTimeout(() => {
+      setLoading(false);
+      // Navigate to the tabs screen
+      router.push("(tabs)");
+    }, 2000);
+    // Show a success toast
+    Toast.show("Registration successful!", {
+      type: "success",
+      placement: "top",
+      duration: 3000, // Duration of the toast message
+    });
+  };
 
-  //     // Create an instance of axios with default headers
-  //     const instance = axios.create({
-  //       baseURL: baseUrl,
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
+  
 
-  //     // Add request interceptor to handle authorization
-  //     instance.interceptors.request.use(
-  //       async (config) => {
-  //         // Refresh the bearer token if expired or not available
-  //         const newToken = await AsyncStorage.getItem("userToken");
-  //         if (newToken) {
-  //           config.headers.Authorization = `Bearer ${newToken}`;
-  //         }
-  //         return config;
-  //       },
-  //       (error) => {
-  //         return Promise.reject(error);
-  //       }
-  //     );
+  const handleSubmit = async (
+    values: RegisterDoctorValues,
+    actions: FormikHelpers<RegisterDoctorValues>
+  ) => {
+    console.log(values);
+    try {
+      setLoading(true);
+      setErrorMessage("");
+      setSuccessMessage("");
 
-  //     // Add response interceptor to handle errors
-  //     instance.interceptors.response.use(
-  //       (response) => {
-  //         return response;
-  //       },
-  //       (error) => {
-  //         if (error.response) {
-  //           // Handle HTTP errors
-  //           console.log("HTTP error response:", error.response.data);
-  //           setErrorMessage(error.response.data.message);
-  //         } else {
-  //           // Handle network errors
-  //           console.log("Network error:", error.message);
-  //           setErrorMessage(error.message);
-  //         }
-  //         return Promise.reject(error);
-  //       }
-  //     );
+      // Get the bearer token from async storage
+      const token = await AsyncStorage.getItem("userToken");
+      console.log(token);
 
-  //     // Make the API request
-  //     const res = await instance.post("/doctor/create", values);
-  //     console.log("API response:", res);
-  //     const data = res.data;
-  //     console.log("API response data:", data);
+      // Make the API request using fetch
+      const res = await fetch(`${baseUrl}/doctor/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(values),
+      });
 
-  //     // Handle success and redirect
-  //     if (data.success === false) {
-  //       setErrorMessage(data.message);
-  //     } else {
-  //       if (res.status === 200) {
-  //         router.push("(tabs)");
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.log("Error:", error);
-  //     setErrorMessage((error as TypeError).message);
-  //   } finally {
-  //     setLoading(false);
-  //     actions.setSubmitting(false);
-  //   }
-  // };
+      const data = await res.json();
+      console.log(data);
 
-  const handleSubmit = () => {
-    console.log("Testing...");
+      // Handle success and redirect
+      if (res.ok) {
+        setSuccessMessage(t("complete.successMessage"));
+        setLoading(false);
+        router.push("(tabs)");
+      } else {
+        setLoading(false);
+        setErrorMessage(data.message || t("complete.defaultError"));
+      }
+    } catch (error) {
+      console.log(error);
+      setErrorMessage(t("complete.networkError"));
+      setLoading(false);
+    }
   };
 
   return (
@@ -194,7 +174,7 @@ const DoctorRegistrationScreen: React.FC = () => {
             <AppButton
               containerStyle={{ marginTop: 24 }}
               title={t("doctorRegistration.button")}
-              onPress={() => console.log("Hello test...")}
+              onPress={registerDoctor}
               width={"100%"}
               backgroundColor={COLORS.primary}
               loading={loading}

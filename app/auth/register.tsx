@@ -6,6 +6,7 @@ import {
   PasswordVisibilityIcon
 } from "@/components";
 import { COLORS } from "@/constants/theme";
+import { baseUrl } from "@/utils/variables";
 import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";
@@ -79,7 +80,7 @@ const register = () => {
     try {
       setLoading(true);
       setErrorMessage("");
-      const res = await fetch("http://192.168.1.194:5000/api/user/register", {
+      const res = await fetch(`${baseUrl}/user/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

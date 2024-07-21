@@ -76,7 +76,7 @@ const CompleteScreen: React.FC = () => {
       console.log(token);
 
       // Make the API request using fetch
-      const res = await fetch("http://192.168.1.194:5000/api/patient/create", {
+      const res = await fetch(`${baseUrl}/patient/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -9,6 +9,7 @@ import { AppButton, AuthInputField, CustomText } from "@/components";
 import { COLORS } from "@/constants/theme";
 import { baseUrl } from "@/utils/variables";
 import { useTranslation } from "react-i18next";
+import { Toast } from "react-native-toast-notifications";
 
 interface PostValues {
   title: string;
@@ -60,6 +61,11 @@ const CreatePostScreen: React.FC = () => {
 
       const res = await instance.post("/post/create", { ...values });
       const data = res.data;
+      Toast.show("Registration successful!", {
+        type: "success",
+        placement: "top",
+        duration: 3000, // Duration of the toast message
+      });
 
       if (data.success === false) {
         setErrorMessage(data.message);
