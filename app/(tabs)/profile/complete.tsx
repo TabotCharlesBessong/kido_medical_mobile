@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, StyleSheet, KeyboardAvoidingView } from "react-native";
+import { View, StyleSheet, KeyboardAvoidingView, Button, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { IPatient } from "@/constants/types";
 import {
@@ -28,6 +28,7 @@ interface CompleteValues {
 const CompleteScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -68,6 +69,7 @@ const CompleteScreen: React.FC = () => {
     try {
       setLoading(true);
       setErrorMessage("");
+      setSuccessMessage("");
 
       // Get the bearer token from async storage
       const token = await AsyncStorage.getItem("userToken");
@@ -87,24 +89,30 @@ const CompleteScreen: React.FC = () => {
       console.log(data);
 
       // Handle success and redirect
-      if (data.success === false) {
-        setErrorMessage(data.message);
+      if (res.ok) {
+        setSuccessMessage(t("complete.successMessage"));
+        setLoading(false);
+        router.push("(tabs)");
       } else {
         setLoading(false);
-        if (res.ok) {
-          router.push("(tabs)");
-        }
+        setErrorMessage(data.message || t("complete.defaultError"));
       }
     } catch (error) {
       console.log(error);
-      setErrorMessage((error as TypeError).message);
+      setErrorMessage(t("complete.networkError"));
       setLoading(false);
     }
   };
-
+ 
   return (
     <KeyboardAvoidingView behavior="height" style={styles.container}>
-      <CustomText type="larger">{t("complete.text1")}</CustomText>
+      <CustomText type="h1">{t("complete.text1")}</CustomText>
+      {errorMessage ? (
+        <CustomText type="body5">{errorMessage}</CustomText>
+      ) : null}
+      {successMessage ? (
+        <CustomText type="body5">{successMessage}</CustomText>
+      ) : null}
       <Formik
         initialValues={initialValues}
         validationSchema={completionSchema}
@@ -149,11 +157,12 @@ const CompleteScreen: React.FC = () => {
               keyboardType="phone-pad"
             />
             <AppButton
-              title={t("complete.button")}
               backgroundColor={COLORS.primary}
+              title={t("complete.button")}
+              onPress={handleSubmit}
               loading={loading}
               loadingText={t("complete.loader")}
-              onPress={handleSubmit}
+              containerStyle={{ marginTop: 16, width: "100%" }}
             />
           </KeyboardAvoidingView>
         )}
@@ -166,6 +175,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+  },
+  errorText: {
+    color: COLORS.danger,
+    marginBottom: 10,
+  },
+  successText: {
+    color: COLORS.primary,
+    marginBottom: 10,
   },
 });
 

@@ -56,14 +56,14 @@ const index = () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Replace with actual fetch from API
-      const response = await axios.get(
-        "http:192.168.1.194:5000/api/posts/post/all"
-      );
-      console.log(response)
-      setPosts(response.data);
+      // const response = await axios.get(
+      //   "http:192.168.1.194:5000/api/posts/post/all"
+      // );
+      // console.log(response)
+      // setPosts(response.data);
 
-      // const postData = generatePosts(2); // Replace with actual API call
-      // setPosts(postData);
+      const postData = generatePosts(2); // Replace with actual API call
+      setPosts(postData);
       console.log(posts)
       setLoading(false);
     } catch (error) {
@@ -155,7 +155,7 @@ const index = () => {
         )}
       </View>
       {/* Doctors */}
-      {/* <View style={styles.doctors}>
+      <View style={styles.doctors}>
         <View style={{ margin: 12 }}>
           <CustomText type="h1">{t("homescreen.title2")}</CustomText>
         </View>
@@ -183,10 +183,10 @@ const index = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.flatListContent}
         />
-      </View> */}
+      </View>
 
       {/* Pharmacies */}
-      {/* <View style={styles.doctors}>
+      <View style={styles.doctors}>
         <View style={{ margin: 12 }}>
           <CustomText type="h1">{t("homescreen.title3")}</CustomText>
         </View>
@@ -205,7 +205,7 @@ const index = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.flatListContent}
         />
-      </View> */}
+      </View>
       {/* Recent Activities Section */}
       <View>
         <View style={{ margin: 12 }}>

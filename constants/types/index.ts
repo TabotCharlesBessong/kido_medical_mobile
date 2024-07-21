@@ -11,8 +11,8 @@ export interface DoctorCardProps {
 }
 
 export interface RegisterDoctorValues {
-  name: string;
-  location: string;
+  // name: string;
+  // location: string;
   experience: number;
   specialization: string;
   language: string;

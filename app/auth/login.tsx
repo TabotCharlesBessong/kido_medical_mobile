@@ -7,6 +7,7 @@ import {
   SubmitButton
 } from "@/components";
 import { COLORS } from "@/constants/theme";
+import { baseUrl } from "@/utils/variables";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
@@ -69,13 +70,14 @@ const login = () => {
       setLoading(true);
       // dispatch(signInStart());
       setErrorMessage("");
-      const res = await fetch("http:192.168.1.185:5000/api/user/login", {
+      const res = await fetch(`${baseUrl}/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(values),
       });
+      // 
       console.log(res);
       const data = await res.json();
       console.log(data);
@@ -97,7 +99,7 @@ const login = () => {
 
   return (
     <KeyboardAvoidingView style={styles.container}>
-      <CustomText type="larger">{t("login.title")}</CustomText>
+      <CustomText type="h1">{t("login.title")}</CustomText>
       <Formik
         initialValues={initialValues}
         validationSchema={signupSchema}

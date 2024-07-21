@@ -5,6 +5,7 @@ import {
   PasswordVisibilityIcon,
 } from "@/components";
 import { COLORS } from "@/constants/theme";
+import { baseUrl } from "@/utils/variables";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
@@ -82,7 +83,7 @@ const reset = () => {
       }
 
       const res = await fetch(
-        "http:192.168.1.185:5000/api/user/reset-password",
+        `${baseUrl}/user/reset-password`,
         {
           method: "POST",
           headers: {

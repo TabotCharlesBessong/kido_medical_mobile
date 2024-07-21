@@ -1,5 +1,6 @@
 import { AppButton, AuthInputField, CustomText } from "@/components";
 import { COLORS } from "@/constants/theme";
+import { baseUrl } from "@/utils/variables";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
@@ -40,7 +41,7 @@ const forgot = () => {
       setLoading(true);
       setErrorMessage("");
       const res = await fetch(
-        "http:192.168.1.185:5000/api/user/forgot-password",
+        `${baseUrl}/user/forgot-password`,
         {
           method: "POST",
           headers: {
