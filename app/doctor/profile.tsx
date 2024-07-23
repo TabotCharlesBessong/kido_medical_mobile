@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 import React from "react";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { COLORS } from "@/constants/theme";
 import { CustomText } from "@/components";
 import { useTranslation } from "react-i18next";
@@ -15,6 +15,9 @@ import { useTranslation } from "react-i18next";
 const Profile = () => {
   const router = useRouter();
   const { t } = useTranslation();
+  const {doctor} = useLocalSearchParams()
+  const doctorData = JSON.parse(doctor)
+  console.log(doctorData)
 
   return (
     <ScrollView style={styles.container}>
@@ -30,10 +33,10 @@ const Profile = () => {
           style={styles.profileImage}
         />
       </View>
-      <CustomText type="h2">Ebot Bessong</CustomText>
+      <CustomText type="h2">{doctorData.users.firstname} {doctorData.users.lastname} </CustomText>
       <View style={styles.infoContainer}>
         <CustomText type="body2">{t("profiled.speciality")}</CustomText>
-        <CustomText type="h4">Generalist</CustomText>
+        <CustomText type="h4">{doctorData.specialization}</CustomText>
       </View>
       <View style={styles.infoContainer}>
         <CustomText type="body2">{t("profiled.location")}</CustomText>
@@ -41,15 +44,15 @@ const Profile = () => {
       </View>
       <View style={styles.infoContainer}>
         <CustomText type="body2">{t("profiled.experience")}</CustomText>
-        <CustomText type="h4">3+ years</CustomText>
+        <CustomText type="h4">{doctorData.experience}+ years</CustomText>
       </View>
       <View style={styles.infoContainer}>
         <CustomText type="body2">{t("profiled.languages")}</CustomText>
-        <CustomText type="h4">English, French</CustomText>
+        <CustomText type="h4">{doctorData.language}</CustomText>
       </View>
       <View style={styles.infoContainer}>
         <CustomText type="body2">{t("profiled.consultationFee")}</CustomText>
-        <CustomText type="h4">22000 XAF</CustomText>
+        <CustomText type="h4">{doctorData.fee} XAF</CustomText>
       </View>
       <View>
         <CustomText type="body2">{t("profiled.summary")}</CustomText>

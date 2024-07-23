@@ -21,20 +21,22 @@ import {
 import doctorsData from "../../constants/data/doctorData";
 import generateRandomPharmaciesData from "@/constants/data/pharmacieData";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Post } from "@/constants/types";
+import { Doctor, Post } from "@/constants/types";
 import { generatePosts } from "@/constants/data/posts";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
+import { baseUrl } from "@/utils/variables";
 
 const index = () => {
   const router = useRouter();
   const doctorData = doctorsData();
   const {t,i18n} = useTranslation()
   const pharmacyData = generateRandomPharmaciesData();
+  const [doctors, setDoctors] = useState<Doctor[]>([])
   // console.log(pharmacyData);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);const [errorMessage, setErrorMessage] = useState<string>("");
-  console.log(posts)
+  // console.log(posts)
 
   const getData = async () => {
     const token = await AsyncStorage.getItem("userToken");
@@ -44,6 +46,56 @@ const index = () => {
     // const result = await AsyncStorage.multiGet(keys);
     console.log(token);
   };
+
+  const fetchDoctors = async () => {
+    try {
+      setLoading(true);
+      const token = await AsyncStorage.getItem("userToken");
+      const response = await axios.get(`${baseUrl}/doctor/doctor/all`, {
+        headers: { Authorization: `bearer ${token}` },
+      });
+      // Check the structure of the response data
+      const fetchedDoctors = response.data.data.doctors.map((doctor: any) => ({
+        ...doctor,
+        users: {
+          firstname: doctor["users.firstname"],
+          lastname: doctor["users.lastname"],
+          username: doctor["users.username"],
+        },
+      }));
+      setDoctors(fetchedDoctors);
+      setLoading(false);
+    } catch (error) {
+      setErrorMessage("Failed to fetch doctors.");
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchDoctors();
+  }, []);
+  console.log(doctors)
+  console.log(errorMessage)
+
+  const renderDoctor = ({ item }: { item: Doctor }) => (
+    <TouchableOpacity
+      onPress={() =>
+        router.push({ pathname: "/doctor/profile", params: { doctor: JSON.stringify(item) } })
+      }
+    >
+      <DoctorCard
+        name={`${item.users.firstname} ${item.users.lastname}`}
+        location={item.users.username} // Use actual location field if available
+        experience={item.experience}
+        speciality={item.specialization}
+        language={item.language}
+        fee={item.fee}
+        image={""} // Add image field if available
+        rating={0} // Add rating field if available
+      />
+    </TouchableOpacity>
+  );
 
   const changeLanguage = () => {
     if(i18n.language === 'en')  i18n.changeLanguage('fr')
@@ -64,7 +116,7 @@ const index = () => {
 
       const postData = generatePosts(2); // Replace with actual API call
       setPosts(postData);
-      console.log(posts)
+      // console.log(posts)
       setLoading(false);
     } catch (error) {
       setErrorMessage("Failed to fetch prescriptions.");
@@ -159,30 +211,18 @@ const index = () => {
         <View style={{ margin: 12 }}>
           <CustomText type="h1">{t("homescreen.title2")}</CustomText>
         </View>
-        <FlatList
-          data={doctorData}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => router.push("doctor/profile")}
-              key={item.id}
-            >
-              <DoctorCard
-                name={item.name}
-                location={item.location}
-                experience={item.experience}
-                speciality={item.speciality}
-                language={item.language}
-                fee={item.fee}
-                image={""}
-                rating={0}
-              />
-            </TouchableOpacity>
-          )}
-          keyExtractor={(item) => item.name.toString()}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.flatListContent}
-        />
+        {loading ? (
+          <Text>Loading...</Text>
+        ) : (
+          <FlatList
+            data={doctors}
+            renderItem={renderDoctor}
+            keyExtractor={(item) => item.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.flatListContent}
+          />
+        )}
       </View>
 
       {/* Pharmacies */}

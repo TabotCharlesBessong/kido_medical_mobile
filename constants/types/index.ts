@@ -6,8 +6,22 @@ export interface DoctorCardProps {
   experience: number;
   speciality: string;
   language: string;
-  fee: number;
+  fee: string;
   id?:number
+}
+
+export interface Doctor {
+  id: string;
+  userId: string;
+  specialization: string;
+  verificationStatus: string;
+  documents: string;
+  language: string;
+  fee: string;
+  experience: number;
+  createdAt: string;
+  updatedAt: string;
+  users: IUser;
 }
 
 export interface RegisterDoctorValues {
