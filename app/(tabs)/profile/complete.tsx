@@ -38,7 +38,7 @@ const CompleteScreen: React.FC = () => {
   const { t } = useTranslation();
 
   const initialValues: CompleteValues = {
-    gender: "MALE",
+    gender: "",
     age: 0,
     address1: "",
     address2: "",
@@ -135,7 +135,7 @@ const CompleteScreen: React.FC = () => {
       >
         {({ handleSubmit }) => (
           <KeyboardAvoidingView behavior="height" style={styles.container}>
-            {/* <AuthSelectField
+            <AuthSelectField
               name="gender"
               label={t("complete.form.label1")}
               options={[
@@ -143,7 +143,7 @@ const CompleteScreen: React.FC = () => {
                 { label: t("complete.options.two"), value: "FEMALE" },
               ]}
               placeholder={t("complete.form.placeholder1")}
-            /> */}
+            />
             <AuthInputField
               name="age"
               label={t("complete.form.label2")}

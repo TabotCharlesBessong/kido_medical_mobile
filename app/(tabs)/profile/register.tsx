@@ -38,7 +38,7 @@ const DoctorRegistrationScreen: React.FC = () => {
     specialization: "",
     // location: "",
     experience: 0,
-    language: "English",
+    language: "",
     fee: 0,
     documents: "",
   };
@@ -75,43 +75,43 @@ const DoctorRegistrationScreen: React.FC = () => {
     values: RegisterDoctorValues,
     actions: FormikHelpers<RegisterDoctorValues>
   ) => {
-    // console.log(values);
-    try {
-      setLoading(true);
-      setErrorMessage("");
+    console.log(values);
+    // try {
+    //   setLoading(true);
+    //   setErrorMessage("");
 
-      const token = await AsyncStorage.getItem("userToken");
+    //   const token = await AsyncStorage.getItem("userToken");
 
-      const instance = axios.create({
-        baseURL: baseUrl,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    //   const instance = axios.create({
+    //     baseURL: baseUrl,
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       Authorization: `Bearer ${token}`,
+    //     },
+    //   });
 
-      const res = await instance.post("/doctor/create", { ...values, userId });
-      const data = res.data;
+    //   const res = await instance.post("/doctor/create", { ...values, userId });
+    //   const data = res.data;
 
-      Toast.show(t("Congratulation you have now registered as a doctor"), {
-        type: "success",
-        placement: "top",
-        duration: 3000, // Duration of the toast message
-      });
+    //   Toast.show(t("Congratulation you have now registered as a doctor"), {
+    //     type: "success",
+    //     placement: "top",
+    //     duration: 3000, // Duration of the toast message
+    //   });
 
-      if (data.success === false) {
-        setErrorMessage(data.message);
-      } else {
-        setLoading(false);
-        if (res.status === 200) {
-          router.push("(tabs)");
-        }
-      }
-    } catch (error) {
-      console.log(error);
-      setErrorMessage(t("complete.networkError"));
-      setLoading(false);
-    }
+    //   if (data.success === false) {
+    //     setErrorMessage(data.message);
+    //   } else {
+    //     setLoading(false);
+    //     if (res.status === 200) {
+    //       router.push("(tabs)");
+    //     }
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    //   setErrorMessage(t("complete.networkError"));
+    //   setLoading(false);
+    // }
   };
 
   return (
@@ -124,28 +124,18 @@ const DoctorRegistrationScreen: React.FC = () => {
       >
         {({ handleSubmit }) => (
           <KeyboardAvoidingView>
-            {/* <AuthInputField
-              name="name"
-              label={t("doctorRegistration.form.label1")}
-              placeholder={t("doctorRegistration.form.placeholder1")}
-            /> */}
             <AuthInputField
               name="specialization"
               label={t("doctorRegistration.form.label2")}
               placeholder={t("doctorRegistration.form.placeholder2")}
             />
-            {/* <AuthInputField
-              name="location"
-              label={t("doctorRegistration.form.label3")}
-              placeholder={t("doctorRegistration.form.placeholder3")}
-            /> */}
             <AuthInputField
               name="experience"
               label={t("doctorRegistration.form.label4")}
               placeholder={t("doctorRegistration.form.placeholder4")}
               keyboardType="numeric"
             />
-            {/* <AuthSelectField
+            <AuthSelectField
               name="language"
               label={t("doctorRegistration.form.label5")}
               placeholder={t("doctorRegistration.form.placeholder5")}
@@ -155,7 +145,7 @@ const DoctorRegistrationScreen: React.FC = () => {
                 { label: "Spanish", value: "Spanish" },
                 { label: "German", value: "German" },
               ]}
-            /> */}
+            />
             <AuthInputField
               name="fee"
               label={t("doctorRegistration.form.label6")}
