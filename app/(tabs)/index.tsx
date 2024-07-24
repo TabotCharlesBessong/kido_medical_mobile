@@ -44,13 +44,15 @@ const index = () => {
 
     // const keys = await AsyncStorage.getAllKeys();
     // const result = await AsyncStorage.multiGet(keys);
-    console.log(token);
+    console.log({token,data});
   };
 
   const fetchDoctors = async () => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem("userToken");
+      const datas = await AsyncStorage.getItem("userData")
+      console.log(datas)
       const response = await axios.get(`${baseUrl}/doctor/doctor/all`, {
         headers: { Authorization: `bearer ${token}` },
       });
@@ -74,6 +76,7 @@ const index = () => {
 
   useEffect(() => {
     fetchDoctors();
+    // getData()
   }, []);
   // console.log(doctors)
   // console.log(errorMessage)

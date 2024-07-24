@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Button, ScrollView, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {AppButton, CustomText} from "@/components";
@@ -8,11 +8,29 @@ import { IUser } from "@/constants/types";
 import { mockUser } from "@/constants/data/user";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ProfileScreen = () => {
   const user:IUser = mockUser
   const router = useRouter();
   const {t} = useTranslation()
+  // const [userData, setUserData] = useState({})
+
+  const getData = async () => {
+    const token = await AsyncStorage.getItem("userToken");
+    const data = await AsyncStorage.getItem("userData");
+
+    // const keys = await AsyncStorage.getAllKeys();
+    // const result = await AsyncStorage.multiGet(keys);
+    console.log(data);
+    return data
+  };
+  
+  useEffect(() => {
+    getData()
+  },[])
+  const users = getData()
+  console.log(users)
 
   return (
     <SafeAreaView style={styles.container}>
