@@ -75,8 +75,8 @@ const index = () => {
   useEffect(() => {
     fetchDoctors();
   }, []);
-  console.log(doctors)
-  console.log(errorMessage)
+  // console.log(doctors)
+  // console.log(errorMessage)
 
   const renderDoctor = ({ item }: { item: Doctor }) => (
     <TouchableOpacity
@@ -104,22 +104,16 @@ const index = () => {
 
   const fetchPosts = async () => {
     try {
-      // Simulating fetch with delay to show loading state
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Replace with actual fetch from API
-      // const response = await axios.get(
-      //   "http:192.168.1.194:5000/api/posts/post/all"
-      // );
-      // console.log(response)
-      // setPosts(response.data);
-
-      const postData = generatePosts(2); // Replace with actual API call
-      setPosts(postData);
-      // console.log(posts)
+      setLoading(true);
+      const token = await AsyncStorage.getItem("userToken");
+      const response = await axios.get(`${baseUrl}/posts/post/all`, {
+        headers: { Authorization: `bearer ${token}` },
+      });
+      const fetchedPosts = response.data.data.posts;
+      setPosts(fetchedPosts);
       setLoading(false);
     } catch (error) {
-      setErrorMessage("Failed to fetch prescriptions.");
+      setErrorMessage("Failed to fetch posts.");
       setLoading(false);
     }
   };
@@ -127,17 +121,24 @@ const index = () => {
   const renderPost = ({ item }: { item: Post }) => (
     <TouchableOpacity onPress={() => router.push(`/posts/${item.id}`)}>
       <View style={styles.post}>
-        <Image source={{ uri: item.image }} style={styles.image} />
+        {item.image ? (
+          <Image source={{ uri: item.image }} style={styles.image} />
+        ) : (
+          <Image
+            source={require("../../assets/images/doctor1.jpg")}
+            style={styles.image}
+          />
+        )}
         <Text style={styles.title}>{item.title}</Text>
         <Text style={styles.description}>{item.description}</Text>
         <View style={styles.footerContainer}>
           <TouchableOpacity style={styles.iconContainer} onPress={() => {}}>
             <FontAwesome name="thumbs-up" size={20} color="blue" />
-            <Text style={styles.text}>{13}</Text>
+            <Text style={styles.text}>{item.likes?.length}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconContainer} onPress={() => {}}>
             <FontAwesome name="comment" size={20} color="blue" />
-            <Text style={styles.text}>23</Text>
+            <Text style={styles.text}>{item.comments?.length}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconContainer} onPress={() => {}}>
             <FontAwesome name="share" size={20} color="blue" />

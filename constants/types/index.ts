@@ -137,12 +137,38 @@ export interface IPrescription {
   patientName: string
 }
 
+// Comment interface
+interface Comment {
+  id: string;
+  postId: string;
+  userId: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+  user: IUser; // Nested user information
+}
+
+// Like interface
+interface Like {
+  id: string;
+  postId: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  user: IUser; // Nested user information
+}
+
 export interface Post {
   id: string;
   doctorId: string;
   title: string;
-  image: string;
+  image: string | null;
   description: string;
-  likeCount: number
-  comments: string[]
+  likesCount: number;
+  status: "ACTIVE" | "INACTIVE"; // Adjust status types as needed
+  createdAt: string;
+  updatedAt: string;
+  comments: Comment[]; // Array of comments
+  likes: Like[]; // Array of likes
+  doctor: Doctor; // Nested doctor information
 }
