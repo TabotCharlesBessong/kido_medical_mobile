@@ -1,6 +1,7 @@
 import {
   CustomText,
   DoctorCard,
+  LoadingOverlay,
   Notificationcard,
   PharmacieCard,
 } from "@/components";
@@ -201,7 +202,7 @@ const index = () => {
 
       <View style={{ display: "flex", padding: 16 }}>
         {loading ? (
-          <Text>Loading...</Text>
+          <LoadingOverlay />
         ) : (
           <FlatList
             data={posts}
@@ -216,7 +217,7 @@ const index = () => {
           <CustomText type="h1">{t("homescreen.title2")}</CustomText>
         </View>
         {loading ? (
-          <Text>Loading...</Text>
+          <LoadingOverlay />
         ) : (
           <FlatList
             data={doctors}

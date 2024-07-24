@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 // import { logout } from "@/store/slices/authSlice";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Logout = () => {
   const router = useRouter();
@@ -16,7 +17,9 @@ const Logout = () => {
 
   const handleLogout = () => {
     // dispatch(logout());
-    router.replace("/login");
+    AsyncStorage.removeItem("userData")
+    AsyncStorage.removeItem("userToken")
+    router.replace("/auth/login");
   };
 
   return (

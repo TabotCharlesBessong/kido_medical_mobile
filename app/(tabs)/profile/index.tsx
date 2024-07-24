@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AppButton, CustomText } from "@/components";
+import { AppButton, CustomText, LoadingOverlay } from "@/components";
 import { COLORS } from "@/constants/theme";
 import { useRouter } from "expo-router";
 import { IUser } from "@/constants/types";
@@ -42,7 +42,7 @@ const ProfileScreen: React.FC = () => {
   if (!user) {
     return (
       <SafeAreaView style={styles.container}>
-        <CustomText type="h1">{t("profile.loading")}</CustomText>
+        <LoadingOverlay />
       </SafeAreaView>
     );
   }
