@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, KeyboardAvoidingView, Button, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { IPatient } from "@/constants/types";
@@ -15,6 +15,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { COLORS } from "@/constants/theme";
 import { useTranslation } from "react-i18next";
 import { baseUrl } from "@/utils/variables";
+import axios from "axios";
+import { Toast } from "react-native-toast-notifications";
 
 interface CompleteValues {
   gender: string;
@@ -29,13 +31,14 @@ const CompleteScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [userId, setUserId] = useState<string | null>(null);
 
   const router = useRouter();
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
   const initialValues: CompleteValues = {
-    gender: "",
+    gender: "MALE",
     age: 0,
     address1: "",
     address2: "",
@@ -61,41 +64,53 @@ const CompleteScreen: React.FC = () => {
       .required(t("complete.yup.req5")),
   });
 
+  const getData = async () => {
+    const data = await AsyncStorage.getItem("userData");
+    if (data) {
+      const parsedData = JSON.parse(data);
+      setUserId(parsedData.id);
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
   const handleSubmit = async (
     values: CompleteValues,
     actions: FormikHelpers<CompleteValues>
   ) => {
-    console.log(values);
+    // console.log(values);
     try {
       setLoading(true);
       setErrorMessage("");
-      setSuccessMessage("");
 
-      // Get the bearer token from async storage
       const token = await AsyncStorage.getItem("userToken");
-      console.log(token);
 
-      // Make the API request using fetch
-      const res = await fetch(`${baseUrl}/patient/create`, {
-        method: "POST",
+      const instance = axios.create({
+        baseURL: baseUrl,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(values),
       });
 
-      const data = await res.json();
-      console.log(data);
+      const res = await instance.post("/doctor/create", { ...values, userId });
+      const data = res.data;
 
-      // Handle success and redirect
-      if (res.ok) {
-        setSuccessMessage(t("complete.successMessage"));
-        setLoading(false);
-        router.push("(tabs)");
+      Toast.show(t("Congratulation you have now registered as a doctor"), {
+        type: "success",
+        placement: "top",
+        duration: 3000, // Duration of the toast message
+      });
+
+      if (data.success === false) {
+        setErrorMessage(data.message);
       } else {
         setLoading(false);
-        setErrorMessage(data.message || t("complete.defaultError"));
+        if (res.status === 200) {
+          router.push("(tabs)");
+        }
       }
     } catch (error) {
       console.log(error);
@@ -120,7 +135,7 @@ const CompleteScreen: React.FC = () => {
       >
         {({ handleSubmit }) => (
           <KeyboardAvoidingView behavior="height" style={styles.container}>
-            <AuthSelectField
+            {/* <AuthSelectField
               name="gender"
               label={t("complete.form.label1")}
               options={[
@@ -128,7 +143,7 @@ const CompleteScreen: React.FC = () => {
                 { label: t("complete.options.two"), value: "FEMALE" },
               ]}
               placeholder={t("complete.form.placeholder1")}
-            />
+            /> */}
             <AuthInputField
               name="age"
               label={t("complete.form.label2")}
