@@ -15,7 +15,7 @@ const initialState: TimeSlotState = {
 };
 
 const timeSlotSlice = createSlice({
-  name: "timeSlot",
+  name: "timeslots",
   initialState,
   reducers: {},
   extraReducers: (builder) => {

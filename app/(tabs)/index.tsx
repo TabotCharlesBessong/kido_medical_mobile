@@ -1,6 +1,7 @@
 import {
   CustomText,
   DoctorCard,
+  LoadingOverlay,
   Notificationcard,
   PharmacieCard,
 } from "@/components";
@@ -172,7 +173,7 @@ const index = () => {
           <AntDesign name="bells" size={32} color={COLORS.primary} />
           <TouchableOpacity onPress={() => router.push("auth/register")}>
             <Image
-              source={{ uri: "https://via.placeholder.com/50" }}
+              source={require("../../assets/images/doctor1.jpg")}
               style={styles.profileImage}
             />
           </TouchableOpacity>
@@ -201,7 +202,7 @@ const index = () => {
 
       <View style={{ display: "flex", padding: 16 }}>
         {loading ? (
-          <Text>Loading...</Text>
+          <LoadingOverlay />
         ) : (
           <FlatList
             data={posts}
@@ -216,7 +217,7 @@ const index = () => {
           <CustomText type="h1">{t("homescreen.title2")}</CustomText>
         </View>
         {loading ? (
-          <Text>Loading...</Text>
+          <LoadingOverlay />
         ) : (
           <FlatList
             data={doctors}
