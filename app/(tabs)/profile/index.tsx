@@ -1,25 +1,58 @@
-import React from "react";
-import { View, StyleSheet, Button, ScrollView, Image } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, ScrollView, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {AppButton, CustomText} from "@/components";
+import { AppButton, CustomText, LoadingOverlay } from "@/components";
 import { COLORS } from "@/constants/theme";
 import { useRouter } from "expo-router";
 import { IUser } from "@/constants/types";
-import { mockUser } from "@/constants/data/user";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const ProfileScreen = () => {
-  const user:IUser = mockUser
+const ProfileScreen: React.FC = () => {
+  const [user, setUser] = useState<IUser | null>(null);
   const router = useRouter();
-  const {t} = useTranslation()
+  const { t } = useTranslation();
+
+  const getData = async (): Promise<IUser | null> => {
+    try {
+      const data = await AsyncStorage.getItem("userData");
+      if (data) {
+        const parsedData: IUser = JSON.parse(data);
+        return parsedData;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const fetchedData = await getData();
+      if (fetchedData) {
+        setUser(fetchedData);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  if (!user) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <LoadingOverlay />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={{ width: "90%", height: 280 }}>
           <Image
-            source={require("../../../assets/images/doctor.jpeg")}
+            source={require("../../../assets/images/doctor1.jpg")}
             style={{ width: 250, height: 250, borderRadius: 125 }}
           />
         </View>
@@ -51,15 +84,9 @@ const ProfileScreen = () => {
           <View style={styles.infoItem}>
             <CustomText type="body1">{t("profile.text6")}: </CustomText>
             <CustomText type="body2">
-              {user.createdAt.toDateString()}
+              {new Date(user.createdAt).toDateString()}
             </CustomText>
           </View>
-          {/* <View style={styles.infoItem}>
-            <CustomText type="body1">Created At: </CustomText>
-            <CustomText type="body2">
-              {user.createdAt.toDateString()}
-            </CustomText>
-          </View> */}
         </View>
         <View style={styles.buttonContainer}>
           <AppButton
@@ -84,7 +111,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
-    marginTop:-32
+    marginTop: -32,
   },
   scrollContainer: {
     paddingHorizontal: 16,

@@ -18,8 +18,9 @@ const DoctorCard: FC<DoctorCardProps> = ({
       <View style={styles.upperContainer}>
         <View style={styles.imageContainer}>
           <Image
-            source={require("../../assets/images/doctor.jpeg")}
-            style={{ width: 150, height: 150, borderRadius: 75 }}
+            source={require("../../assets/images/doctor1.jpg")}
+            // style={{ width: 150, height: 150, borderRadius: 75 }}
+            style={styles.image}
           />
         </View>
         <View>
@@ -55,8 +56,8 @@ const DoctorCard: FC<DoctorCardProps> = ({
         <Text>Click to book:</Text>
         <View style={styles.buttonContainer}>
           <Text style={styles.bookText}>Today</Text>
-          <Text style={styles.bookText}>May 1</Text>
-          <Text style={styles.bookText}>May 23</Text>
+          <Text style={styles.bookText}>August 1</Text>
+          <Text style={styles.bookText}>August 23</Text>
         </View>
       </View>
     </View>
@@ -71,12 +72,12 @@ const styles = StyleSheet.create({
     padding: 8,
     width: 350,
     marginHorizontal: 12,
-    borderWidth:1,
-    borderColor:"black",
-    borderRadius:16,
-    marginBottom:12,
-    height:320,
-    maxHeight:"auto",
+    borderWidth: 1,
+    borderColor: "black",
+    borderRadius: 16,
+    marginBottom: 12,
+    height: 320,
+    maxHeight: "auto",
   },
   upperContainer: {
     display: "flex",
@@ -130,5 +131,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: "green",
+  },
+  image: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
   },
 });

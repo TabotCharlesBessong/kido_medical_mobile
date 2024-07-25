@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, KeyboardAvoidingView } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
 import * as yup from "yup";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -21,8 +21,8 @@ const CreatePostScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
-  // const { doctorId } = useLocalSearchParams();
-  const {t} = useTranslation()
+  const { t } = useTranslation();
+  const [doctorId, setDoctorId] = useState<string | null>(null);
 
   const initialValues: PostValues = {
     title: "",
@@ -40,6 +40,18 @@ const CreatePostScreen: React.FC = () => {
       .url(t("createPost.validation.invalidImageUrl"))
       .required(t("createPost.validation.imageUrlRequired")),
   });
+
+  const getData = async () => {
+    const data = await AsyncStorage.getItem("userData");
+    if (data) {
+      const parsedData = JSON.parse(data);
+      setDoctorId(parsedData.id);
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
 
   const handleSubmit = async (
     values: PostValues,
@@ -59,9 +71,10 @@ const CreatePostScreen: React.FC = () => {
         },
       });
 
-      const res = await instance.post("/post/create", { ...values });
+      const res = await instance.post("/posts/create", { ...values, doctorId });
       const data = res.data;
-      Toast.show("Registration successful!", {
+
+      Toast.show(t("createPost.toast.success"), {
         type: "success",
         placement: "top",
         duration: 3000, // Duration of the toast message
@@ -83,7 +96,7 @@ const CreatePostScreen: React.FC = () => {
 
   return (
     <KeyboardAvoidingView behavior="height" style={styles.container}>
-      <CustomText type="h1">Create Post</CustomText>
+      <CustomText type="h1">{t("createPost.title")}</CustomText>
       <Formik
         initialValues={initialValues}
         validationSchema={postSchema}
@@ -110,7 +123,7 @@ const CreatePostScreen: React.FC = () => {
               title={t("createPost.buttons.submit")}
               backgroundColor={COLORS.primary}
               loading={loading}
-              loadingText="Creating..."
+              loadingText={t("createPost.buttons.creating")}
               onPress={handleSubmit}
               containerStyle={{ marginTop: 24 }}
             />

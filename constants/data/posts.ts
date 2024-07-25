@@ -13,8 +13,8 @@ export const generatePosts = (numPosts = 10) => {
     users.push({
       id: generateRandomId(),
       username: faker.internet.userName(),
-      firstname: faker.name.firstName(),
-      lastname: faker.name.lastName(),
+      firstname: faker.person.firstName(),
+      lastname: faker.person.lastName(),
       email: faker.internet.email(),
     });
   }
@@ -56,7 +56,7 @@ export const generatePosts = (numPosts = 10) => {
       id: postId,
       doctorId: doctorId,
       title: faker.lorem.words(3),
-      image: faker.image.food(),
+      image: faker.image.url(),
       description: faker.lorem.paragraph(),
       likesCount: numLikes,
       status: "ACTIVE",

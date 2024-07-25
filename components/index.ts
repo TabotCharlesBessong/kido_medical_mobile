@@ -17,3 +17,4 @@ export { default as TimeslotModal } from "./ui/modal/timeslot.modal";
 export { default as MultiSelect } from "./form/MultiSelect";
 export {default as AppLink} from "./ui/AppLink"
 export {default as LanguageSelector} from "./ui/LanguageSelector"
+export {default as LoadingOverlay} from "./ui/other/LoadingOverlay"
