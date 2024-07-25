@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import authReducer from "./slice/auth.slice";
 import doctorSlice from "./slice/doctor.slice";
 import { useDispatch } from "react-redux";
+import timeslotSlice from "./slice/timeslot.slice";
 
 const persistConfig = {
   key: "root",
@@ -13,7 +14,8 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   auth: authReducer,
-  doctor: doctorSlice
+  doctor: doctorSlice,
+  timeslots:timeslotSlice
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
