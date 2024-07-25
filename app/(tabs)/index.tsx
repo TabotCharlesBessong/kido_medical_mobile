@@ -173,7 +173,7 @@ const index = () => {
           <AntDesign name="bells" size={32} color={COLORS.primary} />
           <TouchableOpacity onPress={() => router.push("auth/register")}>
             <Image
-              source={{ uri: "https://via.placeholder.com/50" }}
+              source={require("../../assets/images/doctor1.jpg")}
               style={styles.profileImage}
             />
           </TouchableOpacity>

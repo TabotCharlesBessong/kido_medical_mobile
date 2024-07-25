@@ -1,25 +1,38 @@
 import React, { useState } from "react";
-import {
-  Modal,
-  View,
-  Button,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { Modal, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { COLORS } from "@/constants/theme";
 import { AppButton, AuthCheckbox, CustomText } from "@/components";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
-import { createTimeSlot } from "@/redux/actions/timeslot.action";
+import { Formik, FormikHelpers } from "formik";
+import * as yup from "yup";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { baseUrl } from "@/utils/variables";
 
 interface TimeSlotModalProps {
   isVisible: boolean;
   onClose: () => void;
-  onCreate: (startTime: string, endTime: string, isWeekly: boolean) => void;
+  onCreate: (startTime: string, endTime: string, isAvailable: boolean) => void;
 }
+
+interface TimeSlotValues {
+  startTime: Date | null;
+  endTime: Date | null;
+  isAvailable: boolean;
+}
+
+const initialValues: TimeSlotValues = {
+  startTime: null,
+  endTime: null,
+  isAvailable: true,
+};
+
+const timeSlotSchema = yup.object().shape({
+  startTime: yup.date().required("Start time is required"),
+  endTime: yup.date().required("End time is required"),
+  isAvailable: yup.boolean().required(),
+});
 
 const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
   isVisible,
@@ -27,47 +40,52 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
   onCreate,
 }) => {
   const { t } = useTranslation();
-  const [startTime, setStartTime] = useState<Date | null>(null);
-  const [endTime, setEndTime] = useState<Date | null>(null);
-  const [isWeekly, setIsWeekly] = useState(false);
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false);
-  const dispatch: AppDispatch = useDispatch();
-
-  const onStartTimeChange = (event: any, selectedDate?: Date) => {
-    setShowStartPicker(false);
-    if (selectedDate) {
-      setStartTime(selectedDate);
-    }
-  };
-
-  const onEndTimeChange = (event: any, selectedDate?: Date) => {
-    setShowEndPicker(false);
-    if (selectedDate) {
-      setEndTime(selectedDate);
-    }
-  };
 
   const formatTime = (date: Date) => {
     return `${date.getHours().toString().padStart(2, "0")}:${date
       .getMinutes()
       .toString()
-      .padStart(2, "0")}`;
+      .padStart(2, "0")}:${date.getSeconds().toString().padStart(2, "0")}`;
   };
 
-  const handleCreate = async () => {
-    if (startTime && endTime) {
-      const doctorId = 1; // Replace with actual doctor ID
-      const newTimeSlot = {
-        doctorId,
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString(),
-        isAvailable: true,
-      };
-
+  const handleCreate = async (
+    values: TimeSlotValues,
+    actions: FormikHelpers<TimeSlotValues>
+  ) => {
+    if (values.startTime && values.endTime) {
       try {
-        await dispatch(createTimeSlot(newTimeSlot));
-        onCreate(formatTime(startTime), formatTime(endTime), isWeekly);
+        const userData = await AsyncStorage.getItem("userData");
+        const user = userData ? JSON.parse(userData) : null;
+        const doctorId = user?.id;
+
+        if (!doctorId) {
+          throw new Error("Doctor ID not found");
+        }
+
+        const newTimeSlot = {
+          doctorId,
+          startTime: values.startTime.toISOString(),
+          endTime: values.endTime.toISOString(),
+          isAvailable: values.isAvailable,
+        };
+
+        const token = await AsyncStorage.getItem("userToken");
+
+        const response = await axios.post(
+          `${baseUrl}/doctor/create-time-slot`,
+          newTimeSlot,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        onCreate(
+          formatTime(values.startTime),
+          formatTime(values.endTime),
+          values.isAvailable
+        );
         onClose();
       } catch (error) {
         Alert.alert("Error", t("timeslot.failedToCreateTimeSlot"));
@@ -87,68 +105,99 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <CustomText type="h3">{t("timeslot.createTimeSlot")}</CustomText>
-
-          <TouchableOpacity
-            onPress={() => setShowStartPicker(true)}
-            style={styles.timePickerButton}
+          <Formik
+            initialValues={initialValues}
+            validationSchema={timeSlotSchema}
+            onSubmit={handleCreate}
           >
-            <CustomText type="body1">
-              {startTime ? formatTime(startTime) : t("timeslot.selectStartTime")}
-            </CustomText>
-          </TouchableOpacity>
-          {showStartPicker && (
-            <DateTimePicker
-              value={startTime || new Date()}
-              mode="time"
-              display="default"
-              onChange={onStartTimeChange}
-            />
-          )}
+            {({ handleSubmit, setFieldValue, values, errors, touched }) => (
+              <>
+                <TouchableOpacity
+                  onPress={() => setFieldValue("showStartPicker", true)}
+                  style={styles.timePickerButton}
+                >
+                  <CustomText type="body1">
+                    {values.startTime
+                      ? formatTime(values.startTime)
+                      : t("timeslot.selectStartTime")}
+                  </CustomText>
+                </TouchableOpacity>
+                {/* {values.showStartPicker && ( */}
+                  <DateTimePicker
+                    value={values.startTime || new Date()}
+                    mode="time"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                      setFieldValue("showStartPicker", false);
+                      if (selectedDate) {
+                        setFieldValue("startTime", selectedDate);
+                      }
+                    }}
+                  />
+                {/* // )} */}
+                {errors.startTime && touched.startTime && (
+                  <CustomText type="body4">{errors.startTime}</CustomText>
+                )}
 
-          <TouchableOpacity
-            onPress={() => setShowEndPicker(true)}
-            style={styles.timePickerButton}
-          >
-            <CustomText type="body1">
-              {endTime ? formatTime(endTime) : t("timeslot.selectEndTime")}
-            </CustomText>
-          </TouchableOpacity>
-          {showEndPicker && (
-            <DateTimePicker
-              value={endTime || new Date()}
-              mode="time"
-              display="default"
-              onChange={onEndTimeChange}
-            />
-          )}
+                <TouchableOpacity
+                  onPress={() => setFieldValue("showEndPicker", true)}
+                  style={styles.timePickerButton}
+                >
+                  <CustomText type="body1">
+                    {values.endTime
+                      ? formatTime(values.endTime)
+                      : t("timeslot.selectEndTime")}
+                  </CustomText>
+                </TouchableOpacity>
+                {/* {values.showEndPicker && ( */}
+                  <DateTimePicker
+                    value={values.endTime || new Date()}
+                    mode="time"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                      setFieldValue("showEndPicker", false);
+                      if (selectedDate) {
+                        setFieldValue("endTime", selectedDate);
+                      }
+                    }}
+                  />
+                {/* )} */}
+                {errors.endTime && touched.endTime && (
+                  <CustomText type="body4">{errors.endTime}</CustomText>
+                )}
 
-          <AuthCheckbox
-            isChecked={isWeekly}
-            onPress={() => setIsWeekly(!isWeekly)}
-            title={t("timeslot.weeklyAvailability")}
-          />
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-around",
-              marginTop: 12,
-            }}
-          >
-            <AppButton
-              title={t("timeslot.create")}
-              onPress={handleCreate}
-              width={120}
-              backgroundColor={COLORS.primary}
-            />
-            <AppButton
-              title={t("timeslot.cancel")}
-              onPress={onClose}
-              width={120}
-              backgroundColor={COLORS.danger}
-            />
-          </View>
+                <AuthCheckbox
+                  isChecked={values.isAvailable}
+                  onPress={() =>
+                    setFieldValue("isAvailable", !values.isAvailable)
+                  }
+                  title={t("timeslot.weeklyAvailability")}
+                />
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-around",
+                    marginTop: 12,
+                  }}
+                >
+                  <AppButton
+                    title={t("timeslot.create")}
+                    onPress={handleSubmit}
+                    width={120}
+                    backgroundColor={COLORS.primary}
+                  />
+                  <AppButton
+                    title={t("timeslot.cancel")}
+                    onPress={onClose}
+                    width={120}
+                    backgroundColor={COLORS.danger}
+                  />
+                </View>
+              </>
+            )}
+          </Formik>
         </View>
       </View>
     </Modal>

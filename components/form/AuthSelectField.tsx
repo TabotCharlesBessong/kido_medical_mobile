@@ -1,8 +1,9 @@
-import colors from "@/constants/Colors";
-import { COLORS } from "@/constants/theme";
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
+import { useField } from "formik";
+import colors from "@/constants/Colors";
+import { COLORS } from "@/constants/theme";
 
 interface AuthSelectFieldProps {
   name: string;
@@ -10,7 +11,6 @@ interface AuthSelectFieldProps {
   options: { label: string; value: string }[];
   containerStyle?: StyleProp<ViewStyle>;
   placeholder?: string;
-  multiple?: boolean; // Add multiple prop
 }
 
 const AuthSelectField: FC<AuthSelectFieldProps> = ({
@@ -19,40 +19,36 @@ const AuthSelectField: FC<AuthSelectFieldProps> = ({
   options,
   containerStyle,
   placeholder,
-  multiple,
 }) => {
-  const [selectedValue, setSelectedValue] = useState<string | string[] | null>(
-    null
-  ); // Update state type
+  const [field, meta, helpers] = useField(name);
 
   return (
     <View style={containerStyle}>
-      <View style={styles.label}>
-        <Text>{label}</Text>
-      </View>
+      {label && (
+        <View style={styles.label}>
+          <Text>{label}</Text>
+        </View>
+      )}
       <View style={styles.input}>
         <RNPickerSelect
           placeholder={{
-            label: placeholder,
+            label: placeholder || "Select an option",
             value: null,
-            color: "green",
+            color: "gray",
           }}
-          name={name}
           items={options}
-          onValueChange={(value) => setSelectedValue(value)}
-          value={selectedValue}
+          onValueChange={(value) => helpers.setValue(value)}
+          value={field.value}
           style={{
             inputIOS: styles.pickerInput,
             inputAndroid: styles.pickerInput,
           }}
-          useNativeAndroidPickerStyle={false} // Use this to enable multi-select on Android
-          mode={multiple ? "multiple" : "default"} // Set mode to "multiple" if multiple prop is true
-          onOpen={() => {
-            // Reset selected value when the picker is opened
-            setSelectedValue(multiple ? [] : null);
-          }}
+          useNativeAndroidPickerStyle={false}
         />
       </View>
+      {meta.touched && meta.error ? (
+        <Text style={styles.errorText}>{meta.error}</Text>
+      ) : null}
     </View>
   );
 };
@@ -78,6 +74,10 @@ const styles = StyleSheet.create({
   pickerInput: {
     color: "green",
     textAlign: "left",
+  },
+  errorText: {
+    color: "red",
+    marginTop: 8,
   },
   containerStyle: {
     display: "flex",
