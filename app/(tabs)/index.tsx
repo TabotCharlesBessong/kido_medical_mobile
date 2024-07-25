@@ -1,6 +1,7 @@
 import {
   CustomText,
   DoctorCard,
+  LoadingOverlay,
   Notificationcard,
   PharmacieCard,
 } from "@/components";
@@ -44,13 +45,15 @@ const index = () => {
 
     // const keys = await AsyncStorage.getAllKeys();
     // const result = await AsyncStorage.multiGet(keys);
-    console.log(token);
+    console.log({token,data});
   };
 
   const fetchDoctors = async () => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem("userToken");
+      const datas = await AsyncStorage.getItem("userData")
+      console.log(datas)
       const response = await axios.get(`${baseUrl}/doctor/doctor/all`, {
         headers: { Authorization: `bearer ${token}` },
       });
@@ -74,6 +77,7 @@ const index = () => {
 
   useEffect(() => {
     fetchDoctors();
+    // getData()
   }, []);
   // console.log(doctors)
   // console.log(errorMessage)
@@ -169,7 +173,7 @@ const index = () => {
           <AntDesign name="bells" size={32} color={COLORS.primary} />
           <TouchableOpacity onPress={() => router.push("auth/register")}>
             <Image
-              source={{ uri: "https://via.placeholder.com/50" }}
+              source={require("../../assets/images/doctor1.jpg")}
               style={styles.profileImage}
             />
           </TouchableOpacity>
@@ -198,7 +202,7 @@ const index = () => {
 
       <View style={{ display: "flex", padding: 16 }}>
         {loading ? (
-          <Text>Loading...</Text>
+          <LoadingOverlay />
         ) : (
           <FlatList
             data={posts}
@@ -213,7 +217,7 @@ const index = () => {
           <CustomText type="h1">{t("homescreen.title2")}</CustomText>
         </View>
         {loading ? (
-          <Text>Loading...</Text>
+          <LoadingOverlay />
         ) : (
           <FlatList
             data={doctors}

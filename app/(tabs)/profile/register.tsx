@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
   KeyboardAvoidingView,
   Text,
+  View,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { RegisterDoctorValues } from "@/constants/types";
@@ -30,6 +31,7 @@ const DoctorRegistrationScreen: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const dispatch = useDispatch();
   const router = useRouter();
+  const [userId, setUserId] = useState<string | null>(null);
 
   const initialValues: RegisterDoctorValues = {
     // name: "",
@@ -57,69 +59,63 @@ const DoctorRegistrationScreen: React.FC = () => {
       .min(0, t("doctorRegistration.yup.pos2")),
   });
 
-  const registerDoctor = () => {
-    setLoading(true);
-
-    setTimeout(() => {
-      setLoading(false);
-      // Navigate to the tabs screen
-      router.push("(tabs)");
-    }, 2000);
-    // Show a success toast
-    Toast.show("Registration successful!", {
-      type: "success",
-      placement: "top",
-      duration: 3000, // Duration of the toast message
-    });
+  const getData = async () => {
+    const data = await AsyncStorage.getItem("userData");
+    if (data) {
+      const parsedData = JSON.parse(data);
+      setUserId(parsedData.id);
+    }
   };
 
-  
+  useEffect(() => {
+    getData();
+  }, []);
 
   const handleSubmit = async (
     values: RegisterDoctorValues,
     actions: FormikHelpers<RegisterDoctorValues>
   ) => {
     console.log(values);
-    try {
-      setLoading(true);
-      setErrorMessage("");
-      setSuccessMessage("");
+    // try {
+    //   setLoading(true);
+    //   setErrorMessage("");
 
-      // Get the bearer token from async storage
-      const token = await AsyncStorage.getItem("userToken");
-      console.log(token);
+    //   const token = await AsyncStorage.getItem("userToken");
 
-      // Make the API request using fetch
-      const res = await fetch(`${baseUrl}/doctor/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(values),
-      });
+    //   const instance = axios.create({
+    //     baseURL: baseUrl,
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       Authorization: `Bearer ${token}`,
+    //     },
+    //   });
 
-      const data = await res.json();
-      console.log(data);
+    //   const res = await instance.post("/doctor/create", { ...values, userId });
+    //   const data = res.data;
 
-      // Handle success and redirect
-      if (res.ok) {
-        setSuccessMessage(t("complete.successMessage"));
-        setLoading(false);
-        router.push("(tabs)");
-      } else {
-        setLoading(false);
-        setErrorMessage(data.message || t("complete.defaultError"));
-      }
-    } catch (error) {
-      console.log(error);
-      setErrorMessage(t("complete.networkError"));
-      setLoading(false);
-    }
+    //   Toast.show(t("Congratulation you have now registered as a doctor"), {
+    //     type: "success",
+    //     placement: "top",
+    //     duration: 3000, // Duration of the toast message
+    //   });
+
+    //   if (data.success === false) {
+    //     setErrorMessage(data.message);
+    //   } else {
+    //     setLoading(false);
+    //     if (res.status === 200) {
+    //       router.push("(tabs)");
+    //     }
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    //   setErrorMessage(t("complete.networkError"));
+    //   setLoading(false);
+    // }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <KeyboardAvoidingView behavior="height" style={styles.container}>
       <CustomText type="h1">{t("doctorRegistration.text1")}</CustomText>
       <Formik
         initialValues={initialValues}
@@ -128,21 +124,11 @@ const DoctorRegistrationScreen: React.FC = () => {
       >
         {({ handleSubmit }) => (
           <KeyboardAvoidingView>
-            {/* <AuthInputField
-              name="name"
-              label={t("doctorRegistration.form.label1")}
-              placeholder={t("doctorRegistration.form.placeholder1")}
-            /> */}
             <AuthInputField
               name="specialization"
               label={t("doctorRegistration.form.label2")}
               placeholder={t("doctorRegistration.form.placeholder2")}
             />
-            {/* <AuthInputField
-              name="location"
-              label={t("doctorRegistration.form.label3")}
-              placeholder={t("doctorRegistration.form.placeholder3")}
-            /> */}
             <AuthInputField
               name="experience"
               label={t("doctorRegistration.form.label4")}
@@ -174,19 +160,22 @@ const DoctorRegistrationScreen: React.FC = () => {
             <AppButton
               containerStyle={{ marginTop: 24 }}
               title={t("doctorRegistration.button")}
-              onPress={registerDoctor}
+              onPress={handleSubmit}
               width={"100%"}
               backgroundColor={COLORS.primary}
               loading={loading}
               loadingText={t("doctorRegistration.loader")}
             />
+            <View>
+
             {errorMessage && (
               <Text style={styles.errorText}>{errorMessage}</Text>
             )}
+            </View>
           </KeyboardAvoidingView>
         )}
       </Formik>
-    </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
