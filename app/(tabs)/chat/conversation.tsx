@@ -52,12 +52,21 @@ const ConversationScreen: React.FC = () => {
 
         const fetchedMessages = response.data.data.messages;
         setMessages(
-          fetchedMessages.map((msg: any) => ({
-            id: msg.id,
-            text: msg.content,
-            time: msg.createdAt,
-            fromSender: msg.senderId === loggedInUserData.id,
-          }))
+          fetchedMessages.map((msg:any) => {
+            const messageTime = new Date(msg.createdAt);
+            const formattedTime = messageTime.toLocaleString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            });
+
+            return {
+              id: msg.id,
+              text: msg.content,
+              time: formattedTime,
+              fromSender: msg.senderId === loggedInUserData.id,
+            };
+          })
         );
       } catch (error) {
         console.error("Error fetching conversation:", error);

@@ -68,7 +68,7 @@ const ChatScreen: React.FC = () => {
             onPress={() => handleConversationSelect(user.id)}
           >
             <View style={styles.avatar}>
-              <CustomText type="h4">{user.username.charAt(0)}</CustomText>
+              <CustomText type="h1">{user.username.charAt(0)}</CustomText>
             </View>
             <View style={styles.conversationInfo}>
               <CustomText type="body1">{user.username}</CustomText>
