@@ -1,13 +1,12 @@
-import React, { useState } from "react";
-import { Modal, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { COLORS } from "@/constants/theme";
-import { AppButton, AuthCheckbox, CustomText } from "@/components";
-import { useTranslation } from "react-i18next";
+import React from "react";
+import { Modal, View, StyleSheet, Alert } from "react-native";
 import { Formik, FormikHelpers } from "formik";
 import * as yup from "yup";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { COLORS } from "@/constants/theme";
+import { AppButton, AuthCheckbox, CustomDateTimePicker, CustomText } from "@/components";
 import { baseUrl } from "@/utils/variables";
 
 interface TimeSlotModalProps {
@@ -17,22 +16,34 @@ interface TimeSlotModalProps {
 }
 
 interface TimeSlotValues {
-  startTime: Date | null;
-  endTime: Date | null;
+  startTime: string;
+  endTime: string;
   isAvailable: boolean;
 }
 
+const timeSlotSchema = yup.object({
+  startTime: yup
+    .string()
+    .required()
+    .matches(
+      /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/, // Regular expression for HH:MM:SS format
+      "Start time must be in the format HH:MM:SS"
+    ),
+  endTime: yup
+    .string()
+    .required()
+    .matches(
+      /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/, // Regular expression for HH:MM:SS format
+      "End time must be in the format HH:MM:SS"
+    ),
+  isAvailable: yup.boolean().default(true),
+});
+
 const initialValues: TimeSlotValues = {
-  startTime: null,
-  endTime: null,
+  startTime: "",
+  endTime: "",
   isAvailable: true,
 };
-
-const timeSlotSchema = yup.object().shape({
-  startTime: yup.date().required("Start time is required"),
-  endTime: yup.date().required("End time is required"),
-  isAvailable: yup.boolean().required(),
-});
 
 const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
   isVisible,
@@ -41,57 +52,43 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const formatTime = (date: Date) => {
-    return `${date.getHours().toString().padStart(2, "0")}:${date
-      .getMinutes()
-      .toString()
-      .padStart(2, "0")}:${date.getSeconds().toString().padStart(2, "0")}`;
-  };
-
   const handleCreate = async (
     values: TimeSlotValues,
     actions: FormikHelpers<TimeSlotValues>
   ) => {
-    if (values.startTime && values.endTime) {
-      try {
-        const userData = await AsyncStorage.getItem("userData");
-        const user = userData ? JSON.parse(userData) : null;
-        const doctorId = user?.id;
+    try {
+      const userData = await AsyncStorage.getItem("userData");
+      const user = userData ? JSON.parse(userData) : null;
+      const doctorId = user?.id;
 
-        if (!doctorId) {
-          throw new Error("Doctor ID not found");
-        }
-
-        const newTimeSlot = {
-          doctorId,
-          startTime: values.startTime.toISOString(),
-          endTime: values.endTime.toISOString(),
-          isAvailable: values.isAvailable,
-        };
-
-        const token = await AsyncStorage.getItem("userToken");
-
-        const response = await axios.post(
-          `${baseUrl}/doctor/create-time-slot`,
-          newTimeSlot,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        onCreate(
-          formatTime(values.startTime),
-          formatTime(values.endTime),
-          values.isAvailable
-        );
-        onClose();
-      } catch (error) {
-        Alert.alert("Error", t("timeslot.failedToCreateTimeSlot"));
+      if (!doctorId) {
+        throw new Error("Doctor ID not found");
       }
-    } else {
-      Alert.alert(t("timeslot.validationError"), t("timeslot.selectBothTimes"));
+
+      const newTimeSlot = {
+        doctorId,
+        startTime: values.startTime,
+        endTime: values.endTime,
+        isAvailable: values.isAvailable,
+      };
+
+      const token = await AsyncStorage.getItem("userToken");
+
+      const response = await axios.post(
+        `${baseUrl}/doctor/create-time-slot`,
+        newTimeSlot,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      onCreate(values.startTime, values.endTime, values.isAvailable);
+      onClose();
+    } catch (error:any) {
+      console.error("Error response:", error.response); // Log the error response for debugging
+      Alert.alert("Error", t("timeslot.failedToCreateTimeSlot"));
     }
   };
 
@@ -110,78 +107,24 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
             validationSchema={timeSlotSchema}
             onSubmit={handleCreate}
           >
-            {({ handleSubmit, setFieldValue, values, errors, touched }) => (
-              <>
-                <TouchableOpacity
-                  onPress={() => setFieldValue("showStartPicker", true)}
-                  style={styles.timePickerButton}
-                >
-                  <CustomText type="body1">
-                    {values.startTime
-                      ? formatTime(values.startTime)
-                      : t("timeslot.selectStartTime")}
-                  </CustomText>
-                </TouchableOpacity>
-                {/* {values.showStartPicker && ( */}
-                  <DateTimePicker
-                    value={values.startTime || new Date()}
-                    mode="time"
-                    display="default"
-                    onChange={(event, selectedDate) => {
-                      setFieldValue("showStartPicker", false);
-                      if (selectedDate) {
-                        setFieldValue("startTime", selectedDate);
-                      }
-                    }}
-                  />
-                {/* // )} */}
-                {errors.startTime && touched.startTime && (
-                  <CustomText type="body4">{errors.startTime}</CustomText>
-                )}
-
-                <TouchableOpacity
-                  onPress={() => setFieldValue("showEndPicker", true)}
-                  style={styles.timePickerButton}
-                >
-                  <CustomText type="body1">
-                    {values.endTime
-                      ? formatTime(values.endTime)
-                      : t("timeslot.selectEndTime")}
-                  </CustomText>
-                </TouchableOpacity>
-                {/* {values.showEndPicker && ( */}
-                  <DateTimePicker
-                    value={values.endTime || new Date()}
-                    mode="time"
-                    display="default"
-                    onChange={(event, selectedDate) => {
-                      setFieldValue("showEndPicker", false);
-                      if (selectedDate) {
-                        setFieldValue("endTime", selectedDate);
-                      }
-                    }}
-                  />
-                {/* )} */}
-                {errors.endTime && touched.endTime && (
-                  <CustomText type="body4">{errors.endTime}</CustomText>
-                )}
-
+            {({ handleSubmit, values, setFieldValue }) => (
+              <View>
+                <CustomDateTimePicker
+                  name="startTime"
+                  label={t("timeslot.selectStartTime")}
+                />
+                <CustomDateTimePicker
+                  name="endTime"
+                  label={t("timeslot.selectEndTime")}
+                />
                 <AuthCheckbox
                   isChecked={values.isAvailable}
                   onPress={() =>
                     setFieldValue("isAvailable", !values.isAvailable)
                   }
-                  title={t("timeslot.weeklyAvailability")}
+                  title={t("timeslot.isAvailable")}
                 />
-                <View
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-around",
-                    marginTop: 12,
-                  }}
-                >
+                <View style={styles.buttonContainer}>
                   <AppButton
                     title={t("timeslot.create")}
                     onPress={handleSubmit}
@@ -195,7 +138,7 @@ const TimeSlotModal: React.FC<TimeSlotModalProps> = ({
                     backgroundColor={COLORS.danger}
                   />
                 </View>
-              </>
+              </View>
             )}
           </Formik>
         </View>
@@ -217,11 +160,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderRadius: 10,
   },
-  timePickerButton: {
-    padding: 10,
-    marginVertical: 10,
-    backgroundColor: COLORS.gray,
-    borderRadius: 5,
+  buttonContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
+    marginTop: 12,
   },
 });
 

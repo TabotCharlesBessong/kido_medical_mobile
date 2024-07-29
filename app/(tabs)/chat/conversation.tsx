@@ -11,34 +11,105 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { COLORS } from "@/constants/theme";
-import { Message, generateRandomMessages } from "@/constants/data/conversation";
 import { CustomText } from "@/components";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { IUser } from "@/constants/types";
+import { baseUrl } from "@/utils/variables";
+
+interface Message {
+  id: string;
+  text: string;
+  time: string;
+  fromSender: boolean;
+}
 
 const ConversationScreen: React.FC = () => {
   const router = useRouter();
-  const { conversationId } = useLocalSearchParams();
+  const { receiverId } = useLocalSearchParams();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
+  const [currentUser, setCurrentUser] = useState<IUser | null>(null);
 
   useEffect(() => {
-    const conversationMessages = generateRandomMessages(
-      conversationId as string
-    );
-    setMessages(conversationMessages);
-  }, [conversationId]);
+    const fetchConversation = async () => {
+      try {
+        const token = await AsyncStorage.getItem("userToken");
+        const loggedInUser = await AsyncStorage.getItem("userData");
+        const loggedInUserData = loggedInUser ? JSON.parse(loggedInUser) : null;
 
-  const handleSendMessage = () => {
+        if (!token || !loggedInUserData)
+          throw new Error("Authentication error");
+
+        setCurrentUser(loggedInUserData);
+
+        const response = await axios.get(
+          `${baseUrl}/message/conversation/${loggedInUserData.id}/${receiverId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        const fetchedMessages = response.data.data.messages;
+        setMessages(
+          fetchedMessages.map((msg:any) => {
+            const messageTime = new Date(msg.createdAt);
+            const formattedTime = messageTime.toLocaleString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            });
+
+            return {
+              id: msg.id,
+              text: msg.content,
+              time: formattedTime,
+              fromSender: msg.senderId === loggedInUserData.id,
+            };
+          })
+        );
+      } catch (error) {
+        console.error("Error fetching conversation:", error);
+      }
+    };
+
+    fetchConversation();
+  }, [receiverId]);
+
+  const handleSendMessage = async () => {
     if (inputMessage.trim()) {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          id: Date.now().toString(),
-          text: inputMessage,
-          time: new Date().toLocaleTimeString(),
-          fromSender: true,
-        },
-      ]);
-      setInputMessage("");
+      try {
+        const token = await AsyncStorage.getItem("userToken");
+        const loggedInUser = await AsyncStorage.getItem("userData");
+        const loggedInUserData = loggedInUser ? JSON.parse(loggedInUser) : null;
+
+        if (!token || !loggedInUserData)
+          throw new Error("Authentication error");
+
+        await axios.post(
+          `${baseUrl}/message/create`,
+          {
+            receiverId: receiverId as string,
+            content: inputMessage,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            id: Date.now().toString(),
+            text: inputMessage,
+            time: new Date().toLocaleTimeString(),
+            fromSender: true,
+          },
+        ]);
+        setInputMessage("");
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
     }
   };
 
@@ -52,9 +123,7 @@ const ConversationScreen: React.FC = () => {
           source={{ uri: "https://via.placeholder.com/50" }}
           style={styles.profilePic}
         />
-        <CustomText type="h4" >
-          User Name
-        </CustomText>
+        <CustomText type="h4">User Name</CustomText>
       </View>
 
       <ScrollView style={styles.messagesContainer}>
@@ -68,10 +137,8 @@ const ConversationScreen: React.FC = () => {
                 : styles.receiverMessage,
             ]}
           >
-            <CustomText type="body1">{message.text}</CustomText>
-            <CustomText type="body4">
-              {message.time}
-            </CustomText>
+            <CustomText type="body2">{message.text}</CustomText>
+            <CustomText type="body4">{message.time}</CustomText>
           </View>
         ))}
       </ScrollView>
