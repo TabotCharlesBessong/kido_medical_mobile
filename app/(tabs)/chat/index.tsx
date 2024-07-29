@@ -9,40 +9,71 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { COLORS } from "@/constants/theme";
-import { Conversation, generateRandomConversations } from "@/constants/data/conversation";
 import { CustomText } from "@/components";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { baseUrl } from "@/utils/variables";
+
+interface User {
+  id: string;
+  username: string;
+}
 
 const ChatScreen: React.FC = () => {
   const router = useRouter();
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
-    setConversations(generateRandomConversations());
+    const fetchUsers = async () => {
+      try {
+        const token = await AsyncStorage.getItem("userToken");
+        if (!token) throw new Error("No token found");
+
+        const response = await axios.get(
+          `${baseUrl}/user/users/all`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        const usersData = response.data.data.users;
+        const loggedInUser = await AsyncStorage.getItem("loggedInUser");
+        const loggedInUserData = loggedInUser ? JSON.parse(loggedInUser) : null;
+
+        setUsers(
+          usersData.filter((user: User) => user.id !== loggedInUserData?.id)
+        );
+        setCurrentUser(loggedInUserData);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    fetchUsers();
   }, []);
 
-  const handleConversationSelect = (conversationId: string) => {
-    router.push(`/chat/conversation`);
+  const handleConversationSelect = (receiverId: string) => {
+    router.push(`/chat/conversation?receiverId=${receiverId}`);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        <CustomText type="h3" >
-          Chats
-        </CustomText>
-        {conversations.map((conversation) => (
+        <CustomText type="h3">Chats</CustomText>
+        {users.map((user) => (
           <TouchableOpacity
-            key={conversation.id}
+            key={user.id}
             style={styles.conversationItem}
-            onPress={() => handleConversationSelect(conversation.id)}
+            onPress={() => handleConversationSelect(user.id)}
           >
-            <Image
-              source={{ uri: conversation.profilePic }}
-              style={styles.profilePic}
-            />
+            <View style={styles.avatar}>
+              <CustomText type="h1">{user.username.charAt(0)}</CustomText>
+            </View>
             <View style={styles.conversationInfo}>
-              <CustomText type="body1">{conversation.name}</CustomText>
-              <CustomText type="body2">{conversation.lastMessage}</CustomText>
+              <CustomText type="body1">{user.username}</CustomText>
+              {/* Add last message if available */}
+              <CustomText type="body2">Last message preview</CustomText>
             </View>
           </TouchableOpacity>
         ))}
@@ -59,9 +90,6 @@ const styles = StyleSheet.create({
   scrollView: {
     paddingHorizontal: 16,
   },
-  header: {
-    marginVertical: 20,
-  },
   conversationItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -69,10 +97,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: COLORS.gray,
   },
-  profilePic: {
+  avatar: {
     width: 50,
     height: 50,
     borderRadius: 25,
+    backgroundColor: COLORS.primary,
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 15,
   },
   conversationInfo: {

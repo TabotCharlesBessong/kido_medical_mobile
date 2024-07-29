@@ -58,6 +58,7 @@ const styles = StyleSheet.create({
   h1: {
     color: COLORS.black,
     ...FONTS.h1,
+    textTransform:"capitalize"
   },
   h2: {
     color: COLORS.black,
