@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { AppButton, CustomText } from "@/components";
@@ -8,18 +8,18 @@ import { COLORS } from "@/constants/theme";
 const AppointmentDetailsScreen: React.FC = () => {
   const router = useRouter();
   const { appointment } = useLocalSearchParams();
-  const appointmentData = JSON.parse(appointment);
+  const appointmentData = JSON.parse(appointment as string);
 
   const handleChat = () => {
-    router.push(`/chat/conversation`);
+    router.push({pathname: "/chat/conversation"});
   };
 
   const handleCall = () => {
-    router.push(`/call/${appointmentData.id}`);
+    Alert.alert("Call Feature", `Would call doctor for appointment ${appointmentData.id}`);
   };
 
   const handlePrescribe = () => {
-    router.push(`/prescribe/${appointmentData.id}`);
+    Alert.alert("Prescription Feature", `Would create prescription for appointment ${appointmentData.id}`);
   };
 
   return (
@@ -63,11 +63,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   buttonContainer: {
-    // flexDirection: "row",
     display:"flex",
     justifyContent: "space-around",
     marginTop: 20,
-    // alignItems:"space-around"
   },
 });
 

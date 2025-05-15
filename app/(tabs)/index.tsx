@@ -26,7 +26,7 @@ import { Doctor, Post } from "@/constants/types";
 import { generatePosts } from "@/constants/data/posts";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
-import { baseUrl } from "@/utils/variables";
+import { baseUrl } from "@/utils/constants";
 
 const index = () => {
   const router = useRouter();
@@ -90,13 +90,13 @@ const index = () => {
     >
       <DoctorCard
         name={`${item.users.firstname} ${item.users.lastname}`}
-        location={item.users.username} // Use actual location field if available
+        location={item.users.username}
         experience={item.experience}
         speciality={item.specialization}
         language={item.language}
         fee={item.fee}
-        image={""} // Add image field if available
-        rating={0} // Add rating field if available
+        image={item.users.profileImage || "https://via.placeholder.com/150"}
+        rating={4.5}
       />
     </TouchableOpacity>
   );

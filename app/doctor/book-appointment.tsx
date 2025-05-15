@@ -20,7 +20,7 @@ import * as yup from "yup";
 import { Formik, FormikHelpers } from "formik";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { baseUrl } from "@/utils/variables";
+import { baseUrl } from "@/utils/constants";
 import { useTranslation } from "react-i18next";
 
 interface BookingValues {

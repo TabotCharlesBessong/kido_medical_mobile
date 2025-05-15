@@ -6,7 +6,7 @@ const home = () => {
   const router = useRouter()
   return (
     <View>
-      <TouchableOpacity onPress={() => router.push("register")} >
+      <TouchableOpacity onPress={() => router.push({pathname: "/auth/register"})} >
         <Text>
           Create Account
         </Text>

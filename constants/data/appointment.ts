@@ -43,7 +43,7 @@ export const generateRandomAppointments = () => {
 
   const statuses = ["Pending", "Approved", "Cancelled"];
 
-  const generateRandomId = () => Math.floor(Math.random() * 1000).toString();
+  const generateRandomId = () => Math.floor(Math.random() * 1000);
 
   const generateAppointments = (count: number) => {
     return Array.from({ length: count }, () => ({

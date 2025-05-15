@@ -7,7 +7,7 @@ const getToken = async () => {
 };
 
 const api = axios.create({
-  baseURL: "http://192.168.1.185:5000/api", // Adjust the URL accordingly
+  baseURL: "http://192.168.1.239:5000/api", // Adjust the URL accordingly
   headers: {
     "Content-Type": "application/json",
     Authorization: `Bearer ${getToken()}`,

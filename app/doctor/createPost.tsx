@@ -7,7 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { AppButton, AuthInputField, CustomText } from "@/components";
 import { COLORS } from "@/constants/theme";
-import { baseUrl } from "@/utils/variables";
+import { baseUrl } from "@/utils/constants";
 import { useTranslation } from "react-i18next";
 import { Toast } from "react-native-toast-notifications";
 

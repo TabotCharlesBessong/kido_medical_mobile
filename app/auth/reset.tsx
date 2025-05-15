@@ -5,7 +5,7 @@ import {
   PasswordVisibilityIcon,
 } from "@/components";
 import { COLORS } from "@/constants/theme";
-import { baseUrl } from "@/utils/variables";
+import { baseUrl } from "@/utils/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";

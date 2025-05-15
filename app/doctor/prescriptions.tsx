@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import axios from "axios";
-import { baseUrl } from "@/utils/variables";
+import { baseUrl } from "@/utils/constantss";
 import { IPrescription } from "@/constants/types";
 import { COLORS } from "@/constants/theme";
 import { CustomText } from "@/components";

@@ -1,3 +1,4 @@
+import React from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
@@ -11,8 +12,9 @@ import { OnboardingScreen, SplashScreenComponent } from "@/components";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "@/redux/store";
-import  "../i18n/i18n.config"
+import "../i18n/i18n.config";
 import { ToastProvider } from "react-native-toast-notifications";
+import 'react-native-gesture-handler';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -57,21 +59,20 @@ export default function RootLayout() {
   }
 
   return (
-    <Provider store={store} >
-      <PersistGate loading={null} persistor={persistor} >
-      <ToastProvider>
-
-      <RootLayoutNav />
-      </ToastProvider>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <ToastProvider>
+          <RootLayoutNav />
+        </ToastProvider>
       </PersistGate>
     </Provider>
-)
+  );
 }
 
 function RootLayoutNav() {
-  const router = useRouter()
+  const router = useRouter();
   const [showSplash, setShowSplash] = useState<boolean>(true);
-  const [showOnboarding, setShowOnboarding] = useState<true>(true)
+  const [showOnboarding, setShowOnboarding] = useState<true>(true);
 
   useEffect(() => {
     setTimeout(() => {
@@ -86,12 +87,11 @@ function RootLayoutNav() {
   //   return <OnboardingScreen />
   // }
 
-
   return (
     <>
       <StatusBar style="auto" />
       <Stack>
-        <Stack.Screen name="(tabs)" options={{headerShown:false}} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen
           name="auth/register"
@@ -181,6 +181,20 @@ function RootLayoutNav() {
           name="doctor/book-appointment"
           options={{
             title: "Booking Screen",
+            headerBackTitle: "",
+            headerShadowVisible: false,
+            headerStyle: {},
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="arrow-back" size={36} color="black" />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+        <Stack.Screen
+          name="doctor/postDetail"
+          options={{
+            title: "Post Details",
             headerBackTitle: "",
             headerShadowVisible: false,
             headerStyle: {},
