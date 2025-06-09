@@ -31,12 +31,13 @@ import { baseUrl } from "@/utils/constants";
 const index = () => {
   const router = useRouter();
   const doctorData = doctorsData();
-  const {t,i18n} = useTranslation()
+  const { t, i18n } = useTranslation();
   const pharmacyData = generateRandomPharmaciesData();
-  const [doctors, setDoctors] = useState<Doctor[]>([])
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
   // console.log(pharmacyData);
   const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);const [errorMessage, setErrorMessage] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [errorMessage, setErrorMessage] = useState<string>("");
   // console.log(posts)
 
   const getData = async () => {
@@ -45,15 +46,15 @@ const index = () => {
 
     // const keys = await AsyncStorage.getAllKeys();
     // const result = await AsyncStorage.multiGet(keys);
-    console.log({token,data});
+    console.log({ token, data });
   };
 
   const fetchDoctors = async () => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem("userToken");
-      const datas = await AsyncStorage.getItem("userData")
-      console.log(datas)
+      const datas = await AsyncStorage.getItem("userData");
+      console.log(datas);
       const response = await axios.get(`${baseUrl}/doctor/doctor/all`, {
         headers: { Authorization: `bearer ${token}` },
       });
@@ -74,7 +75,6 @@ const index = () => {
     }
   };
 
-
   useEffect(() => {
     fetchDoctors();
     // getData()
@@ -85,7 +85,10 @@ const index = () => {
   const renderDoctor = ({ item }: { item: Doctor }) => (
     <TouchableOpacity
       onPress={() =>
-        router.push({ pathname: "/doctor/profile", params: { doctor: JSON.stringify(item) } })
+        router.push({
+          pathname: "/doctor/profile",
+          params: { doctor: JSON.stringify(item) },
+        })
       }
     >
       <DoctorCard
@@ -102,9 +105,9 @@ const index = () => {
   );
 
   const changeLanguage = () => {
-    if(i18n.language === 'en')  i18n.changeLanguage('fr')
-    else i18n.changeLanguage('en')
-  }
+    if (i18n.language === "en") i18n.changeLanguage("fr");
+    else i18n.changeLanguage("en");
+  };
 
   const fetchPosts = async () => {
     try {
@@ -123,7 +126,14 @@ const index = () => {
   };
 
   const renderPost = ({ item }: { item: Post }) => (
-    <TouchableOpacity onPress={() => router.push(`/posts/${item.id}`)}>
+    <TouchableOpacity
+      onPress={() =>
+        router.push({
+          pathname: "/doctor/postDetail",
+          params: { post: JSON.stringify(item) },
+        })
+      }
+    >
       <View style={styles.post}>
         {item.image ? (
           <Image source={{ uri: item.image }} style={styles.image} />
@@ -154,14 +164,13 @@ const index = () => {
 
   useEffect(() => {
     getData();
-    fetchPosts()
+    fetchPosts();
   }, []);
   return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
+    <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <TouchableOpacity onPress={() => changeLanguage}>
+          <TouchableOpacity onPress={() => changeLanguage()}>
             <AntDesign name="bars" size={32} color={COLORS.primary} />
           </TouchableOpacity>
           <Image
@@ -171,7 +180,7 @@ const index = () => {
         </View>
         <View style={styles.headerRight}>
           <AntDesign name="bells" size={32} color={COLORS.primary} />
-          <TouchableOpacity onPress={() => router.push("auth/register")}>
+          <TouchableOpacity onPress={() => router.push("/auth/register")}>
             <Image
               source={require("../../assets/images/doctor1.jpg")}
               style={styles.profileImage}
@@ -180,113 +189,131 @@ const index = () => {
         </View>
       </View>
 
-      {/* Main Features Section */}
-      <View>
-        <View style={{ margin: 12 }}>
-          <CustomText type="h1">{t("homescreen.title1")}</CustomText>
-        </View>
-        <View style={styles.features}>
-          <TouchableOpacity style={styles.featureCard} onPress={() => {}}>
-            <Text style={styles.featureText}>{t("homescreen.help.help1")}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.featureCard} onPress={() => {}}>
-            <Text style={styles.featureText}>{t("homescreen.help.help2")}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.featureCard} onPress={() => {}}>
-            <Text style={styles.featureText}>{t("homescreen.help.help3")}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <FlatList
+        data={[{ key: "main" }]}
+        renderItem={() => (
+          <View>
+            {/* Main Features Section */}
+            <View>
+              <View style={{ margin: 12 }}>
+                <CustomText type="h1">{t("homescreen.title1")}</CustomText>
+              </View>
+              <View style={styles.features}>
+                <TouchableOpacity style={styles.featureCard} onPress={() => {}}>
+                  <Text style={styles.featureText}>
+                    {t("homescreen.help.help1")}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.featureCard} onPress={() => {}}>
+                  <Text style={styles.featureText}>
+                    {t("homescreen.help.help2")}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.featureCard} onPress={() => {}}>
+                  <Text style={styles.featureText}>
+                    {t("homescreen.help.help3")}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
 
-      {/* post */}
+            {/* Posts Section */}
+            <View>
+              {loading ? (
+                <LoadingOverlay />
+              ) : (
+                <FlatList
+                  data={posts}
+                  renderItem={renderPost}
+                  keyExtractor={(item) => `post-${item.id}`}
+                  scrollEnabled={false}
+                />
+              )}
+            </View>
 
-      <View style={{ display: "flex", padding: 16 }}>
-        {loading ? (
-          <LoadingOverlay />
-        ) : (
-          <FlatList
-            data={posts}
-            renderItem={renderPost}
-            keyExtractor={(item) => item.id}
-          />
+            {/* Doctors Section */}
+            <View style={styles.doctors}>
+              <View style={{ margin: 12 }}>
+                <CustomText type="h1">{t("homescreen.title2")}</CustomText>
+              </View>
+              {loading ? (
+                <LoadingOverlay />
+              ) : (
+                <FlatList
+                  data={doctors}
+                  renderItem={renderDoctor}
+                  keyExtractor={(item) => item.id}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.flatListContent}
+                  scrollEnabled={true}
+                />
+              )}
+            </View>
+
+            {/* Pharmacies Section */}
+            <View style={styles.doctors}>
+              <View style={{ margin: 12 }}>
+                <CustomText type="h1">{t("homescreen.title3")}</CustomText>
+              </View>
+              <FlatList
+                data={pharmacyData}
+                renderItem={({ item }) => (
+                  <PharmacieCard
+                    key={item.id}
+                    image={item.image}
+                    name={item.name}
+                    location={item.location}
+                  />
+                )}
+                keyExtractor={(item) => item.id.toString()}
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.flatListContent}
+                scrollEnabled={true}
+              />
+            </View>
+
+            {/* Recent Activities Section */}
+            <View>
+              <View style={{ margin: 12 }}>
+                <CustomText type="h1">{t("homescreen.recent")}</CustomText>
+              </View>
+              <View style={styles.activities}>
+                <View style={styles.activityItem}>
+                  <Text style={styles.activityText}>
+                    Consultation with Dr. John on 25th May
+                  </Text>
+                </View>
+                <View style={styles.activityItem}>
+                  <Text style={styles.activityText}>
+                    Consultation with Dr. John on 25th May
+                  </Text>
+                </View>
+                <View style={styles.activityItem}>
+                  <Text style={styles.activityText}>
+                    Consultation with Dr. John on 25th May
+                  </Text>
+                </View>
+                <View style={styles.activityItem}>
+                  <Text style={styles.activityText}>
+                    Consultation with Dr. John on 25th May
+                  </Text>
+                </View>
+                <View style={styles.activityItem}>
+                  <Text style={styles.activityText}>
+                    Consultation with Dr. John on 25th May
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
         )}
-      </View>
-      {/* Doctors */}
-      <View style={styles.doctors}>
-        <View style={{ margin: 12 }}>
-          <CustomText type="h1">{t("homescreen.title2")}</CustomText>
-        </View>
-        {loading ? (
-          <LoadingOverlay />
-        ) : (
-          <FlatList
-            data={doctors}
-            renderItem={renderDoctor}
-            keyExtractor={(item) => item.id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.flatListContent}
-          />
-        )}
-      </View>
-
-      {/* Pharmacies */}
-      <View style={styles.doctors}>
-        <View style={{ margin: 12 }}>
-          <CustomText type="h1">{t("homescreen.title3")}</CustomText>
-        </View>
-        <FlatList
-          data={pharmacyData}
-          renderItem={({ item }) => (
-            <PharmacieCard
-              key={item.id}
-              image={item.image}
-              name={item.name}
-              location={item.location}
-            />
-          )}
-          keyExtractor={(item) => item.id.toString()}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.flatListContent}
-        />
-      </View>
-      {/* Recent Activities Section */}
-      <View>
-        <View style={{ margin: 12 }}>
-          <CustomText type="h1">{t("homescreen.recent")}</CustomText>
-        </View>
-        {/* Add recent activity items here */}
-        <View style={styles.activities}>
-          <View style={styles.activityItem}>
-            <Text style={styles.activityText}>
-              Consultation with Dr. John on 25th May
-            </Text>
-          </View>
-          <View style={styles.activityItem}>
-            <Text style={styles.activityText}>
-              Consultation with Dr. John on 25th May
-            </Text>
-          </View>
-          <View style={styles.activityItem}>
-            <Text style={styles.activityText}>
-              Consultation with Dr. John on 25th May
-            </Text>
-          </View>
-          <View style={styles.activityItem}>
-            <Text style={styles.activityText}>
-              Consultation with Dr. John on 25th May
-            </Text>
-          </View>
-          <View style={styles.activityItem}>
-            <Text style={styles.activityText}>
-              Consultation with Dr. John on 25th May
-            </Text>
-          </View>
-        </View>
-      </View>
+        keyExtractor={(item) => item.key}
+      />
       <StatusBar style="auto" />
-    </ScrollView>
+    </View>
+    // </View>
   );
 };
 

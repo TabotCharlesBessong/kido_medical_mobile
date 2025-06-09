@@ -147,7 +147,7 @@ const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
   );
 
   return (
-    <ScrollView>
+    <View>
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <CustomText type="h1">{t("appointments.title")}</CustomText>
@@ -166,6 +166,9 @@ const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
           renderItem={renderAppointmentItem}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.appointmentList}
+          ListHeaderComponent={() => (
+            <CustomText type="h2">{t("appointments.title1")}</CustomText>
+          )}
         />
 
         <CustomText type="h2">{t("appointments.title2")}</CustomText>
@@ -174,9 +177,12 @@ const AppointmentsScreen: React.FC<AppointmentsScreenProps> = () => {
           renderItem={renderPastAppointmentItem}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.appointmentList}
+          ListHeaderComponent={() => (
+            <CustomText type="h2">{t("appointments.title2")}</CustomText>
+          )}
         />
       </SafeAreaView>
-    </ScrollView>
+    </View>
   );
 };
 
