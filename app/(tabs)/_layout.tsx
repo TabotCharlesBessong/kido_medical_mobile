@@ -1,9 +1,11 @@
+import React from 'react';
 import Colors from "@/constants/Colors";
 import {
   AntDesign,
   Entypo,
   FontAwesome,
   FontAwesome5,
+  MaterialIcons,
 } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -31,30 +33,41 @@ const TabLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="chat"
+        name="appointments"
         options={{
-          title: t("layout.tow"), // "Chats"
+          title: "Appointments",
           tabBarIcon: ({ color }) => (
-            <Entypo name="message" color={color} size={28} />
+            <FontAwesome5 name="calendar-check" size={28} color={color} />
           ),
           headerShown: false,
         }}
       />
       <Tabs.Screen
-        name="appointment"
+        name="prescriptions"
         options={{
-          title: t("layout.three"), // "Appointments"
+          title: "Prescriptions",
           tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="book-medical" size={28} color={color} />
+            <MaterialIcons name="medication" size={28} color={color} />
           ),
+          headerShown: false,
         }}
       />
       <Tabs.Screen
-        name="setting"
+        name="education"
         options={{
-          title: t("layout.four"), // "Setting"
+          title: "Education",
           tabBarIcon: ({ color }) => (
-            <AntDesign name="setting" color={color} size={28} />
+            <MaterialIcons name="school" size={28} color={color} />
+          ),
+          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="chat"
+        options={{
+          title: t("layout.tow"), // "Chats"
+          tabBarIcon: ({ color }) => (
+            <Entypo name="message" color={color} size={28} />
           ),
           headerShown: false,
         }}
@@ -66,6 +79,7 @@ const TabLayout = () => {
           tabBarIcon: ({ color }) => (
             <AntDesign name="user" color={color} size={28} />
           ),
+          headerShown: false,
         }}
       />
     </Tabs>

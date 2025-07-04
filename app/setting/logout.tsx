@@ -19,7 +19,7 @@ const Logout = () => {
     // dispatch(logout());
     AsyncStorage.removeItem("userData")
     AsyncStorage.removeItem("userToken")
-    router.replace("/auth/login");
+    router.replace({pathname: "/auth/login"});
   };
 
   return (

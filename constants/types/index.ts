@@ -47,6 +47,7 @@ export interface IUser {
   accountStatus: string;
   createdAt: Date;
   updatedAt: Date;
+  profileImage?: string;
 }
 
 export interface IPatient {

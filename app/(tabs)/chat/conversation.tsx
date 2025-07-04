@@ -15,7 +15,7 @@ import { CustomText } from "@/components";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { IUser } from "@/constants/types";
-import { baseUrl } from "@/utils/variables";
+import { baseUrl } from "@/utils/constants";
 
 interface Message {
   id: string;

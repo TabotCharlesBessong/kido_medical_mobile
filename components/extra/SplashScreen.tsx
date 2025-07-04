@@ -19,7 +19,7 @@ const SplashScreenComponent = () => {
       >
         <Image
           style={styles.image}
-          source={{ uri: "../../assets/images/splash.png" }}
+          source={require("../../assets/images/splash.png")}
         />
         <CustomText type="larger" >Hello welcome</CustomText>
       </Animated.View>

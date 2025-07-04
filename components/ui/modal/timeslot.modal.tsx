@@ -7,7 +7,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { COLORS } from "@/constants/theme";
 import { AppButton, AuthCheckbox, CustomDateTimePicker, CustomText } from "@/components";
-import { baseUrl } from "@/utils/variables";
+import { baseUrl } from "@/utils/constants";
 
 interface TimeSlotModalProps {
   isVisible: boolean;

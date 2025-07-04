@@ -12,7 +12,7 @@ import { COLORS } from "@/constants/theme";
 import { CustomText } from "@/components";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { baseUrl } from "@/utils/variables";
+import { baseUrl } from "@/utils/constants";
 
 interface User {
   id: string;

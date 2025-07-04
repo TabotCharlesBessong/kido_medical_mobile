@@ -7,7 +7,7 @@ import {
   SubmitButton
 } from "@/components";
 import { COLORS } from "@/constants/theme";
-import { baseUrl } from "@/utils/variables";
+import { baseUrl } from "@/utils/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
@@ -88,7 +88,7 @@ const login = () => {
       setLoading(false);
       if (res.ok) {
         // dispatch(signInSuccess(data));
-        router.push("(tabs)")
+        router.push({pathname: "/(tabs)"})
       }
     } catch (error) {
       console.log(error);
@@ -133,7 +133,7 @@ const login = () => {
               </CustomText>
               <AppLink
                 title={t("login.forgotLink")}
-                onPress={() => router.push("auth/forgot")}
+                onPress={() => router.push({pathname: "/auth/forgot"})}
               />
             </View>
             <AppButton
@@ -149,7 +149,7 @@ const login = () => {
               </CustomText>
               <AppLink
                 title={t("login.registerLink")}
-                onPress={() => router.push("auth/register")}
+                onPress={() => router.push({pathname: "/auth/register"})}
               />
             </View>
           </KeyboardAvoidingView>

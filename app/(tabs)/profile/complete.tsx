@@ -14,9 +14,9 @@ import { Formik, FormikHelpers } from "formik";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { COLORS } from "@/constants/theme";
 import { useTranslation } from "react-i18next";
-import { baseUrl } from "@/utils/variables";
 import axios from "axios";
 import { Toast } from "react-native-toast-notifications";
+import { baseUrl } from "@/utils/constants";
 
 interface CompleteValues {
   gender: string;

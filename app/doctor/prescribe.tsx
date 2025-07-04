@@ -14,7 +14,7 @@ import { Formik, FieldArray, FormikHelpers } from "formik";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { COLORS } from "@/constants/theme";
-import { baseUrl } from "@/utils/variables";
+import { baseUrl } from "@/utils/constants";
 import { Frequency } from "@/constants/types";
 import { useTranslation } from "react-i18next";
 

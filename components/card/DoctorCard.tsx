@@ -12,14 +12,13 @@ const DoctorCard: FC<DoctorCardProps> = ({
   speciality,
   language,
   fee,
-}) => {
+}: DoctorCardProps) => {
   return (
     <View style={styles.container}>
       <View style={styles.upperContainer}>
         <View style={styles.imageContainer}>
           <Image
-            source={require("../../assets/images/doctor1.jpg")}
-            // style={{ width: 150, height: 150, borderRadius: 75 }}
+            source={{ uri: image }}
             style={styles.image}
           />
         </View>

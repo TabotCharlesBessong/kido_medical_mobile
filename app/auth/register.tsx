@@ -6,7 +6,7 @@ import {
   PasswordVisibilityIcon
 } from "@/components";
 import { COLORS } from "@/constants/theme";
-import { baseUrl } from "@/utils/variables";
+import { baseUrl } from "@/utils/constants";
 import { useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
 import React, { useState } from "react";

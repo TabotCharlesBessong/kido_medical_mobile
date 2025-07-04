@@ -5,6 +5,9 @@ import authReducer from "./slice/auth.slice";
 import doctorSlice from "./slice/doctor.slice";
 import { useDispatch } from "react-redux";
 import timeslotSlice from "./slice/timeslot.slice";
+import appointmentSlice from "./slice/appointment.slice";
+import prescriptionSlice from "./slice/prescription.slice";
+import educationalSlice from "./slice/educational.slice";
 
 const persistConfig = {
   key: "root",
@@ -15,13 +18,27 @@ const persistConfig = {
 const rootReducer = combineReducers({
   auth: authReducer,
   doctor: doctorSlice,
-  timeslots:timeslotSlice
+  timeslots: timeslotSlice,
+  appointments: appointmentSlice,
+  prescriptions: prescriptionSlice,
+  educational: educationalSlice
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
   reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        // Ignore these action types
+        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+        // Ignore these field paths in all actions
+        ignoredActionPaths: ['register', 'rehydrate'],
+        // Ignore these paths in the state
+        ignoredPaths: ['register', 'rehydrate'],
+      },
+    }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

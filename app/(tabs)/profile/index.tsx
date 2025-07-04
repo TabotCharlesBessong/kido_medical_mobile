@@ -91,13 +91,13 @@ const ProfileScreen: React.FC = () => {
         <View style={styles.buttonContainer}>
           <AppButton
             title={t("profile.button1")}
-            onPress={() => router.push("/profile/complete")}
+            onPress={() => router.push({pathname: "/profile/complete"})}
             backgroundColor={COLORS.primary}
             width={"45%"}
           />
           <AppButton
             title={t("profile.button2")}
-            onPress={() => router.push("/profile/register")}
+            onPress={() => router.push({pathname: "/profile/register"})}
             backgroundColor={COLORS.primary}
             width={"45%"}
           />
