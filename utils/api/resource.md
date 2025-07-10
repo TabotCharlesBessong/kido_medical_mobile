@@ -1,193 +1,136 @@
-Excellent! Providing the existing component code is very helpful. It allows me to tailor the Redux Toolkit integration precisely to your current structure, minimizing redundant changes and ensuring compatibility.
+Okay, this is a crucial step! Integrating the doctor registration process and the admin KYC verification requires updating our Redux slices and creating new UI components. This will involve:
 
-You're right, the current implementation handles authentication locally using `useState` and `AsyncStorage`. Connecting it to Redux slices is a significant improvement for state management, especially in a complex application like a telemedicine platform where user authentication and data will be central to many features.
+1.  **Doctor Profile Creation:** A regular user (initially a `PATIENT` or unassigned role) can submit their doctor-specific details. This will trigger a KYC process on the backend.
+2.  **Admin KYC Verification:** An admin user will be able to view pending doctor KYC requests and approve/reject them.
 
-Let's refactor your authentication flow to use Redux Toolkit.
-
----
-
-### Phase 1: Redux Toolkit Integration for Authentication
-
-Here's the plan:
-
-1.  **Define Types:** Create TypeScript interfaces for your authentication state and API payloads/responses.
-2.  **Axios Setup:** Set up an `axios` instance with request and response interceptors to automatically handle JWT tokens and common errors (like 401 Unauthorized for expired tokens). This will replace direct `fetch` calls.
-3.  **Auth Redux Slice:** Create `authSlice` using `createSlice` and `createAsyncThunk` to manage login, registration, and verification logic. This slice will hold the user object, JWT token, loading state, and any errors.
-4.  **Redux Store Configuration:** Configure your Redux store with the `authSlice`.
-5.  **Root Component Integration:** Update your root component (`app/_layout.tsx` for Expo Router) to provide the Redux store and handle conditional navigation based on the authentication state (logged in vs. logged out).
-6.  **Refactor Components:** Update `LoginScreen`, `RegisterScreen`, and `VerifyScreen` to dispatch Redux thunks and consume state from the Redux store.
-7.  **Secure Storage:** Use `expo-secure-store` for sensitive data like the JWT token (already using `AsyncStorage`, but `SecureStore` is more secure for this purpose).
+Let's break down the implementation.
 
 ---
 
-Let's go step-by-step.
+### Step 1: Define New Types
 
-**Step 1: Create `types/auth.ts`**
-
-First, create a `types` folder in your `src` directory (e.g., `src/types`) and define the necessary interfaces.
+Create a new file `src/types/doctor.ts` (or add to an existing `types` directory) to house types related to doctor profiles. We'll also update `src/types/admin.ts` for KYC.
 
 ```typescript
-// src/types/auth.ts
+// src/types/doctor.ts
+// This file will hold types specific to doctors
 
-export interface User {
-  id: string;
-  firstname: string;
-  lastname: string;
-  email: string;
-  role: string; // "PATIENT", "DOCTOR", "ADMIN" - essential for role-based features
-  isVerified?: boolean; // Assuming this might be returned, or can be added based on backend logic
-  // Add any other user properties returned by the login/register API, e.g., phoneNumber, profilePic, etc.
-  // For doctor/patient specific details, we'll have separate slices/interfaces later
+export interface DoctorProfile {
+  id: string; // The ID of the doctor's profile (distinct from userId in some schemas)
+  userId: string; // The ID of the associated user account
+  specialization: string;
+  fee: number;
+  documents: string; // URL to professional documents (e.g., license, certificates)
+  verificationStatus: 'PENDING' | 'APPROVED' | 'REJECTED'; // Status of KYC verification
+  // Add any other doctor-specific fields your backend returns
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface AuthState {
-  user: User | null;
-  token: string | null;
+// Payload for creating a new doctor profile
+export interface CreateDoctorProfilePayload {
+  specialization: string;
+  fee: number; // Assuming backend expects a number
+  documents: string; // URL of the uploaded document
+}
+
+// API response structure for creating/fetching a doctor profile
+export interface DoctorProfileApiResponse {
+  success: boolean;
+  message: string;
+  data?: DoctorProfile; // `data` field might contain the DoctorProfile on success
+}
+```
+
+```typescript
+// src/types/admin.ts
+// This file will hold types specific to admin actions, including KYC
+
+import { User } from './auth'; // Assuming User interface is in auth.ts
+import { DoctorProfile } from './doctor'; // Import DoctorProfile for linked data
+
+export interface KycVerification {
+  id: string; // Unique ID for the KYC verification record
+  userId: string; // ID of the user whose KYC is being verified
+  user: User; // Full user details associated with this KYC
+  type: 'DOCTOR_PROFILE' | 'IDENTITY'; // Type of verification (e.g., for doctor roles or general identity)
+  status: 'PENDING' | 'APPROVED' | 'REJECTED'; // Current status of the verification
+  documents: string[]; // Array of URLs to submitted documents
+  notes?: string; // Optional notes from the admin
+  createdAt: string;
+  updatedAt: string;
+  doctorProfile?: DoctorProfile; // Optional: If type is DOCTOR_PROFILE, link to the doctor's profile
+}
+
+// API response for fetching a list of KYC verifications
+export interface FetchKycVerificationsApiResponse {
+  success: boolean;
+  message: string;
+  data: KycVerification[]; // Array of pending KYC requests
+}
+
+// Payload for verifying a doctor's profile (used by admin)
+export interface VerifyDoctorPayload {
+  email: string; // Doctor's email as used in Postman
+  status: 'APPROVED' | 'REJECTED';
+  notes?: string;
+}
+
+// Payload for general KYC verification (if applicable, separate from doctor specific)
+export interface VerifyKycPayload {
+  userId: string; // User ID to verify
+  status: 'APPROVED' | 'REJECTED';
+  notes?: string;
+}
+
+// Generic API response for admin actions (e.g., approve/reject)
+export interface AdminActionApiResponse {
+  success: boolean;
+  message: string;
+}
+```
+
+---
+
+### Step 2: Create Redux Slices
+
+We'll need two new slices: `doctorProfileSlice` for the doctor's own profile management, and `adminSlice` for admin-specific actions like KYC.
+
+**2.1. `src/redux/slices/doctorProfileSlice.ts`**
+
+This slice will manage the doctor's profile state and the API calls to create/fetch it.
+
+```typescript
+// src/redux/slices/doctorProfileSlice.ts
+
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import axiosInstance from '@/utils/axiosInstance'; // Our configured Axios instance
+import { DoctorProfile, CreateDoctorProfilePayload, DoctorProfileApiResponse } from '@/types/doctor';
+
+interface DoctorProfileState {
+  profile: DoctorProfile | null; // Stores the current doctor's profile
   isLoading: boolean;
   error: string | null;
 }
 
-// Payloads for API requests
-export interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-export interface RegisterPayload {
-  firstname: string;
-  lastname: string;
-  email: string;
-  password: string;
-  // `confirmPassword` is for frontend validation only, not sent to backend
-}
-
-export interface VerifyPayload {
-  email: string;
-  code: string; // Corrected from 'token' to 'code' as per your Postman collection
-}
-
-// API Response Structures (based on your Postman responses)
-export interface AuthResponseData {
-  token: string;
-  user: User;
-}
-
-export interface AuthApiResponse {
-  success: boolean;
-  message: string;
-  data?: AuthResponseData; // For login, this will contain token and user
-  // For register/verify, `data` might be empty or contain a simple success message
-}
-```
-
-**Step 2: Update `utils/constants.ts` and Create `utils/axiosInstance.ts`**
-
-Ensure your `baseUrl` is correctly defined to include the `/api` prefix, as shown in your Postman collection.
-
-```typescript
-// src/utils/constants.ts
-
-export const baseUrl = "http://localhost:5000/api"; // Make sure this matches your backend API base URL
-export const COLORS = {
-  // Assuming COLORS is defined here or imported from theme.ts
-  primary: "#0C6CF2", // Example color, adjust as per your theme
-  danger: "red",
-  // ... other colors
-};
-```
-
-Now, create `src/utils/axiosInstance.ts`. This file will set up Axios with interceptors to automatically include your JWT token in requests and handle common response errors (like 401 Unauthorized).
-
-```typescript
-// src/utils/axiosInstance.ts
-
-import axios from 'axios';
-import { baseUrl } from './constants';
-import * as SecureStore from 'expo-secure-store'; // For secure token storage
-import { store } from '@/redux/store'; // We'll create this soon
-import { logout } from '@/redux/slices/authSlice'; // We'll create this soon
-
-const axiosInstance = axios.create({
-  baseURL: baseUrl,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Request Interceptor: Attach JWT token to outgoing requests
-axiosInstance.interceptors.request.use(
-  async (config) => {
-    // Get the current token from Redux state (or SecureStore if Redux isn't initialized yet)
-    const token = store.getState().auth.token || await SecureStore.getItemAsync('userToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Response Interceptor: Handle errors, especially 401 Unauthorized
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-
-    // If it's a 401 Unauthorized error and it hasn't been retried yet
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true; // Mark to prevent infinite loops
-
-      // Dispatch logout action to clear state and redirect to login
-      store.dispatch(logout());
-      // Optionally, you might want to show a toast message here
-      // e.g., Toast.show({ type: 'error', text1: 'Session Expired', text2: 'Please log in again.' });
-
-      return Promise.reject(error); // Reject the original request
-    }
-
-    return Promise.reject(error);
-  }
-);
-
-export default axiosInstance;
-```
-
-**Step 3: Create `redux/slices/authSlice.ts`**
-
-Now, define your Redux Toolkit slice for authentication. Create `src/redux/slices/authSlice.ts`.
-
-```typescript
-// src/redux/slices/authSlice.ts
-
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axiosInstance from '@/utils/axiosInstance';
-import * as SecureStore from 'expo-secure-store';
-import { AuthState, LoginPayload, RegisterPayload, VerifyPayload, AuthApiResponse, User } from '@/types/auth'; // Adjust path if needed
-
-const initialState: AuthState = {
-  user: null,
-  token: null,
+const initialState: DoctorProfileState = {
+  profile: null,
   isLoading: false,
   error: null,
 };
 
-// Async Thunk for User Login
-export const loginUser = createAsyncThunk<AuthApiResponse, LoginPayload, { rejectValue: string }>(
-  'auth/loginUser',
-  async (credentials, { rejectWithValue }) => {
+// Async Thunk for creating/completing a doctor profile
+export const createDoctorProfile = createAsyncThunk<DoctorProfileApiResponse, CreateDoctorProfilePayload, { rejectValue: string }>(
+  'doctor/createProfile',
+  async (profileData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post<AuthApiResponse>('/user/login', credentials);
+      const response = await axiosInstance.post<DoctorProfileApiResponse>('/doctor/create', profileData);
       const data = response.data;
 
       if (data.success && data.data) {
-        // Securely store the token and user data
-        await SecureStore.setItemAsync('userToken', data.data.token);
-        await SecureStore.setItemAsync('userData', JSON.stringify(data.data.user));
         return data;
       } else {
-        return rejectWithValue(data.message || 'Login failed.');
+        return rejectWithValue(data.message || 'Failed to create doctor profile. Please check your data.');
       }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || error.message || 'Network Error';
@@ -196,39 +139,18 @@ export const loginUser = createAsyncThunk<AuthApiResponse, LoginPayload, { rejec
   }
 );
 
-// Async Thunk for User Registration
-export const registerUser = createAsyncThunk<AuthApiResponse, RegisterPayload, { rejectValue: string }>(
-  'auth/registerUser',
-  async (userData, { rejectWithValue }) => {
+// Async Thunk for fetching a specific doctor's profile (can be used by patient or doctor themselves)
+export const fetchDoctorProfileById = createAsyncThunk<DoctorProfileApiResponse, string, { rejectValue: string }>(
+  'doctor/fetchProfileById',
+  async (doctorId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post<AuthApiResponse>('/user/register', userData);
+      const response = await axiosInstance.get<DoctorProfileApiResponse>(`/doctor/${doctorId}`);
       const data = response.data;
 
-      if (data.success) {
-        return data; // Registration usually doesn't return a token, just a success status
-      } else {
-        return rejectWithValue(data.message || 'Registration failed.');
-      }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || 'Network Error';
-      return rejectWithValue(errorMessage);
-    }
-  }
-);
-
-// Async Thunk for User Verification
-export const verifyAccount = createAsyncThunk<AuthApiResponse, VerifyPayload, { rejectValue: string }>(
-  'auth/verifyAccount',
-  async (verificationData, { rejectWithValue }) => {
-    try {
-      // Corrected endpoint based on Postman collection: /user/verify-account
-      const response = await axiosInstance.post<AuthApiResponse>('/user/verify-account', verificationData);
-      const data = response.data;
-
-      if (data.success) {
+      if (data.success && data.data) {
         return data;
       } else {
-        return rejectWithValue(data.message || 'Account verification failed.');
+        return rejectWithValue(data.message || 'Doctor profile not found.');
       }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || error.message || 'Network Error';
@@ -237,1363 +159,945 @@ export const verifyAccount = createAsyncThunk<AuthApiResponse, VerifyPayload, { 
   }
 );
 
-// Async Thunk to load user data from SecureStore on app launch
-export const loadUserFromStorage = createAsyncThunk<AuthState, void, { rejectValue: string }>(
-  'auth/loadUserFromStorage',
-  async (_, { rejectWithValue }) => {
-    try {
-      const token = await SecureStore.getItemAsync('userToken');
-      const userDataString = await SecureStore.getItemAsync('userData');
-
-      if (token && userDataString) {
-        const user: User = JSON.parse(userDataString);
-        return { user, token, isLoading: false, error: null };
-      } else {
-        return rejectWithValue('No user data found in storage.');
-      }
-    } catch (error: any) {
-      // In case of parsing error or other storage issues
-      await SecureStore.deleteItemAsync('userToken');
-      await SecureStore.deleteItemAsync('userData');
-      return rejectWithValue(error.message || 'Failed to load user from storage.');
-    }
-  }
-);
-
-const authSlice = createSlice({
-  name: 'auth',
+const doctorProfileSlice = createSlice({
+  name: 'doctorProfile',
   initialState,
   reducers: {
-    // Reducer to clear authentication state (for logout)
-    logout: (state) => {
-      state.user = null;
-      state.token = null;
+    clearDoctorProfileError: (state) => {
+      state.error = null;
+    },
+    // Useful for directly setting/updating the profile in state if needed without an API call
+    setDoctorProfile: (state, action: PayloadAction<DoctorProfile | null>) => {
+      state.profile = action.payload;
       state.isLoading = false;
       state.error = null;
-      SecureStore.deleteItemAsync('userToken'); // Clear from storage
-      SecureStore.deleteItemAsync('userData');   // Clear from storage
-    },
-    // Reducer to clear specific authentication errors, useful for forms
-    clearAuthError: (state) => {
-      state.error = null;
-    },
+    }
   },
   extraReducers: (builder) => {
     builder
-      // Login Thunk handling
-      .addCase(loginUser.pending, (state) => {
+      // Handle createDoctorProfile
+      .addCase(createDoctorProfile.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
+      .addCase(createDoctorProfile.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload.data?.user || null;
-        state.token = action.payload.data?.token || null;
+        state.profile = action.payload.data || null; // Store the newly created profile
         state.error = null;
       })
-      .addCase(loginUser.rejected, (state, action) => {
+      .addCase(createDoctorProfile.rejected, (state, action) => {
         state.isLoading = false;
-        state.user = null;
-        state.token = null;
-        state.error = action.payload || 'Login failed.';
+        state.profile = null;
+        state.error = action.payload || 'Failed to create doctor profile.';
       })
-      // Register Thunk handling
-      .addCase(registerUser.pending, (state) => {
+      // Handle fetchDoctorProfileById
+      .addCase(fetchDoctorProfileById.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
+      .addCase(fetchDoctorProfileById.fulfilled, (state, action) => {
         state.isLoading = false;
-        // After successful registration, user is not automatically logged in.
-        // They need to verify their account first.
+        state.profile = action.payload.data || null; // Store the fetched profile
         state.error = null;
       })
-      .addCase(registerUser.rejected, (state, action) => {
+      .addCase(fetchDoctorProfileById.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload || 'Registration failed.';
-      })
-      // Verify Account Thunk handling
-      .addCase(verifyAccount.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(verifyAccount.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.error = null;
-      })
-      .addCase(verifyAccount.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload || 'Account verification failed.';
-      })
-      // Load User From Storage Thunk handling
-      .addCase(loadUserFromStorage.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(loadUserFromStorage.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
-        state.error = null;
-      })
-      .addCase(loadUserFromStorage.rejected, (state, action) => {
-        state.isLoading = false;
-        state.user = null;
-        state.token = null;
-        state.error = action.payload || 'Failed to load session.';
+        state.profile = null;
+        state.error = action.payload || 'Failed to fetch doctor profile.';
       });
   },
 });
 
-export const { logout, clearAuthError } = authSlice.actions; // Export individual actions
-export default authSlice.reducer; // Export the reducer as default
+export const { clearDoctorProfileError, setDoctorProfile } = doctorProfileSlice.actions;
+export default doctorProfileSlice.reducer;
 ```
 
-**Step 4: Configure Redux Store in `redux/store.ts`**
+**2.2. `src/redux/slices/adminSlice.ts`**
 
-Create `src/redux/store.ts`.
+This slice will handle fetching pending KYC requests and performing approval/rejection actions.
 
 ```typescript
-// src/redux/store.ts
+// src/redux/slices/adminSlice.ts
+
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import axiosInstance from '@/utils/axiosInstance';
+import {
+  KycVerification,
+  FetchKycVerificationsApiResponse,
+  VerifyDoctorPayload,
+  VerifyKycPayload,
+  AdminActionApiResponse
+} from '@/types/admin'; // Make sure to import correct types
+
+interface AdminState {
+  pendingKyc: KycVerification[];
+  isLoading: boolean;
+  error: string | null;
+}
+
+const initialState: AdminState = {
+  pendingKyc: [],
+  isLoading: false,
+  error: null,
+};
+
+// Async Thunk for fetching pending KYC verifications
+export const fetchPendingKycVerifications = createAsyncThunk<FetchKycVerificationsApiResponse, void, { rejectValue: string }>(
+  'admin/fetchPendingKyc',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get<FetchKycVerificationsApiResponse>('/admin/kyc-verifications/pending');
+      const data = response.data;
+
+      if (data.success) {
+        return data;
+      } else {
+        return rejectWithValue(data.message || 'Failed to fetch pending KYC verifications.');
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || 'Network Error';
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// Async Thunk for verifying a doctor's profile via email
+export const verifyDoctorProfile = createAsyncThunk<AdminActionApiResponse, VerifyDoctorPayload, { rejectValue: string }>(
+  'admin/verifyDoctorProfile',
+  async (verificationData, { rejectWithValue }) => {
+    try {
+      // Backend expects email as query param: /api/admin/doctor-verifications/verify?email=abc@example.com
+      const response = await axiosInstance.post<AdminActionApiResponse>(
+        `/admin/doctor-verifications/verify?email=${verificationData.email}`,
+        { status: verificationData.status, notes: verificationData.notes }
+      );
+      const data = response.data;
+
+      if (data.success) {
+        return data;
+      } else {
+        return rejectWithValue(data.message || 'Failed to verify doctor profile.');
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || 'Network Error';
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// Async Thunk for general KYC verification (if different from doctor, using userId in path)
+export const verifyKyc = createAsyncThunk<AdminActionApiResponse, VerifyKycPayload, { rejectValue: string }>(
+  'admin/verifyKyc',
+  async (verificationData, { rejectWithValue }) => {
+    try {
+      // Backend expects userId in path: /api/admin/kyc-verifications/:userId/verify
+      const response = await axiosInstance.patch<AdminActionApiResponse>(
+        `/admin/kyc-verifications/${verificationData.userId}/verify`,
+        { status: verificationData.status, notes: verificationData.notes }
+      );
+      const data = response.data;
+
+      if (data.success) {
+        return data;
+      } else {
+        return rejectWithValue(data.message || 'Failed to verify KYC.');
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || 'Network Error';
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+const adminSlice = createSlice({
+  name: 'admin',
+  initialState,
+  reducers: {
+    clearAdminError: (state) => {
+      state.error = null;
+    },
+    // Action to remove a KYC request from the pending list after it's processed
+    removeKycFromPending: (state, action: PayloadAction<string>) => {
+      state.pendingKyc = state.pendingKyc.filter(kyc => kyc.id !== action.payload);
+    }
+  },
+  extraReducers: (builder) => {
+    builder
+      // Handle fetchPendingKycVerifications
+      .addCase(fetchPendingKycVerifications.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchPendingKycVerifications.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.pendingKyc = action.payload.data;
+        state.error = null;
+      })
+      .addCase(fetchPendingKycVerifications.rejected, (state, action) => {
+        state.isLoading = false;
+        state.pendingKyc = []; // Clear list on error
+        state.error = action.payload || 'Failed to load pending KYC requests.';
+      })
+      // Handle verifyDoctorProfile
+      .addCase(verifyDoctorProfile.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(verifyDoctorProfile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        // The `removeKycFromPending` action will be dispatched manually from the component
+      })
+      .addCase(verifyDoctorProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || 'Failed to verify doctor profile.';
+      })
+      // Handle verifyKyc (general)
+      .addCase(verifyKyc.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(verifyKyc.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        // The `removeKycFromPending` action will be dispatched manually from the component
+      })
+      .addCase(verifyKyc.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || 'Failed to verify KYC.';
+      });
+  },
+});
+
+export const { clearAdminError, removeKycFromPending } = adminSlice.actions;
+export default adminSlice.reducer;
+```
+
+---
+
+### Step 3: Update Redux Store Configuration
+
+Add the new reducers to your `src/redux/store.ts`.
+
+```typescript
+// src/redux/store.ts (updated content)
 
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
-// Import other reducers as you create them for other parts of the app
-// import patientProfileReducer from './slices/patientProfileSlice';
-// import doctorProfileReducer from './slices/doctorProfileSlice';
-// import postsReducer from './slices/postsSlice';
+import doctorProfileReducer from './slices/doctorProfileSlice'; // New import
+import adminReducer from './slices/adminSlice'; // New import
 
 export const store = configureStore({
   reducer: {
-    auth: authReducer, // Add your auth reducer here
-    // Add other feature reducers here:
-    // patientProfile: patientProfileReducer,
-    // doctorProfile: doctorProfileReducer,
-    // posts: postsReducer,
+    auth: authReducer,
+    doctorProfile: doctorProfileReducer, // Add this line
+    admin: adminReducer, // Add this line
+    // ... other reducers as you create them (e.g., patientProfile, posts)
   },
-  // `middleware` is automatically added by `configureStore` to include redux-thunk
 });
 
-// Define RootState and AppDispatch types for better TypeScript inference
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 ```
 
-**Step 5: Integrate Redux Provider in Root Component (`app/_layout.tsx`)**
+---
 
-This is crucial for making the Redux store available to your entire app and for handling the initial load and authentication-based routing.
+### Step 4: Create UI Components
+
+**4.1. Doctor Profile Creation Screen (`app/(tabs)/profile/create-doctor.tsx`)**
+
+This screen will allow a user to submit their doctor details for verification. Assuming you have a "profile" tab where a user might initiate this.
 
 ```typescript
-// app/_layout.tsx
+// app/(tabs)/profile/create-doctor.tsx
 
-import React, { useEffect } from 'react';
-import { Stack } from 'expo-router';
-import { Provider } from 'react-redux';
-import { store, AppDispatch, RootState } from '@/redux/store'; // Import your Redux store
-import { loadUserFromStorage } from '@/redux/slices/authSlice'; // Import the thunk to load user data
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, KeyboardAvoidingView, Text, ScrollView, Alert, Platform } from 'react-native';
+import { Formik, FormikHelpers } from 'formik';
+import * as yup from 'yup';
+import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { StatusBar } from 'expo-status-bar';
-import { Text, View, ActivityIndicator, StyleSheet } from 'react-native'; // For loading indicator
+import { Picker } from '@react-native-picker/picker'; // You'll need to install this: `expo install @react-native-picker/picker`
+import * as ImagePicker from 'expo-image-picker'; // You'll need to install this: `expo install expo-image-picker`
 
-// Create a component that wraps your navigation logic
-// This allows us to use Redux hooks for conditional rendering
-function RootNavigator() {
+import { AppButton, AuthInputField, CustomText } from '@/components';
+import { COLORS } from '@/constants/theme';
+import { createDoctorProfile, clearDoctorProfileError } from '@/redux/slices/doctorProfileSlice';
+import { AppDispatch, RootState } from '@/redux/store';
+
+interface DoctorProfileValues {
+  specialization: string;
+  fee: string; // Keep as string for form input, convert to number before dispatch
+  documents: string; // Will store the URI or URL after picking/uploading
+}
+
+const CreateDoctorProfileScreen = () => {
+  const router = useRouter();
+  const { t } = useTranslation();
   const dispatch: AppDispatch = useDispatch();
-  const { token, isLoading } = useSelector((state: RootState) => state.auth);
+  const { isLoading, error } = useSelector((state: RootState) => state.doctorProfile);
 
-  const [isAppReady, setIsAppReady] = React.useState(false);
+  const [pickedDocumentUri, setPickedDocumentUri] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load user token and data from SecureStore when the app starts
-    const prepareApp = async () => {
-      try {
-        await dispatch(loadUserFromStorage()).unwrap();
-      } catch (e) {
-        console.warn("No existing user session or failed to load:", e);
-      } finally {
-        setIsAppReady(true);
-      }
-    };
-    prepareApp();
+    dispatch(clearDoctorProfileError()); // Clear errors on component mount
   }, [dispatch]);
 
-  // If the app is still loading user data from storage, show a splash/loading screen
-  if (!isAppReady || isLoading) {
+  const initialValues: DoctorProfileValues = {
+    specialization: '',
+    fee: '',
+    documents: '',
+  };
+
+  const validationSchema = yup.object({
+    specialization: yup.string().required(t('doctorProfile.specializationRequired')),
+    fee: yup.string()
+      .required(t('doctorProfile.feeRequired'))
+      .matches(/^[0-9]+(\.[0-9]{1,2})?$/, t('doctorProfile.feeInvalid')), // Allows integers or decimals with 1-2 places
+    documents: yup.string().required(t('doctorProfile.documentsRequired')), // Requires a document URI/URL
+  });
+
+  const pickDocument = async (setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
+    // Request media library permissions
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission required', 'Please grant media library permissions to upload documents.');
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images, // Or .All to allow PDFs too if backend supports
+      allowsEditing: false,
+      quality: 1,
+      // base64: true, // Only if your backend expects base64 directly
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const uri = result.assets[0].uri;
+      setPickedDocumentUri(uri);
+      setFieldValue('documents', uri, true); // Set formik field value and validate
+
+      // In a real application, you'd perform the actual file upload to your backend
+      // or a cloud storage (e.g., Cloudinary, AWS S3).
+      // This upload would return a public URL, which you'd then use in the `documents` field.
+      // For now, we're just storing the local URI.
+      // Example of what a real upload might look like (pseudo-code):
+      /*
+      try {
+        const uploadedUrl = await uploadFileToCloud(uri); // Your custom upload function
+        setFieldValue('documents', uploadedUrl, true);
+      } catch (uploadError) {
+        Alert.alert('Upload Failed', 'Could not upload document.');
+        setFieldValue('documents', '', true); // Clear field on upload failure
+      }
+      */
+    }
+  };
+
+  const handleSubmit = async (
+    values: DoctorProfileValues,
+    actions: FormikHelpers<DoctorProfileValues>
+  ) => {
+    if (!pickedDocumentUri) {
+      Alert.alert('Document Missing', 'Please upload your professional documents (e.g., medical license, certificates).');
+      return;
+    }
+
+    // Convert fee string to number
+    const feeAsNumber = parseFloat(values.fee);
+
+    // Dispatch the thunk with the data
+    const resultAction = await dispatch(createDoctorProfile({
+      specialization: values.specialization,
+      fee: feeAsNumber,
+      documents: pickedDocumentUri, // This should be the actual URL from a file upload service
+    }));
+
+    if (createDoctorProfile.fulfilled.match(resultAction)) {
+      Alert.alert(t('common.success'), t('doctorProfile.submissionSuccess'));
+      // You might navigate to a "Pending Verification" screen or home
+      router.replace('/(tabs)/');
+    }
+    // Errors are handled by Redux state and displayed in the UI
+  };
+
+  // Dummy specializations for the Picker
+  const specializations = [
+    { label: t('doctorProfile.selectSpecialization'), value: '' },
+    { label: t('doctorProfile.gp'), value: 'General Practitioner' },
+    { label: t('doctorProfile.pediatrician'), value: 'Pediatrician' },
+    { label: t('doctorProfile.cardiologist'), value: 'Cardiologist' },
+    { label: t('doctorProfile.dermatologist'), value: 'Dermatologist' },
+    { label: t('doctorProfile.gynecologist'), value: 'Gynecologist' },
+    { label: t('doctorProfile.neurologist'), value: 'Neurologist' },
+    { label: t('doctorProfile.orthopedist'), value: 'Orthopedist' },
+    { label: t('doctorProfile.psychiatrist'), value: 'Psychiatrist' },
+    { label: t('doctorProfile.oncologist'), value: 'Oncologist' },
+  ];
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <CustomText type="h1" style={styles.header}>
+          {t('doctorProfile.title')}
+        </CustomText>
+        <CustomText type="body2" style={styles.subtitle}>
+          {t('doctorProfile.subtitle')}
+        </CustomText>
+
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ handleSubmit, setFieldValue, values, errors, touched }) => (
+            <View style={styles.form}>
+              {/* Specialization Picker */}
+              <View style={styles.pickerContainer}>
+                <CustomText type="body4" style={styles.pickerLabel}>
+                  {t('doctorProfile.specializationLabel')}
+                </CustomText>
+                <Picker
+                  selectedValue={values.specialization}
+                  onValueChange={(itemValue) => setFieldValue('specialization', itemValue)}
+                  style={styles.picker}
+                >
+                  {specializations.map((item, index) => (
+                    <Picker.Item key={index} label={item.label} value={item.value} />
+                  ))}
+                </Picker>
+                {touched.specialization && errors.specialization && (
+                  <Text style={styles.errorText}>{errors.specialization}</Text>
+                )}
+              </View>
+
+              <AuthInputField
+                name="fee"
+                label={t('doctorProfile.feeLabel')}
+                placeholder={t('doctorProfile.feePlaceholder')}
+                keyboardType="numeric"
+                containerStyle={styles.inputField}
+              />
+
+              {/* Document Upload */}
+              <View style={styles.documentUploadContainer}>
+                <AppButton
+                  title={t('doctorProfile.uploadDocumentsButton')}
+                  onPress={() => pickDocument(setFieldValue)}
+                  backgroundColor={COLORS.lightGray}
+                  textColor={COLORS.dark}
+                  containerStyle={styles.uploadButton}
+                />
+                {pickedDocumentUri ? (
+                  <Text style={styles.documentUriText}>
+                    {t('doctorProfile.documentSelected')}: {pickedDocumentUri.split('/').pop()}
+                  </Text>
+                ) : (
+                  touched.documents && errors.documents && (
+                    <Text style={styles.errorText}>{errors.documents}</Text>
+                  )
+                )}
+              </View>
+
+              {error && <Text style={styles.errorText}>{error}</Text>}
+
+              <AppButton
+                title={t('doctorProfile.submitButton')}
+                onPress={handleSubmit}
+                backgroundColor={COLORS.primary}
+                loading={isLoading}
+                loadingText={t('doctorProfile.loading')}
+                containerStyle={styles.submitButton}
+              />
+            </View>
+          )}
+        </Formik>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+};
+
+export default CreateDoctorProfileScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+  },
+  header: {
+    marginBottom: 10,
+    textAlign: 'center',
+    color: COLORS.primary,
+  },
+  subtitle: {
+    marginBottom: 30,
+    textAlign: 'center',
+    color: COLORS.gray,
+  },
+  form: {
+    width: '100%',
+    maxWidth: 450, // Max width for tablet views
+    alignItems: 'center',
+  },
+  inputField: {
+    marginBottom: 15,
+    width: '100%',
+  },
+  pickerContainer: {
+    width: '100%',
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+    borderRadius: 8,
+    backgroundColor: COLORS.background, // A lighter background for the picker
+  },
+  pickerLabel: {
+    paddingLeft: 10,
+    paddingTop: 8,
+    color: COLORS.dark, // A clear color for the label
+  },
+  picker: {
+    width: '100%',
+    height: 50,
+    color: COLORS.text, // Text color inside the picker
+  },
+  documentUploadContainer: {
+    width: '100%',
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  uploadButton: {
+    width: '80%',
+    marginBottom: 10,
+  },
+  documentUriText: {
+    marginTop: 5,
+    color: COLORS.success,
+    textAlign: 'center',
+    fontSize: 12,
+  },
+  errorText: {
+    color: COLORS.danger,
+    marginTop: 5,
+    textAlign: 'center',
+    width: '100%',
+    fontSize: 12,
+  },
+  submitButton: {
+    width: '100%',
+    marginTop: 20,
+  },
+});
+```
+
+**4.2. Admin KYC List Screen (`app/(tabs)/admin/kyc-list.tsx`)**
+
+This screen will be accessible only to admin users and will list pending KYC requests.
+
+```typescript
+// app/(tabs)/admin/kyc-list.tsx
+
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, FlatList, ActivityIndicator, Text, RefreshControl, Alert } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/redux/store';
+import {
+  fetchPendingKycVerifications,
+  verifyDoctorProfile, // Specific thunk for doctor verification
+  // verifyKyc, // General KYC thunk if needed for other types of KYC
+  removeKycFromPending,
+  clearAdminError
+} from '@/redux/slices/adminSlice';
+import { KycVerification } from '@/types/admin';
+import { AppButton, CustomText } from '@/components';
+import { COLORS } from '@/constants/theme';
+import { useRouter } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser'; // For opening document URLs
+
+const AdminKycListScreen = () => {
+  const dispatch: AppDispatch = useDispatch();
+  const { pendingKyc, isLoading, error } = useSelector((state: RootState) => state.admin);
+  const user = useSelector((state: RootState) => state.auth.user); // Get current user for role check
+
+  const router = useRouter();
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Initial fetch and role check
+  useEffect(() => {
+    if (!user || user.role !== 'ADMIN') {
+      Alert.alert('Access Denied', 'You do not have permission to view this page.');
+      router.replace('/(tabs)/'); // Redirect non-admins
+      return;
+    }
+    dispatch(fetchPendingKycVerifications());
+  }, [dispatch, user, router]);
+
+  // Handle Redux errors
+  useEffect(() => {
+    if (error) {
+      Alert.alert('Error', error);
+      dispatch(clearAdminError());
+    }
+  }, [error, dispatch]);
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    await dispatch(fetchPendingKycVerifications());
+    setRefreshing(false);
+  }, [dispatch]);
+
+  const handleVerify = async (kycId: string, userEmail: string, status: 'APPROVED' | 'REJECTED') => {
+    Alert.alert(
+      'Confirm Action',
+      `Are you sure you want to ${status.toLowerCase()} this doctor's verification?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Confirm',
+          onPress: async () => {
+            // Use verifyDoctorProfile specifically
+            const resultAction = await dispatch(verifyDoctorProfile({
+              email: userEmail,
+              status: status,
+              notes: `Admin ${status.toLowerCase()} verification at ${new Date().toLocaleString()}`
+            }));
+
+            if (verifyDoctorProfile.fulfilled.match(resultAction)) {
+              Alert.alert('Success', `Doctor verification ${status.toLowerCase()} successfully.`);
+              dispatch(removeKycFromPending(kycId)); // Remove from list immediately
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const openDocument = async (url: string) => {
+    if (url) {
+      const result = await WebBrowser.openBrowserAsync(url);
+      if (result.type === 'cancel') {
+        Alert.alert('Action Cancelled', 'Document view was cancelled.');
+      }
+    } else {
+      Alert.alert('No Document', 'No document URL available for this request.');
+    }
+  };
+
+  const renderItem = ({ item }: { item: KycVerification }) => (
+    <View style={styles.kycCard}>
+      <CustomText type="h4" style={styles.cardHeader}>{item.type} Verification Request</CustomText>
+      <CustomText type="body4">
+        User: {item.user.firstname} {item.user.lastname} ({item.user.email})
+      </CustomText>
+      {item.doctorProfile && (
+        <CustomText type="body4">
+          Specialization: {item.doctorProfile.specialization}, Fee: ${item.doctorProfile.fee}
+        </CustomText>
+      )}
+      <CustomText type="body4">Status: <Text style={{ color: item.status === 'PENDING' ? COLORS.warning : COLORS.gray }}>{item.status}</Text></CustomText>
+      <CustomText type="body4">Request Date: {new Date(item.createdAt).toLocaleDateString()}</CustomText>
+
+      {item.documents && item.documents.length > 0 && (
+        <AppButton
+          title={`View Document${item.documents.length > 1 ? 's' : ''}`}
+          onPress={() => openDocument(item.documents[0])} // Assuming one primary document or pick first
+          backgroundColor={COLORS.secondary}
+          textColor={COLORS.dark}
+          containerStyle={styles.viewDocButton}
+          titleStyle={styles.viewDocButtonTitle}
+        />
+      )}
+
+      {item.status === 'PENDING' && (
+        <View style={styles.buttonContainer}>
+          <AppButton
+            title="Approve"
+            onPress={() => handleVerify(item.id, item.user.email, 'APPROVED')}
+            backgroundColor={COLORS.success}
+            containerStyle={styles.actionButton}
+            loading={isLoading}
+          />
+          <AppButton
+            title="Reject"
+            onPress={() => handleVerify(item.id, item.user.email, 'REJECTED')}
+            backgroundColor={COLORS.danger}
+            containerStyle={styles.actionButton}
+            loading={isLoading}
+          />
+        </View>
+      )}
+    </View>
+  );
+
+  if (isLoading && pendingKyc.length === 0 && !error) { // Only show full loading indicator if no data and no error
     return (
-      <View style={layoutStyles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-        <Text style={{ marginTop: 10 }}>Loading app...</Text>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={styles.loadingText}>Loading pending verifications...</Text>
       </View>
     );
   }
 
   return (
-    <Stack>
-      {token ? (
-        // User is logged in, show the main application tabs
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+    <View style={styles.container}>
+      <CustomText type="h1" style={styles.header}>Pending KYC Verifications</CustomText>
+      {pendingKyc.length === 0 && !isLoading ? ( // Show empty message only if not loading and no items
+        <View style={styles.emptyContainer}>
+          <CustomText type="body1" style={styles.emptyText}>No pending KYC requests found.</CustomText>
+          <AppButton
+            title="Refresh"
+            onPress={onRefresh}
+            backgroundColor={COLORS.primary}
+            containerStyle={{ marginTop: 20, width: '50%' }}
+          />
+        </View>
       ) : (
-        // User is not logged in, show authentication screens
-        <Stack.Screen name="auth" options={{ headerShown: false }} />
+        <FlatList
+          data={pendingKyc}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+          }
+        />
       )}
-      {/* Fallback for any unmatched routes */}
-      <Stack.Screen name="+not-found" />
-    </Stack>
+    </View>
   );
-}
+};
 
-// Main App component wrapping with Redux Provider
-export default function App() {
-  return (
-    <Provider store={store}>
-      <RootNavigator />
-      <StatusBar style="auto" />
-    </Provider>
-  );
-}
+export default AdminKycListScreen;
 
-const layoutStyles = StyleSheet.create({
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background || '#F7F7F7', // Assuming a background color from COLORS
+    paddingTop: 50, // Adjust for status bar/notch
+    paddingHorizontal: 16,
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingText: {
+    marginTop: 10,
+    color: COLORS.text || '#333',
+  },
+  header: {
+    marginBottom: 20,
+    textAlign: 'center',
+    color: COLORS.primary,
+  },
+  listContent: {
+    paddingBottom: 20,
+  },
+  kycCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray || '#EEE',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  cardHeader: {
+    marginBottom: 8,
+    color: COLORS.dark || '#333',
+  },
+  viewDocButton: {
+    marginTop: 10,
+    width: '60%', // narrower button
+    alignSelf: 'center',
+    height: 35, // smaller height
+    borderRadius: 18,
+    backgroundColor: COLORS.info || '#007BFF',
+  },
+  viewDocButtonTitle: {
+    fontSize: 14,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 15,
+  },
+  actionButton: {
+    width: '45%',
+    height: 40,
+    borderRadius: 20,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyText: {
+    color: COLORS.gray || '#666',
+    textAlign: 'center',
+  },
 });
 ```
 
-You'll also need to ensure your `app/auth/_layout.tsx` and `app/(tabs)/_layout.tsx` are correctly set up:
+---
+
+### Step 5: Update Root Navigation (`app/(tabs)/_layout.tsx`)
+
+Ensure proper navigation setup for the new screens, especially for admin access.
 
 ```typescript
-// app/auth/_layout.tsx
-import { Stack } from 'expo-router';
+// app/(tabs)/_layout.tsx (updated to include admin tab)
 
-export default function AuthLayout() {
-  return (
-    <Stack>
-      <Stack.Screen name="login" options={{ headerShown: false }} />
-      <Stack.Screen name="register" options={{ headerShown: false }} />
-      <Stack.Screen name="verify" options={{ headerShown: false }} />
-      <Stack.Screen name="forgot" options={{ headerShown: false }} /> {/* Add if you have a forgot password screen */}
-      {/* Add other auth-related screens here */}
-    </Stack>
-  );
-}
-```
-
-```typescript
-// app/(tabs)/_layout.tsx
 import { Tabs } from 'expo-router';
-import { FontAwesome } from '@expo/vector-icons'; // Example icon library
+import { FontAwesome } from '@expo/vector-icons';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
+import React from 'react'; // Make sure React is imported
 
 export default function TabLayout() {
+  const user = useSelector((state: RootState) => state.auth.user);
+  // Add a way to check if doctor profile exists and is approved, if needed for routing
+  // const doctorProfile = useSelector((state: RootState) => state.doctorProfile.profile);
+
+  const isAdmin = user?.role === 'ADMIN';
+  const isDoctor = user?.role === 'DOCTOR'; // Assuming 'DOCTOR' role is set after verification
+  const isPatient = user?.role === 'PATIENT'; // Default role, or after patient profile setup
+
   return (
     <Tabs>
       <Tabs.Screen
-        name="index" // This maps to app/(tabs)/index.tsx for your home screen
+        name="index" // Home/Feed screen
         options={{
           title: 'Home',
           tabBarIcon: ({ color }) => <FontAwesome size={28} name="home" color={color} />,
-          headerShown: false, // Hide header if you prefer custom header or no header
+          headerShown: false,
         }}
       />
-      {/* Add other main app tabs here */}
-      {/* Example: */}
-      {/* <Tabs.Screen
+      {/* Example: Messages tab - visible for all */}
+      <Tabs.Screen
         name="messages"
         options={{
           title: 'Messages',
           tabBarIcon: ({ color }) => <FontAwesome size={28} name="comments" color={color} />,
+          headerShown: false,
         }}
       />
+
+      {/* Doctor-specific tabs */}
+      {isDoctor && (
+        <>
+          <Tabs.Screen
+            name="doctor/my-appointments" // Example, assuming a doctor specific appointments list
+            options={{
+              title: 'My Schedule',
+              tabBarIcon: ({ color }) => <FontAwesome size={28} name="calendar-check-o" color={color} />,
+              headerShown: false,
+            }}
+          />
+          <Tabs.Screen
+            name="doctor/my-patients" // Example, for viewing patient records etc.
+            options={{
+              title: 'My Patients',
+              tabBarIcon: ({ color }) => <FontAwesome size={28} name="group" color={color} />,
+              headerShown: false,
+            }}
+          />
+        </>
+      )}
+
+      {/* Patient-specific tabs */}
+      {isPatient && (
+        <>
+          <Tabs.Screen
+            name="book-appointment" // Example, for booking appointments
+            options={{
+              title: 'Book',
+              tabBarIcon: ({ color }) => <FontAwesome size={28} name="calendar-plus-o" color={color} />,
+              headerShown: false,
+            }}
+          />
+          {/* Add more patient specific tabs here */}
+        </>
+      )}
+
+      {/* Admin-specific tab */}
+      {isAdmin && (
+        <Tabs.Screen
+          name="admin/kyc-list" // Path to your Admin KYC screen
+          options={{
+            title: 'Admin KYC',
+            tabBarIcon: ({ color }) => <FontAwesome size={28} name="gavel" color={color} />, // Judge's gavel icon
+            headerShown: false,
+          }}
+        />
+      )}
+
       <Tabs.Screen
-        name="profile"
+        name="profile" // User's general profile, where "Become a Doctor" might be
         options={{
           title: 'Profile',
           tabBarIcon: ({ color }) => <FontAwesome size={28} name="user" color={color} />,
+          headerShown: false,
         }}
-      /> */}
+      />
     </Tabs>
   );
 }
 ```
 
-**Step 6: Refactor `app/auth/login.tsx`**
-
-We'll replace local state for loading and error with Redux state, and dispatch the `loginUser` thunk.
-
-```typescript
-// app/auth/login.tsx
-
-import React, { useState, useEffect } from "react";
-import { KeyboardAvoidingView, StyleSheet, Text, View } from "react-native";
-import { Formik, FormikHelpers } from "formik";
-import * as yup from "yup";
-import { useRouter } from "expo-router";
-import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux"; // Import Redux hooks for state and dispatch
-
-import { AppButton, AppLink, AuthInputField, CustomText, PasswordVisibilityIcon } from "@/components";
-import { COLORS } from "@/constants/theme";
-import { loginUser, clearAuthError } from "@/redux/slices/authSlice"; // Import login thunk and error clearer
-import { AppDispatch, RootState } from "@/redux/store"; // Import RootState and AppDispatch types
-
-interface SigninValues {
-  email: string;
-  password: string;
-}
-
-const LoginScreen = () => {
-  const [secureTextEntry, setSecureTextEntry] = useState<boolean>(true); // Default to true for secure password input
-  const router = useRouter();
-  const { t } = useTranslation();
-
-  const dispatch: AppDispatch = useDispatch(); // Get the dispatch function
-  const { isLoading, error, token, user } = useSelector((state: RootState) => state.auth); // Get relevant state from Redux
-
-  // Clear authentication error when component mounts or user interaction implies new attempt
-  useEffect(() => {
-    dispatch(clearAuthError());
-  }, [dispatch]);
-
-  // Effect to navigate after successful login (when token becomes available)
-  useEffect(() => {
-    if (token && user) { // Ensure both token and user data are present
-      router.replace("/(tabs)"); // Use replace to prevent going back to login screen after successful login
-    }
-  }, [token, user, router]); // Re-run effect when token or user changes
-
-  const initialValues: SigninValues = {
-    email: "",
-    password: "",
-  };
-
-  const loginSchema = yup.object({ // Renamed from signupSchema for clarity
-    email: yup
-      .string()
-      .trim(t("login.yup.email.trim"))
-      .email(t("login.yup.email.email"))
-      .required(t("login.yup.email.required")),
-    password: yup
-      .string()
-      .trim(t("login.yup.password.trim"))
-      .min(8, t("login.yup.password.min"))
-      .matches(
-        /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])[a-zA-Z\d!@#\$%\^&\*]+$/,
-        t("login.yup.password.matches")
-      )
-      .required(t("login.yup.password.required")),
-  });
-
-  const handleSubmit = async (
-    values: SigninValues,
-    actions: FormikHelpers<SigninValues>
-  ) => {
-    // Dispatch the loginUser async thunk
-    dispatch(loginUser(values));
-  };
-
-  return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <CustomText type="h1">{t("login.title")}</CustomText>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={loginSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ handleSubmit }) => (
-          <View style={styles.formContainer}>
-            <AuthInputField
-              name="email"
-              placeholder={t("login.form.placeholder1")}
-              label={t("login.form.label1")}
-              containerStyle={styles.inputField}
-              keyboardType="email-address" // Recommended for email inputs
-              autoCapitalize="none" // Prevents auto-capitalization for email
-            />
-            <AuthInputField
-              name="password"
-              placeholder={t("login.form.placeholder2")}
-              label={t("login.form.label2")}
-              containerStyle={styles.inputField}
-              secureTextEntry={secureTextEntry} // Controlled by local state
-              rightIcon={
-                <PasswordVisibilityIcon privateIcon={secureTextEntry} />
-              }
-              onRightIconPress={() => {
-                setSecureTextEntry(!secureTextEntry);
-              }}
-            />
-            {error && <Text style={styles.errorText}>{error}</Text>} {/* Display Redux error */}
-            <View style={styles.bottomLinks}>
-              <CustomText type="body5">
-                {t("login.forgotText")}
-              </CustomText>
-              <AppLink
-                title={t("login.forgotLink")}
-                onPress={() => router.push({ pathname: "/auth/forgot" })}
-              />
-            </View>
-            <AppButton
-              backgroundColor={COLORS.primary}
-              onPress={handleSubmit}
-              title={t("login.button")}
-              loading={isLoading} // Use Redux isLoading state
-              loadingText={t("login.loading")}
-              containerStyle={styles.appButton}
-            />
-            <View style={styles.bottomLinks}>
-              <CustomText type="body5">
-                {t("login.registerText")}
-              </CustomText>
-              <AppLink
-                title={t("login.registerLink")}
-                onPress={() => router.push({ pathname: "/auth/register" })}
-              />
-            </View>
-          </View>
-        )}
-      </Formik>
-    </KeyboardAvoidingView>
-  );
-};
-
-export default LoginScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    flex: 1,
-    width: "100%",
-    paddingHorizontal: 16, // Added horizontal padding for overall container
-  },
-  formContainer: {
-    width: "100%", // Ensures Formik content takes full width
-    alignItems: "center", // Center items within the form
-  },
-  inputField: {
-    marginBottom: 16,
-    width: "100%", // Ensures input fields take full width of formContainer
-  },
-  bottomLinks: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginVertical: 16,
-    width: "100%", // Ensure links take full width of formContainer
-    paddingHorizontal: 5, // Add some padding for the links
-  },
-  appButton: {
-    width: "100%", // Ensures button takes full width of formContainer
-  },
-  errorText: {
-    color: COLORS.danger, // Use defined danger color
-    marginBottom: 10,
-    alignSelf: 'center', // Center the error text if it's there
-    textAlign: 'center',
-    width: '100%',
-  },
-});
-```
-
-**Step 7: Refactor `app/auth/register.tsx`**
-
-Similar to login, we'll dispatch the `registerUser` thunk and use Redux state for loading and errors.
-
-```typescript
-// app/auth/register.tsx
-
-import React, { useState, useEffect } from "react";
-import { KeyboardAvoidingView, StyleSheet, View, Text } from "react-native";
-import { useRouter } from "expo-router";
-import { useTranslation } from "react-i18next";
-import { Formik, FormikHelpers } from "formik";
-import * as yup from "yup";
-import { useDispatch, useSelector } from "react-redux"; // Import Redux hooks
-
-import {
-  AppButton,
-  AppLink,
-  AuthInputField,
-  CustomText,
-  PasswordVisibilityIcon,
-} from "@/components";
-import { COLORS } from "@/constants/theme";
-import { registerUser, clearAuthError } from "@/redux/slices/authSlice"; // Import register thunk and error clearer
-import { AppDispatch, RootState } from "@/redux/store"; // Import RootState and AppDispatch types
-
-interface SignupValues {
-  firstname: string;
-  lastname: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
-
-const RegisterScreen = () => {
-  const router = useRouter();
-  const { t } = useTranslation();
-  const [secureTextEntry, setSecureTextEntry] = useState(true); // Default to true
-
-  const dispatch: AppDispatch = useDispatch();
-  const { isLoading, error } = useSelector((state: RootState) => state.auth);
-
-  // Clear authentication error when component mounts
-  useEffect(() => {
-    dispatch(clearAuthError());
-  }, [dispatch]);
-
-  const initialValues: SignupValues = {
-    firstname: "",
-    lastname: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  };
-
-  const validationSchema = yup.object({
-    firstname: yup.string().required(t("register.yup.firstname.required")),
-    lastname: yup.string().required(t("register.yup.lastname.required")),
-    email: yup.string().email(t("register.yup.email.invalid")).required(t("register.yup.email.required")),
-    password: yup
-      .string()
-      .required(t("register.yup.password.required"))
-      .min(8, t("register.yup.password.min"))
-      .matches(
-        /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/,
-        t("register.yup.password.matches")
-      ),
-    confirmPassword: yup
-      .string()
-      .oneOf([yup.ref("password")], t("register.yup.confirmPassword.match"))
-      .required(t("register.yup.confirmPassword.required")),
-  });
-
-  const handleSubmit = async (
-    values: SignupValues,
-    actions: FormikHelpers<SignupValues>
-  ) => {
-    // Destructure to exclude confirmPassword from being sent to the backend
-    const { confirmPassword, ...dataToSend } = values;
-    const resultAction = await dispatch(registerUser(dataToSend));
-
-    // Check if the thunk was fulfilled (successful)
-    if (registerUser.fulfilled.match(resultAction)) {
-      // Navigate to verification screen on success
-      router.push("/auth/verify");
-    }
-    // Error handling is managed by the Redux state and displayed in the UI
-  };
-
-  return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <CustomText type="h1">{t("register.title")}</CustomText>
-
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ handleSubmit }) => (
-          <View style={styles.formContainer}>
-            <AuthInputField
-              name="firstname"
-              label={t("register.form.label1")}
-              placeholder={t("register.form.placeholder1")}
-              containerStyle={styles.inputField}
-              autoCapitalize="words" // Capitalize first letter of words
-            />
-            <AuthInputField
-              name="lastname"
-              label={t("register.form.label2")}
-              placeholder={t("register.form.placeholder2")}
-              containerStyle={styles.inputField}
-              autoCapitalize="words"
-            />
-            <AuthInputField
-              name="email"
-              label={t("register.form.label3")}
-              placeholder={t("register.form.placeholder3")}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              containerStyle={styles.inputField}
-            />
-            <AuthInputField
-              name="password"
-              label={t("register.form.label4")}
-              placeholder={t("register.form.placeholder4")}
-              secureTextEntry={secureTextEntry}
-              rightIcon={<PasswordVisibilityIcon privateIcon={secureTextEntry} />}
-              onRightIconPress={() => setSecureTextEntry(!secureTextEntry)}
-              containerStyle={styles.inputField}
-            />
-            <AuthInputField
-              name="confirmPassword"
-              label={t("register.form.label5")}
-              placeholder={t("register.form.placeholder5")}
-              secureTextEntry={secureTextEntry}
-              rightIcon={<PasswordVisibilityIcon privateIcon={secureTextEntry} />}
-              onRightIconPress={() => setSecureTextEntry(!secureTextEntry)}
-              containerStyle={styles.inputField}
-            />
-            {error && <Text style={styles.errorText}>{error}</Text>}
-            <AppButton
-              title={t("register.button")}
-              onPress={handleSubmit}
-              backgroundColor={COLORS.primary}
-              loading={isLoading} // Use Redux isLoading state
-              loadingText={t("register.loading")}
-              containerStyle={styles.appButton}
-            />
-            <View style={styles.bottomLinks}>
-              <CustomText type="body5">{t("register.loginText")}</CustomText>
-              <AppLink title={t("register.loginLink")} onPress={() => router.push("/auth/login")} />
-            </View>
-          </View>
-        )}
-      </Formik>
-    </KeyboardAvoidingView>
-  );
-};
-
-export default RegisterScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center", // Center content horizontally
-    paddingHorizontal: 16,
-    width: "100%",
-  },
-  formContainer: {
-    width: "100%", // Ensures Formik content takes full width
-    alignItems: "center", // Center items within the form
-  },
-  inputField: {
-    marginBottom: 16,
-    width: "100%",
-  },
-  appButton: {
-    width: "100%",
-    marginTop: 10, // Added margin top for spacing
-  },
-  bottomLinks: {
-    flexDirection: "row",
-    marginTop: 20,
-    justifyContent: "center",
-    gap: 8,
-    width: "100%",
-  },
-  errorText: {
-    color: COLORS.danger,
-    marginBottom: 10,
-    alignSelf: 'center',
-    textAlign: 'center',
-    width: '100%',
-  },
-});
-```
-
-**Step 8: Refactor `app/auth/verify.tsx`**
-
-This screen will dispatch the `verifyAccount` thunk.
-
-```typescript
-// app/auth/verify.tsx
-
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, KeyboardAvoidingView, Text } from "react-native";
-import { Formik, FormikHelpers } from "formik";
-import * as yup from "yup";
-import { useRouter } from "expo-router";
-import { useDispatch, useSelector } from "react-redux"; // Import Redux hooks
-import { useTranslation } from "react-i18next"; // Ensure you're importing useTranslation
-
-import { AppButton, AuthInputField, CustomText } from "@/components";
-import { COLORS } from "@/constants/theme"; // Import COLORS for consistent styling
-import { verifyAccount, clearAuthError } from "@/redux/slices/authSlice"; // Import verify thunk and error clearer
-import { AppDispatch, RootState } from "@/redux/store"; // Import RootState and AppDispatch types
-
-interface VerifyValues {
-  email: string;
-  code: string; // Renamed from 'token' to 'code' as per Postman and type definition
-}
-
-const VerifyScreen = () => {
-  const router = useRouter();
-  const { t } = useTranslation();
-
-  const dispatch: AppDispatch = useDispatch();
-  const { isLoading, error } = useSelector((state: RootState) => state.auth);
-
-  // Clear authentication error when component mounts
-  useEffect(() => {
-    dispatch(clearAuthError());
-  }, [dispatch]);
-
-  const initialValues: VerifyValues = {
-    email: "",
-    code: "",
-  };
-
-  const schema = yup.object({
-    email: yup.string().email(t("verify.yup.email.invalid")).required(t("verify.yup.email.required")),
-    code: yup.string().required(t("verify.yup.code.required")),
-  });
-
-  const handleSubmit = async (
-    values: VerifyValues,
-    actions: FormikHelpers<VerifyValues>
-  ) => {
-    const resultAction = await dispatch(verifyAccount(values));
-
-    if (verifyAccount.fulfilled.match(resultAction)) {
-      // Account verified successfully, navigate to login
-      // Optionally show a success message here (e.g., using a toast library)
-      router.push("/auth/login");
-    }
-    // Error handling is managed by the Redux state and displayed in the UI
-  };
-
-  return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <CustomText type="h1">{t("verify.title")}</CustomText>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={schema}
-        onSubmit={handleSubmit}
-      >
-        {({ handleSubmit }) => (
-          <View style={styles.formContainer}>
-            <AuthInputField
-              name="email"
-              label={t("verify.form.label1")}
-              placeholder={t("verify.form.placeholder1")}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              containerStyle={styles.inputField}
-            />
-            <AuthInputField
-              name="code" // Corrected name
-              label={t("verify.form.label2")} // Corrected name
-              placeholder={t("verify.form.placeholder2")} // Corrected name
-              containerStyle={styles.inputField}
-            />
-            {error && <Text style={styles.errorText}>{error}</Text>}
-            <AppButton
-              title={t("verify.button")}
-              onPress={handleSubmit}
-              backgroundColor={COLORS.primary}
-              loading={isLoading} // Use Redux isLoading state
-              loadingText={t("verify.loading")}
-              containerStyle={{ marginTop: 16, width: "100%" }} // Ensure button takes full width
-            />
-          </View>
-        )}
-      </Formik>
-    </KeyboardAvoidingView>
-  );
-};
-
-export default VerifyScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 16,
-    justifyContent: "center",
-    alignItems: "center", // Center content horizontally
-    width: "100%",
-  },
-  formContainer: {
-    width: "100%", // Ensures Formik content takes full width
-    alignItems: "center", // Center items within the form
-  },
-  inputField: {
-    marginBottom: 16,
-    width: "100%",
-  },
-  errorText: {
-    color: COLORS.danger,
-    marginBottom: 10,
-    alignSelf: 'center',
-    textAlign: 'center',
-    width: '100%',
-  },
-});
-```
-
 ---
 
-**Summary of Key Changes and Benefits:**
+### Key Considerations Before Running:
 
-*   **Centralized State:** Your `user`, `token`, `isLoading`, and `error` states for authentication are now in a single `authSlice` in Redux, making them accessible throughout your application.
-*   **Asynchronous Logic:** `createAsyncThunk` neatly handles the lifecycle of your API calls (pending, fulfilled, rejected), simplifying component logic.
-*   **Error Handling:** Errors from API calls are now consistently caught and stored in the Redux state, which can be easily displayed in your UI. The `clearAuthError` action helps manage transient error messages.
-*   **Loading States:** All loading indicators are tied to the `isLoading` state from Redux.
-*   **Token Management:** `axiosInstance` automatically attaches the JWT token to outgoing requests and handles 401 Unauthorized responses by dispatching `logout`, leading to a more robust session management. `SecureStore` is used for persistent, secure storage of the token.
-*   **Decoupled Logic:** Your UI components (Login, Register, Verify) are now cleaner, focusing on user interaction and rendering, while the API logic is abstracted into the Redux thunks.
-*   **Type Safety:** Strong typing throughout with `TypeScript` ensures data consistency and helps catch errors during development.
-*   **Improved UX:** The root navigator handles showing a loading screen while `loadUserFromStorage` fetches the session, providing a smoother startup experience.
-
-**Before Running:**
-
-1.  **Install Dependencies:**
+1.  **Dependencies:** Ensure you have installed `@react-native-picker/picker` and `expo-image-picker`:
     ```bash
-    npm install @reduxjs/toolkit react-redux axios expo-secure-store yup formik react-i18next i18next @expo/vector-icons
-    # If you haven't already:
-    npm install @react-native-async-storage/async-storage # (If you plan to use this for non-sensitive data, but SecureStore for token)
+    npm install @react-native-picker/picker expo-image-picker
+    # Or if using Expo Go:
+    expo install @react-native-picker/picker expo-image-picker
     ```
-2.  **`PasswordVisibilityIcon`, `CustomText`, `AppInput`, `AppLink`:** Ensure these components exist in your `@/components` and `@/ui/form` paths respectively. The provided code assumes their presence.
-3.  **i18n Setup:** Make sure your `i18next` configuration is properly set up and you have the translation keys (e.g., `login.yup.email.required`, `register.form.label1`, etc.) defined in your translation files.
+    Also `expo install expo-web-browser` for the admin screen.
 
-This completes Phase 1, establishing a robust authentication system. We can now proceed to Phase 2 (User Profiles & Core Content Feed) knowing that the foundation for user management is solid. Let me know when you're ready!
-
-
-Got it! We'll integrate the "Forgot Password" and "Reset Password" functionalities into our `authSlice` using Redux Toolkit, following the same pattern as the other authentication flows.
-
-This involves:
-1.  **Updating `types/auth.ts`:** Adding interfaces for Forgot/Reset password payloads and responses.
-2.  **Updating `redux/slices/authSlice.ts`:** Adding `createAsyncThunk` for `forgotPassword` and `resetPassword` API calls and handling their states in `extraReducers`.
-3.  **Refactoring `app/auth/forgot.tsx` and `app/auth/reset.tsx`:** Replacing local state management with Redux dispatch and selectors.
-
-Let's do it!
-
----
-
-### Step 1: Update `types/auth.ts`
-
-Add the new interfaces for the password reset flow.
-
-```typescript
-// src/types/auth.ts (add these to your existing file)
-
-// ... (existing interfaces like User, AuthState, LoginPayload, etc.)
-
-export interface ForgotPasswordPayload {
-  email: string;
-}
-
-export interface ResetPasswordPayload {
-  email: string;
-  password: string;
-  code: string; // Changed from 'token' to 'code' based on your Postman collection and code
-  // confirmPassword is for frontend validation only
-}
-
-// Backend response for forgot password might contain the code or just a success message
-export interface ForgotPasswordApiResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    token?: {
-      code: string; // The backend returns the code here
-    };
-  };
-}
-
-export interface ResetPasswordApiResponse {
-  success: boolean;
-  message: string;
-}
-```
-
----
-
-### Step 2: Update `redux/slices/authSlice.ts`
-
-We'll add two new `createAsyncThunk` functions: `forgotPassword` and `resetPassword`, and extend the `extraReducers` to handle their lifecycle.
-
-```typescript
-// src/redux/slices/authSlice.ts (updated content)
-
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axiosInstance from '@/utils/axiosInstance';
-import * as SecureStore from 'expo-secure-store';
-import {
-  AuthState,
-  LoginPayload,
-  RegisterPayload,
-  VerifyPayload,
-  ForgotPasswordPayload, // New
-  ResetPasswordPayload,  // New
-  AuthApiResponse,
-  ForgotPasswordApiResponse, // New
-  ResetPasswordApiResponse,  // New
-  User
-} from '@/types/auth';
-
-const initialState: AuthState = {
-  user: null,
-  token: null,
-  isLoading: false,
-  error: null,
-};
-
-// ... (existing loginUser, registerUser, verifyAccount, loadUserFromStorage thunks)
-
-// Async Thunk for Forgot Password (Request Code)
-export const forgotPassword = createAsyncThunk<ForgotPasswordApiResponse, ForgotPasswordPayload, { rejectValue: string }>(
-  'auth/forgotPassword',
-  async (emailPayload, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.post<ForgotPasswordApiResponse>('/user/forgot-password', emailPayload);
-      const data = response.data;
-
-      if (data.success) {
-        // You might want to save the 'code' temporarily if needed for auto-filling the next screen
-        // However, usually, this code is sent to the user's email, not directly returned to the frontend.
-        // If your backend *does* return it for testing/dev purposes, you could save it.
-        // For production, the user would check their email.
-        if (data.data?.token?.code) {
-          await SecureStore.setItemAsync('resetCode', data.data.token.code); // For development/testing
+2.  **`app.json` Permissions (for `expo-image-picker`):**
+    For Android and iOS, add the necessary permissions to your `app.json`:
+    ```json
+    {
+      "expo": {
+        "android": {
+          "permissions": ["READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE", "CAMERA"]
+        },
+        "ios": {
+          "infoPlist": {
+            "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos for document uploads.",
+            "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera for document uploads."
+          }
         }
-        return data;
-      } else {
-        return rejectWithValue(data.message || 'Failed to request password reset.');
       }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || 'Network Error';
-      return rejectWithValue(errorMessage);
     }
-  }
-);
+    ```
+    Rebuild your dev client or standalone app if you change `app.json`.
 
-// Async Thunk for Reset Password
-export const resetPassword = createAsyncThunk<ResetPasswordApiResponse, ResetPasswordPayload, { rejectValue: string }>(
-  'auth/resetPassword',
-  async (resetData, { rejectWithValue }) => {
-    try {
-      // Remove confirmPassword as it's only for frontend validation
-      const { confirmPassword, ...dataToSend } = resetData;
-      const response = await axiosInstance.post<ResetPasswordApiResponse>('/user/reset-password', dataToSend);
-      const data = response.data;
+3.  **Backend Logic for Role Update:**
+    *   **Doctor Creation:** Your `POST /api/doctor/create` endpoint *must* be designed to handle the user's role. Typically, when a user creates a doctor profile, their `User` record's `role` field would be updated (e.g., from `PATIENT` to `APPLICANT_DOCTOR` or a `verificationStatus` added).
+    *   **Admin Verification:** When `POST /api/admin/doctor-verifications/verify` is called with `status: "APPROVED"`, the backend should change the corresponding `User`'s role to `"DOCTOR"`. This change is critical for the `isDoctor` check in the frontend to work correctly. The frontend might need to re-fetch the user's data (e.g., call `loadUserFromStorage` again or have a specific `fetchCurrentUserProfile` thunk) after an admin action to reflect the role change without requiring a full re-login.
 
-      if (data.success) {
-        await SecureStore.deleteItemAsync('resetCode'); // Clear the temporary code after successful reset
-        return data;
-      } else {
-        return rejectWithValue(data.message || 'Failed to reset password.');
-      }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || 'Network Error';
-      return rejectWithValue(errorMessage);
-    }
-  }
-);
+4.  **Actual Document Upload:** The `CreateDoctorProfileScreen` currently just takes the local URI of the picked document. **For a production app, you absolutely need to implement actual file upload to a cloud storage service (e.g., Cloudinary, AWS S3, Google Cloud Storage, Firebase Storage)**. Your backend would then store the *public URL* of this uploaded document. The current code passes the local `pickedDocumentUri` which will likely fail the backend validation if it expects a public URL.
 
+5.  **Role Handling:** The `_layout.tsx` uses `user?.role`. Ensure that when a user first registers, their default `role` is something like `PATIENT` (or `USER`), and it changes to `DOCTOR` *only after* admin approval. If the backend doesn't automatically send updated user data after admin approval, the doctor user will only see the role change after their next login (when `loadUserFromStorage` runs again). You might need a mechanism to `dispatch(loadUserFromStorage())` or a similar action after a doctor knows their profile is approved.
 
-const authSlice = createSlice({
-  name: 'auth',
-  initialState,
-  reducers: {
-    // ... (existing logout, clearAuthError reducers)
-  },
-  extraReducers: (builder) => {
-    builder
-      // ... (existing cases for loginUser, registerUser, verifyAccount, loadUserFromStorage)
+6.  **Translation Keys:** Remember to add all new translation keys (`doctorProfile.title`, `doctorProfile.specializationRequired`, `admin.accessDenied`, etc.) to your `i18n` configuration.
 
-      // Forgot Password Thunk handling
-      .addCase(forgotPassword.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(forgotPassword.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.error = null; // Successfully requested reset code
-        // The code itself is usually not kept in Redux state, as it's for one-time use via email.
-        // If you saved it to SecureStore, it's independent of Redux state here.
-      })
-      .addCase(forgotPassword.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload || 'Failed to request password reset.';
-      })
-      // Reset Password Thunk handling
-      .addCase(resetPassword.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(resetPassword.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.error = null; // Successfully reset password
-      })
-      .addCase(resetPassword.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload || 'Failed to reset password.';
-      });
-  },
-});
-
-export const { logout, clearAuthError } = authSlice.actions;
-export default authSlice.reducer;
-```
-
-**Important Note on `forgotPassword` (`data.data.token.code`):**
-In a real-world scenario, the `forgot-password` endpoint typically *sends* the reset code to the user's email, rather than *returning* it directly in the API response to the client. If your backend is returning it for development convenience, the `SecureStore.setItemAsync('resetCode', data.data.token.code)` line will store it. For production, you'd likely remove that and rely solely on the user manually inputting the code from their email. The current code correctly handles the case where it *is* returned.
-
----
-
-### Step 3: Refactor `app/auth/forgot.tsx`
-
-```typescript
-// app/auth/forgot.tsx (updated content)
-
-import React, { useEffect } from "react";
-import { KeyboardAvoidingView, StyleSheet, Text, View } from "react-native";
-import { Formik, FormikHelpers } from "formik";
-import * as yup from "yup";
-import { useRouter } from "expo-router";
-import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
-
-import { AppButton, AuthInputField, CustomText } from "@/components";
-import { COLORS } from "@/constants/theme";
-import { forgotPassword, clearAuthError } from "@/redux/slices/authSlice"; // Import the thunk
-import { AppDispatch, RootState } from "@/redux/store"; // Import types
-
-interface ForgotValues {
-  email: string;
-}
-
-const ForgotPasswordScreen = () => { // Renamed for clarity
-  const router = useRouter();
-  const { t } = useTranslation();
-
-  const dispatch: AppDispatch = useDispatch();
-  const { isLoading, error } = useSelector((state: RootState) => state.auth); // Use Redux state
-
-  useEffect(() => {
-    // Clear any previous authentication errors when component mounts
-    dispatch(clearAuthError());
-  }, [dispatch]);
-
-  const initialValues: ForgotValues = {
-    email: "",
-  };
-
-  const validationSchema = yup.object({ // Renamed from signupSchema for clarity
-    email: yup
-      .string()
-      .trim(t("forgotPassword.yup.email.trim"))
-      .email(t("forgotPassword.yup.email.email"))
-      .required(t("forgotPassword.yup.email.required")),
-  });
-
-  const handleSubmit = async (
-    values: ForgotValues,
-    actions: FormikHelpers<ForgotValues>
-  ) => {
-    const resultAction = await dispatch(forgotPassword(values));
-
-    if (forgotPassword.fulfilled.match(resultAction)) {
-      // On success, navigate to the reset password screen
-      // Optionally show a success message (e.g., "Reset code sent to your email")
-      router.push("/auth/reset");
-    }
-    // Errors are handled by Redux state and displayed in the UI.
-  };
-
-  return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <CustomText type="h2" style={styles.title}>
-        {t("forgotPassword.title")}
-      </CustomText>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ handleSubmit }) => (
-          <View style={styles.formContainer}>
-            <AuthInputField
-              name="email"
-              placeholder={t("forgotPassword.emailPlaceholder")}
-              label={t("forgotPassword.emailLabel")}
-              containerStyle={styles.inputField}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-            {error && <Text style={styles.errorText}>{error}</Text>} {/* Display Redux error */}
-            <AppButton
-              backgroundColor={COLORS.primary}
-              onPress={handleSubmit}
-              title={t("forgotPassword.submitButton")}
-              loading={isLoading} // Use Redux isLoading state
-              loadingText={t("forgotPassword.loadingText")}
-              containerStyle={styles.appButton}
-            />
-          </View>
-        )}
-      </Formik>
-    </KeyboardAvoidingView>
-  );
-};
-
-export default ForgotPasswordScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    flex: 1,
-    width: "100%",
-    paddingHorizontal: 16,
-  },
-  title: {
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  formContainer: {
-    width: "100%",
-    alignItems: "center",
-  },
-  inputField: {
-    marginBottom: 16,
-    width: "100%",
-  },
-  appButton: {
-    width: "100%",
-    marginTop: 10,
-  },
-  errorText: {
-    color: COLORS.danger,
-    marginBottom: 10,
-    alignSelf: 'center',
-    textAlign: 'center',
-    width: '100%',
-  },
-});
-```
-
----
-
-### Step 4: Refactor `app/auth/reset.tsx`
-
-```typescript
-// app/auth/reset.tsx (updated content)
-
-import React, { useState, useEffect } from "react";
-import { KeyboardAvoidingView, StyleSheet, Text, View } from "react-native";
-import { Formik, FormikHelpers } from "formik";
-import * as yup from "yup";
-import { useRouter } from "expo-router";
-import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
-import * as SecureStore from 'expo-secure-store'; // Import SecureStore for the reset code
-
-import {
-  AppButton,
-  AuthInputField,
-  CustomText,
-  PasswordVisibilityIcon,
-} from "@/components";
-import { COLORS } from "@/constants/theme";
-import { resetPassword, clearAuthError } from "@/redux/slices/authSlice"; // Import the thunk
-import { AppDispatch, RootState } from "@/redux/store"; // Import types
-
-interface ResetValues {
-  password: string;
-  confirmPassword: string;
-  code: string;
-  email: string;
-}
-
-const ResetPasswordScreen = () => { // Renamed for clarity
-  const [secureTextEntry, setSecureTextEntry] = useState<boolean>(true); // Default to true
-  const router = useRouter();
-  const { t } = useTranslation();
-
-  const dispatch: AppDispatch = useDispatch();
-  const { isLoading, error } = useSelector((state: RootState) => state.auth); // Use Redux state
-  const [localErrorMessage, setLocalErrorMessage] = useState(""); // For client-side validation errors not from Redux (e.g., code mismatch)
-
-  useEffect(() => {
-    dispatch(clearAuthError()); // Clear any previous Redux errors
-    setLocalErrorMessage(""); // Clear local errors
-    // Optionally pre-fill email if it was passed from the forgot screen,
-    // or auto-fill code if saved for dev purposes.
-  }, [dispatch]);
-
-  const initialValues: ResetValues = {
-    password: "",
-    confirmPassword: "",
-    code: "",
-    email: "",
-  };
-
-  const resetSchema = yup.object({
-    password: yup
-      .string()
-      .trim(t("reset.yup.password.trim"))
-      .min(8, t("reset.yup.password.min"))
-      .matches(
-        /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])[a-zA-Z\d!@#\$%\^&\*]+$/,
-        t("reset.yup.password.matches")
-      )
-      .required(t("reset.yup.password.required")),
-    confirmPassword: yup
-      .string()
-      .oneOf(
-        [yup.ref("password")],
-        t("reset.yup.confirmPassword.oneOf")
-      )
-      .required(t("reset.yup.confirmPassword.required")),
-    code: yup
-      .string()
-      .matches(/^[A-Z0-9]{6}$/, t("reset.yup.code.matches"))
-      .required(t("reset.yup.code.required")),
-    email: yup
-      .string()
-      .trim(t("reset.yup.email.trim"))
-      .email(t("reset.yup.email.email"))
-      .required(t("reset.yup.email.required")),
-  });
-
-  const handleSubmit = async (
-    values: ResetValues,
-    actions: FormikHelpers<ResetValues>
-  ) => {
-    setLocalErrorMessage(""); // Clear previous local error before new submission
-
-    // Retrieve the code from SecureStore (if saved for dev/testing)
-    const storedCode = await SecureStore.getItemAsync("resetCode");
-
-    if (storedCode && storedCode !== values.code) {
-      setLocalErrorMessage(t("reset.error.incorrectCode")); // Use translation key
-      return;
-    }
-
-    const resultAction = await dispatch(resetPassword(values));
-
-    if (resetPassword.fulfilled.match(resultAction)) {
-      // Password reset successfully, navigate to login
-      // Optionally show a success message
-      router.push("/auth/login");
-    }
-    // Errors are handled by Redux state or localErrorMessage and displayed in the UI.
-  };
-
-  return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <CustomText type="h1" style={styles.title}> {/* Changed to h1, adjusted style */}
-        {t("reset.title")}
-      </CustomText>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={resetSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ handleSubmit }) => (
-          <View style={styles.formContainer}>
-            <AuthInputField
-              name="code"
-              placeholder={t("reset.form.placeholder1")}
-              label={t("reset.form.label1")}
-              containerStyle={styles.inputField}
-            />
-            <AuthInputField
-              name="email"
-              placeholder={t("reset.form.placeholder2")}
-              label={t("reset.form.label2")}
-              containerStyle={styles.inputField}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-            <AuthInputField
-              name="password"
-              placeholder={t("reset.form.placeholder3")}
-              label={t("reset.form.label3")}
-              containerStyle={styles.inputField}
-              secureTextEntry={secureTextEntry}
-              rightIcon={
-                <PasswordVisibilityIcon privateIcon={secureTextEntry} />
-              }
-              onRightIconPress={() => {
-                setSecureTextEntry(!secureTextEntry);
-              }}
-            />
-            <AuthInputField
-              name="confirmPassword"
-              placeholder={t("reset.form.placeholder4")}
-              label={t("reset.form.label4")}
-              containerStyle={styles.inputField}
-              secureTextEntry={secureTextEntry} // Use the same secureTextEntry state
-              rightIcon={
-                <PasswordVisibilityIcon privateIcon={secureTextEntry} />
-              }
-              onRightIconPress={() => {
-                setSecureTextEntry(!secureTextEntry);
-              }}
-            />
-            {(error || localErrorMessage) ? (
-              <Text style={styles.errorText}>{error || localErrorMessage}</Text>
-            ) : null}
-            <AppButton
-              backgroundColor={COLORS.primary}
-              onPress={handleSubmit}
-              title={t("reset.button")}
-              loading={isLoading} // Use Redux isLoading state
-              loadingText={t("reset.loading")}
-              containerStyle={styles.appButton}
-            />
-          </View>
-        )}
-      </Formik>
-    </KeyboardAvoidingView>
-  );
-};
-
-export default ResetPasswordScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    flex: 1,
-    width: "100%",
-    paddingHorizontal: 16,
-  },
-  title: {
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  formContainer: {
-    width: "100%",
-    alignItems: "center",
-  },
-  inputField: {
-    marginBottom: 16,
-    width: "100%",
-  },
-  appButton: {
-    width: "100%",
-    marginTop: 10,
-  },
-  errorText: {
-    color: COLORS.danger,
-    marginTop: 10,
-    alignSelf: 'center',
-    textAlign: 'center',
-    width: '100%',
-  },
-});
-```
-
----
-
-**Important Notes:**
-
-1.  **Translation Keys:** I've added placeholder translation keys like `forgotPassword.yup.email.trim`, `reset.yup.password.min`, etc. You'll need to define these in your `i18n` translation files for them to display correctly.
-2.  **`SecureStore.deleteItemAsync('resetCode')`:** In `resetPassword` thunk, I've added a line to delete the `resetCode` from `SecureStore` after a successful password reset. This is good practice to clean up sensitive, single-use data.
-3.  **`secureTextEntry` State in `reset.tsx`:** Both password fields in `reset.tsx` (`password` and `confirmPassword`) should ideally share a single `secureTextEntry` state, which is what I've done. This way, toggling visibility affects both fields simultaneously.
-4.  **Error Display in `reset.tsx`:** I've modified the error display to show either the Redux `error` or the `localErrorMessage` (for client-side issues like an incorrect stored code).
-5.  **`CustomText` type `larger`:** In `reset.tsx`, I noticed `CustomText type="larger"`. Ensure your `CustomText` component supports this type, or adjust it to `h1`, `h2`, etc., as per your component's definition. I've changed it to `h1` in the updated code for consistency.
-6.  **`AuthInputField` styling:** I've made sure that `containerStyle` passed to `AuthInputField` includes `width: "100%"` to ensure they stretch properly within their parent `View`. The `AuthInputField` itself also has `width:"100%"`.
-
-Now your entire authentication flow, including password reset, is integrated with Redux Toolkit for efficient state management and a cleaner separation of concerns.
-
-Let me know if you have any questions or are ready to move to Phase 2: User Profiles & Core Content Feed!
+With these steps, you'll have robust Redux-managed flows for doctor profile creation and admin KYC verification.
