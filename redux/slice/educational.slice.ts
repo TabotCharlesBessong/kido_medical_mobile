@@ -39,7 +39,7 @@ export const fetchEducationalPosts = createAsyncThunk(
   'educational/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/educational-posts');
+      const response = await api.get('/posts');
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch educational posts');
@@ -51,7 +51,7 @@ export const createEducationalPost = createAsyncThunk(
   'educational/create',
   async (postData: Partial<EducationalContent>, { rejectWithValue }) => {
     try {
-      const response = await api.post('/educational-posts', postData);
+      const response = await api.post('/posts', postData);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to create educational post');
@@ -63,7 +63,7 @@ export const likePost = createAsyncThunk(
   'educational/like',
   async (postId: string, { rejectWithValue }) => {
     try {
-      const response = await api.post(`/educational-posts/${postId}/like`);
+      const response = await api.post(`/posts/${postId}/like`);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to like post');
@@ -75,7 +75,7 @@ export const addComment = createAsyncThunk(
   'educational/comment',
   async ({ postId, content }: { postId: string; content: string }, { rejectWithValue }) => {
     try {
-      const response = await api.post(`/educational-posts/${postId}/comments`, { content });
+      const response = await api.post(`/posts/${postId}/comments`, { content });
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to add comment');

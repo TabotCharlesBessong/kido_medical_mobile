@@ -1,3 +1,4 @@
+import { IPatient } from "@/constants/types";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -9,38 +10,38 @@ export const fetchPatientProfile = createAsyncThunk(
         "http://192.168.1.199:5000/api/patient/profile"
       );
       return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
 export const createPatientProfile = createAsyncThunk(
   "patientProfile/create",
-  async (profile: fetchPatientProfile, { rejectWithValue }) => {
+  async (profile: IPatient, { rejectWithValue }) => {
     try {
       const response = await axios.post(
         "http://192.168.1.199:5000/api/patient/profile",
         profile
       );
       return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
 export const updatePatientProfile = createAsyncThunk(
   "patientProfile/update",
-  async (profile: PatientProfile, { rejectWithValue }) => {
+  async (profile: IPatient, { rejectWithValue }) => {
     try {
       const response = await axios.put(
         "http://192.168.1.199:5000/api/patient/profile",
         profile
       );
       return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
