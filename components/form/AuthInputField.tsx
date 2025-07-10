@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import AppInput from "../ui/form/AppInput";
 import { COLORS } from "@/constants/theme";
+import React from "react";
 
 interface Props {
   name: string;
