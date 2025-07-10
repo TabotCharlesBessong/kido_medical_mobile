@@ -48,18 +48,15 @@
 
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./slice/authSlice";
-// Import other reducers as you create them for other parts of the app
-// import patientProfileReducer from './slices/patientProfileSlice';
-// import doctorProfileReducer from './slices/doctorProfileSlice';
-// import postsReducer from './slices/postsSlice';
+import doctorProfileReducer from './slice/doctorProfileSlice';
+import adminReducer from './slice/adminSlice';
+
 
 export const store = configureStore({
   reducer: {
     auth: authReducer, // Add your auth reducer here
-    // Add other feature reducers here:
-    // patientProfile: patientProfileReducer,
-    // doctorProfile: doctorProfileReducer,
-    // posts: postsReducer,
+    admin: adminReducer,
+    doctorProfile: doctorProfileReducer
   },
   // `middleware` is automatically added by `configureStore` to include redux-thunk
 });
