@@ -1,136 +1,127 @@
-Okay, this is a crucial step! Integrating the doctor registration process and the admin KYC verification requires updating our Redux slices and creating new UI components. This will involve:
+You're absolutely right to point that out! My apologies for jumping ahead. It's crucial to maintain the correct phase order for a smooth development process.
 
-1.  **Doctor Profile Creation:** A regular user (initially a `PATIENT` or unassigned role) can submit their doctor-specific details. This will trigger a KYC process on the backend.
-2.  **Admin KYC Verification:** An admin user will be able to view pending doctor KYC requests and approve/reject them.
+Let's correct the roadmap and focus on "Phase 3: User Profile Completion (Patient & Doctor)". This phase will ensure that all users can set up and view their detailed profiles based on their role.
 
-Let's break down the implementation.
+We already have the Redux setup and basic authentication components. Now, we'll build upon that.
 
 ---
 
-### Step 1: Define New Types
+### Phase 3: User Profile Completion (Patient & Doctor)
 
-Create a new file `src/types/doctor.ts` (or add to an existing `types` directory) to house types related to doctor profiles. We'll also update `src/types/admin.ts` for KYC.
+**Goal:** Enable all authenticated users to complete their specific profile details (Patient or Doctor) and manage their profile information.
+
+**Key Components & Logic:**
+
+1.  **Patient Profile Creation:** A new screen and Redux slice for collecting patient-specific demographic data.
+2.  **Doctor Profile Creation:** The `CreateDoctorProfileScreen` we already drafted, now fully integrated with Redux and the proper flow.
+3.  **General Profile View:** A common screen where the current authenticated user can view and potentially edit their basic user information, and conditionally display/edit their patient or doctor profile.
+4.  **Conditional Redirection:** Logic to direct newly registered users (or users without a complete profile) to the appropriate profile creation screen immediately after login.
+5.  **Role Update Mechanism:** Ensuring that once a doctor's profile is created and verified by an admin, their `User` role in the `authSlice` is updated. This usually involves the backend sending updated user data upon successful verification, which we then dispatch to update the Redux state.
+
+---
+
+### Step 1: Update `types/auth.ts` and Create `types/patient.ts`
+
+**1.1. Update `src/types/auth.ts`**
+Let's enhance the `User` interface to include optional IDs for their associated patient or doctor profile, which will be useful for linking:
 
 ```typescript
-// src/types/doctor.ts
-// This file will hold types specific to doctors
+// src/types/auth.ts (Updated User interface)
 
-export interface DoctorProfile {
-  id: string; // The ID of the doctor's profile (distinct from userId in some schemas)
+export interface User {
+  id: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  role: 'PATIENT' | 'DOCTOR' | 'ADMIN' | 'UNVERIFIED' | 'PENDING_DOCTOR'; // Refined roles
+  isVerified?: boolean; // For email verification
+  // New fields for linking to profiles
+  patientProfileId?: string | null; // ID of the associated patient profile
+  doctorProfileId?: string | null; // ID of the associated doctor profile
+}
+
+// ... (rest of your existing auth types)
+```
+
+**1.2. Create `src/types/patient.ts`**
+This file will hold types specific to patient profiles.
+
+```typescript
+// src/types/patient.ts
+
+export interface PatientProfile {
+  id: string; // ID of the patient's profile
   userId: string; // The ID of the associated user account
-  specialization: string;
-  fee: number;
-  documents: string; // URL to professional documents (e.g., license, certificates)
-  verificationStatus: 'PENDING' | 'APPROVED' | 'REJECTED'; // Status of KYC verification
-  // Add any other doctor-specific fields your backend returns
+  gender: 'MALE' | 'FEMALE' | 'OTHER';
+  age: number;
+  address1: string;
+  address2?: string; // Optional
+  occupation?: string; // Optional
+  phoneNumber: string;
+  tribe?: string; // Optional
+  religion?: string; // Optional
   createdAt: string;
   updatedAt: string;
+  // Add any other patient-specific fields your backend returns
 }
 
-// Payload for creating a new doctor profile
-export interface CreateDoctorProfilePayload {
-  specialization: string;
-  fee: number; // Assuming backend expects a number
-  documents: string; // URL of the uploaded document
+// Payload for creating a new patient profile
+export interface CreatePatientProfilePayload {
+  gender: 'MALE' | 'FEMALE' | 'OTHER';
+  age: number;
+  address1: string;
+  address2?: string;
+  occupation?: string;
+  phoneNumber: string;
+  tribe?: string;
+  religion?: string;
 }
 
-// API response structure for creating/fetching a doctor profile
-export interface DoctorProfileApiResponse {
+// API response structure for creating/fetching a patient profile
+export interface PatientProfileApiResponse {
   success: boolean;
   message: string;
-  data?: DoctorProfile; // `data` field might contain the DoctorProfile on success
-}
-```
-
-```typescript
-// src/types/admin.ts
-// This file will hold types specific to admin actions, including KYC
-
-import { User } from './auth'; // Assuming User interface is in auth.ts
-import { DoctorProfile } from './doctor'; // Import DoctorProfile for linked data
-
-export interface KycVerification {
-  id: string; // Unique ID for the KYC verification record
-  userId: string; // ID of the user whose KYC is being verified
-  user: User; // Full user details associated with this KYC
-  type: 'DOCTOR_PROFILE' | 'IDENTITY'; // Type of verification (e.g., for doctor roles or general identity)
-  status: 'PENDING' | 'APPROVED' | 'REJECTED'; // Current status of the verification
-  documents: string[]; // Array of URLs to submitted documents
-  notes?: string; // Optional notes from the admin
-  createdAt: string;
-  updatedAt: string;
-  doctorProfile?: DoctorProfile; // Optional: If type is DOCTOR_PROFILE, link to the doctor's profile
-}
-
-// API response for fetching a list of KYC verifications
-export interface FetchKycVerificationsApiResponse {
-  success: boolean;
-  message: string;
-  data: KycVerification[]; // Array of pending KYC requests
-}
-
-// Payload for verifying a doctor's profile (used by admin)
-export interface VerifyDoctorPayload {
-  email: string; // Doctor's email as used in Postman
-  status: 'APPROVED' | 'REJECTED';
-  notes?: string;
-}
-
-// Payload for general KYC verification (if applicable, separate from doctor specific)
-export interface VerifyKycPayload {
-  userId: string; // User ID to verify
-  status: 'APPROVED' | 'REJECTED';
-  notes?: string;
-}
-
-// Generic API response for admin actions (e.g., approve/reject)
-export interface AdminActionApiResponse {
-  success: boolean;
-  message: string;
+  data?: PatientProfile; // `data` field might contain the PatientProfile on success
 }
 ```
 
 ---
 
-### Step 2: Create Redux Slices
+### Step 2: Create `src/redux/slices/patientProfileSlice.ts`
 
-We'll need two new slices: `doctorProfileSlice` for the doctor's own profile management, and `adminSlice` for admin-specific actions like KYC.
-
-**2.1. `src/redux/slices/doctorProfileSlice.ts`**
-
-This slice will manage the doctor's profile state and the API calls to create/fetch it.
+This new slice will manage the patient's profile state and the API calls to create/fetch/update it.
 
 ```typescript
-// src/redux/slices/doctorProfileSlice.ts
+// src/redux/slices/patientProfileSlice.ts
 
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axiosInstance from '@/utils/axiosInstance'; // Our configured Axios instance
-import { DoctorProfile, CreateDoctorProfilePayload, DoctorProfileApiResponse } from '@/types/doctor';
+import axiosInstance from '@/utils/axiosInstance';
+import { PatientProfile, CreatePatientProfilePayload, PatientProfileApiResponse } from '@/types/patient';
 
-interface DoctorProfileState {
-  profile: DoctorProfile | null; // Stores the current doctor's profile
+interface PatientProfileState {
+  profile: PatientProfile | null; // Stores the current patient's profile
   isLoading: boolean;
   error: string | null;
 }
 
-const initialState: DoctorProfileState = {
+const initialState: PatientProfileState = {
   profile: null,
   isLoading: false,
   error: null,
 };
 
-// Async Thunk for creating/completing a doctor profile
-export const createDoctorProfile = createAsyncThunk<DoctorProfileApiResponse, CreateDoctorProfilePayload, { rejectValue: string }>(
-  'doctor/createProfile',
+// Async Thunk for creating/completing a patient profile
+export const createPatientProfile = createAsyncThunk<PatientProfileApiResponse, CreatePatientProfilePayload, { rejectValue: string }>(
+  'patient/createProfile',
   async (profileData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post<DoctorProfileApiResponse>('/doctor/create', profileData);
+      const response = await axiosInstance.post<PatientProfileApiResponse>('/patient/create', profileData);
       const data = response.data;
 
       if (data.success && data.data) {
         return data;
       } else {
-        return rejectWithValue(data.message || 'Failed to create doctor profile. Please check your data.');
+        return rejectWithValue(data.message || 'Failed to create patient profile. Please check your data.');
       }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || error.message || 'Network Error';
@@ -139,18 +130,34 @@ export const createDoctorProfile = createAsyncThunk<DoctorProfileApiResponse, Cr
   }
 );
 
-// Async Thunk for fetching a specific doctor's profile (can be used by patient or doctor themselves)
-export const fetchDoctorProfileById = createAsyncThunk<DoctorProfileApiResponse, string, { rejectValue: string }>(
-  'doctor/fetchProfileById',
-  async (doctorId, { rejectWithValue }) => {
+// Async Thunk for fetching the current patient's profile
+// This assumes an endpoint like /api/patient/me that uses the JWT token to identify the user
+// If not, you'd need the patient ID (e.g., from auth.user.patientProfileId)
+export const fetchPatientProfile = createAsyncThunk<PatientProfileApiResponse, string | void, { rejectValue: string }>(
+  'patient/fetchProfile',
+  async (patientId, { rejectWithValue, getState }) => {
     try {
-      const response = await axiosInstance.get<DoctorProfileApiResponse>(`/doctor/${doctorId}`);
+      // Option 1: If backend has a /me endpoint (preferred)
+      // const response = await axiosInstance.get<PatientProfileApiResponse>('/patient/me');
+      
+      // Option 2: If we pass the patientId (e.g., from auth.user.patientProfileId)
+      const userId = (getState() as any).auth.user?.id; // Get current user ID from auth slice
+      if (!userId && !patientId) {
+        return rejectWithValue('User ID or Patient ID not available for fetching profile.');
+      }
+      const idToFetch = patientId || userId; // Use patientId if provided, else current userId (assuming patientId is same as userId or available from auth.user)
+
+      // Postman had GET /api/patient/appointments, not a direct profile get for patient.
+      // Let's assume a GET /api/patient/profile endpoint or if patientId is their userId
+      // For now, I'll use /api/patient/:userId, assuming the backend can return the full patient profile if userId is used.
+      // You might need to confirm your backend's actual endpoint for fetching the CURRENT patient's profile.
+      const response = await axiosInstance.get<PatientProfileApiResponse>(`/patient/${idToFetch}`);
       const data = response.data;
 
       if (data.success && data.data) {
         return data;
       } else {
-        return rejectWithValue(data.message || 'Doctor profile not found.');
+        return rejectWithValue(data.message || 'Patient profile not found.');
       }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || error.message || 'Network Error';
@@ -159,15 +166,49 @@ export const fetchDoctorProfileById = createAsyncThunk<DoctorProfileApiResponse,
   }
 );
 
-const doctorProfileSlice = createSlice({
-  name: 'doctorProfile',
+// Async Thunk for updating a patient profile
+export interface UpdatePatientProfilePayload extends Partial<CreatePatientProfilePayload> {
+  // Can be partial as not all fields need to be updated
+}
+
+export const updatePatientProfile = createAsyncThunk<PatientProfileApiResponse, UpdatePatientProfilePayload, { rejectValue: string }>(
+  'patient/updateProfile',
+  async (profileData, { rejectWithValue, getState }) => {
+    try {
+      const currentProfileId = (getState() as any).patientProfile.profile?.id;
+      if (!currentProfileId) {
+        return rejectWithValue('Patient profile ID not available for update.');
+      }
+      // Convert age/fee to number if present and needed
+      const dataToSend = {
+        ...profileData,
+        age: profileData.age ? Number(profileData.age) : undefined,
+      };
+
+      const response = await axiosInstance.put<PatientProfileApiResponse>(`/patient/${currentProfileId}`, dataToSend);
+      const data = response.data;
+
+      if (data.success && data.data) {
+        return data;
+      } else {
+        return rejectWithValue(data.message || 'Failed to update patient profile.');
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || 'Network Error';
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+
+const patientProfileSlice = createSlice({
+  name: 'patientProfile',
   initialState,
   reducers: {
-    clearDoctorProfileError: (state) => {
+    clearPatientProfileError: (state) => {
       state.error = null;
     },
-    // Useful for directly setting/updating the profile in state if needed without an API call
-    setDoctorProfile: (state, action: PayloadAction<DoctorProfile | null>) => {
+    setPatientProfile: (state, action: PayloadAction<PatientProfile | null>) => {
       state.profile = action.payload;
       state.isLoading = false;
       state.error = null;
@@ -175,224 +216,78 @@ const doctorProfileSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Handle createDoctorProfile
-      .addCase(createDoctorProfile.pending, (state) => {
+      // Handle createPatientProfile
+      .addCase(createPatientProfile.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(createDoctorProfile.fulfilled, (state, action) => {
+      .addCase(createPatientProfile.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.profile = action.payload.data || null; // Store the newly created profile
+        state.profile = action.payload.data || null;
         state.error = null;
       })
-      .addCase(createDoctorProfile.rejected, (state, action) => {
+      .addCase(createPatientProfile.rejected, (state, action) => {
         state.isLoading = false;
         state.profile = null;
-        state.error = action.payload || 'Failed to create doctor profile.';
+        state.error = action.payload || 'Failed to create patient profile.';
       })
-      // Handle fetchDoctorProfileById
-      .addCase(fetchDoctorProfileById.pending, (state) => {
+      // Handle fetchPatientProfile
+      .addCase(fetchPatientProfile.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchDoctorProfileById.fulfilled, (state, action) => {
+      .addCase(fetchPatientProfile.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.profile = action.payload.data || null; // Store the fetched profile
+        state.profile = action.payload.data || null;
         state.error = null;
       })
-      .addCase(fetchDoctorProfileById.rejected, (state, action) => {
+      .addCase(fetchPatientProfile.rejected, (state, action) => {
         state.isLoading = false;
         state.profile = null;
-        state.error = action.payload || 'Failed to fetch doctor profile.';
+        state.error = action.payload || 'Failed to fetch patient profile.';
+      })
+      // Handle updatePatientProfile
+      .addCase(updatePatientProfile.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updatePatientProfile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.profile = action.payload.data || null; // Update with the latest data
+        state.error = null;
+      })
+      .addCase(updatePatientProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || 'Failed to update patient profile.';
       });
   },
 });
 
-export const { clearDoctorProfileError, setDoctorProfile } = doctorProfileSlice.actions;
-export default doctorProfileSlice.reducer;
-```
-
-**2.2. `src/redux/slices/adminSlice.ts`**
-
-This slice will handle fetching pending KYC requests and performing approval/rejection actions.
-
-```typescript
-// src/redux/slices/adminSlice.ts
-
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axiosInstance from '@/utils/axiosInstance';
-import {
-  KycVerification,
-  FetchKycVerificationsApiResponse,
-  VerifyDoctorPayload,
-  VerifyKycPayload,
-  AdminActionApiResponse
-} from '@/types/admin'; // Make sure to import correct types
-
-interface AdminState {
-  pendingKyc: KycVerification[];
-  isLoading: boolean;
-  error: string | null;
-}
-
-const initialState: AdminState = {
-  pendingKyc: [],
-  isLoading: false,
-  error: null,
-};
-
-// Async Thunk for fetching pending KYC verifications
-export const fetchPendingKycVerifications = createAsyncThunk<FetchKycVerificationsApiResponse, void, { rejectValue: string }>(
-  'admin/fetchPendingKyc',
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.get<FetchKycVerificationsApiResponse>('/admin/kyc-verifications/pending');
-      const data = response.data;
-
-      if (data.success) {
-        return data;
-      } else {
-        return rejectWithValue(data.message || 'Failed to fetch pending KYC verifications.');
-      }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || 'Network Error';
-      return rejectWithValue(errorMessage);
-    }
-  }
-);
-
-// Async Thunk for verifying a doctor's profile via email
-export const verifyDoctorProfile = createAsyncThunk<AdminActionApiResponse, VerifyDoctorPayload, { rejectValue: string }>(
-  'admin/verifyDoctorProfile',
-  async (verificationData, { rejectWithValue }) => {
-    try {
-      // Backend expects email as query param: /api/admin/doctor-verifications/verify?email=abc@example.com
-      const response = await axiosInstance.post<AdminActionApiResponse>(
-        `/admin/doctor-verifications/verify?email=${verificationData.email}`,
-        { status: verificationData.status, notes: verificationData.notes }
-      );
-      const data = response.data;
-
-      if (data.success) {
-        return data;
-      } else {
-        return rejectWithValue(data.message || 'Failed to verify doctor profile.');
-      }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || 'Network Error';
-      return rejectWithValue(errorMessage);
-    }
-  }
-);
-
-// Async Thunk for general KYC verification (if different from doctor, using userId in path)
-export const verifyKyc = createAsyncThunk<AdminActionApiResponse, VerifyKycPayload, { rejectValue: string }>(
-  'admin/verifyKyc',
-  async (verificationData, { rejectWithValue }) => {
-    try {
-      // Backend expects userId in path: /api/admin/kyc-verifications/:userId/verify
-      const response = await axiosInstance.patch<AdminActionApiResponse>(
-        `/admin/kyc-verifications/${verificationData.userId}/verify`,
-        { status: verificationData.status, notes: verificationData.notes }
-      );
-      const data = response.data;
-
-      if (data.success) {
-        return data;
-      } else {
-        return rejectWithValue(data.message || 'Failed to verify KYC.');
-      }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || 'Network Error';
-      return rejectWithValue(errorMessage);
-    }
-  }
-);
-
-const adminSlice = createSlice({
-  name: 'admin',
-  initialState,
-  reducers: {
-    clearAdminError: (state) => {
-      state.error = null;
-    },
-    // Action to remove a KYC request from the pending list after it's processed
-    removeKycFromPending: (state, action: PayloadAction<string>) => {
-      state.pendingKyc = state.pendingKyc.filter(kyc => kyc.id !== action.payload);
-    }
-  },
-  extraReducers: (builder) => {
-    builder
-      // Handle fetchPendingKycVerifications
-      .addCase(fetchPendingKycVerifications.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(fetchPendingKycVerifications.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.pendingKyc = action.payload.data;
-        state.error = null;
-      })
-      .addCase(fetchPendingKycVerifications.rejected, (state, action) => {
-        state.isLoading = false;
-        state.pendingKyc = []; // Clear list on error
-        state.error = action.payload || 'Failed to load pending KYC requests.';
-      })
-      // Handle verifyDoctorProfile
-      .addCase(verifyDoctorProfile.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(verifyDoctorProfile.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.error = null;
-        // The `removeKycFromPending` action will be dispatched manually from the component
-      })
-      .addCase(verifyDoctorProfile.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload || 'Failed to verify doctor profile.';
-      })
-      // Handle verifyKyc (general)
-      .addCase(verifyKyc.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(verifyKyc.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.error = null;
-        // The `removeKycFromPending` action will be dispatched manually from the component
-      })
-      .addCase(verifyKyc.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload || 'Failed to verify KYC.';
-      });
-  },
-});
-
-export const { clearAdminError, removeKycFromPending } = adminSlice.actions;
-export default adminSlice.reducer;
+export const { clearPatientProfileError, setPatientProfile } = patientProfileSlice.actions;
+export default patientProfileSlice.reducer;
 ```
 
 ---
 
-### Step 3: Update Redux Store Configuration
+### Step 3: Update `src/redux/store.ts`
 
-Add the new reducers to your `src/redux/store.ts`.
+Add the new `patientProfileReducer` to your store.
 
 ```typescript
 // src/redux/store.ts (updated content)
 
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
-import doctorProfileReducer from './slices/doctorProfileSlice'; // New import
-import adminReducer from './slices/adminSlice'; // New import
+import doctorProfileReducer from './slices/doctorProfileSlice';
+import adminReducer from './slices/adminSlice';
+import patientProfileReducer from './slices/patientProfileSlice'; // New import
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
-    doctorProfile: doctorProfileReducer, // Add this line
-    admin: adminReducer, // Add this line
-    // ... other reducers as you create them (e.g., patientProfile, posts)
+    doctorProfile: doctorProfileReducer,
+    admin: adminReducer,
+    patientProfile: patientProfileReducer, // Add this line
   },
 });
 
@@ -402,138 +297,119 @@ export type AppDispatch = typeof store.dispatch;
 
 ---
 
-### Step 4: Create UI Components
+### Step 4: Create UI Components for Profile Completion
 
-**4.1. Doctor Profile Creation Screen (`app/(tabs)/profile/create-doctor.tsx`)**
+**4.1. Patient Profile Creation Screen (`app/(tabs)/profile/create-patient.tsx`)**
 
-This screen will allow a user to submit their doctor details for verification. Assuming you have a "profile" tab where a user might initiate this.
+This screen will guide new patients to complete their profile.
 
 ```typescript
-// app/(tabs)/profile/create-doctor.tsx
+// app/(tabs)/profile/create-patient.tsx
 
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Text, ScrollView, Alert, Platform } from 'react-native';
+import { View, StyleSheet, KeyboardAvoidingView, Text, ScrollView, Platform, Alert } from 'react-native';
 import { Formik, FormikHelpers } from 'formik';
 import * as yup from 'yup';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { Picker } from '@react-native-picker/picker'; // You'll need to install this: `expo install @react-native-picker/picker`
-import * as ImagePicker from 'expo-image-picker'; // You'll need to install this: `expo install expo-image-picker`
+import { Picker } from '@react-native-picker/picker';
 
 import { AppButton, AuthInputField, CustomText } from '@/components';
 import { COLORS } from '@/constants/theme';
-import { createDoctorProfile, clearDoctorProfileError } from '@/redux/slices/doctorProfileSlice';
+import { createPatientProfile, clearPatientProfileError } from '@/redux/slices/patientProfileSlice';
 import { AppDispatch, RootState } from '@/redux/store';
+import { setAuthUser } from '@/redux/slices/authSlice'; // Import to update user role/profile ID in auth state
 
-interface DoctorProfileValues {
-  specialization: string;
-  fee: string; // Keep as string for form input, convert to number before dispatch
-  documents: string; // Will store the URI or URL after picking/uploading
+interface PatientProfileValues {
+  gender: 'MALE' | 'FEMALE' | 'OTHER' | ''; // Add empty string for initial state in picker
+  age: string; // Keep as string for form input, convert to number
+  address1: string;
+  address2: string;
+  occupation: string;
+  phoneNumber: string;
+  tribe: string;
+  religion: string;
 }
 
-const CreateDoctorProfileScreen = () => {
+const CreatePatientProfileScreen = () => {
   const router = useRouter();
   const { t } = useTranslation();
   const dispatch: AppDispatch = useDispatch();
-  const { isLoading, error } = useSelector((state: RootState) => state.doctorProfile);
-
-  const [pickedDocumentUri, setPickedDocumentUri] = useState<string | null>(null);
+  const { isLoading, error } = useSelector((state: RootState) => state.patientProfile);
+  const user = useSelector((state: RootState) => state.auth.user); // Get current user from auth slice
 
   useEffect(() => {
-    dispatch(clearDoctorProfileError()); // Clear errors on component mount
+    dispatch(clearPatientProfileError());
   }, [dispatch]);
 
-  const initialValues: DoctorProfileValues = {
-    specialization: '',
-    fee: '',
-    documents: '',
+  const initialValues: PatientProfileValues = {
+    gender: '',
+    age: '',
+    address1: '',
+    address2: '',
+    occupation: '',
+    phoneNumber: '',
+    tribe: '',
+    religion: '',
   };
 
   const validationSchema = yup.object({
-    specialization: yup.string().required(t('doctorProfile.specializationRequired')),
-    fee: yup.string()
-      .required(t('doctorProfile.feeRequired'))
-      .matches(/^[0-9]+(\.[0-9]{1,2})?$/, t('doctorProfile.feeInvalid')), // Allows integers or decimals with 1-2 places
-    documents: yup.string().required(t('doctorProfile.documentsRequired')), // Requires a document URI/URL
+    gender: yup.string().oneOf(['MALE', 'FEMALE', 'OTHER'], t('patientProfile.genderInvalid')).required(t('patientProfile.genderRequired')),
+    age: yup.string()
+      .matches(/^[0-9]+$/, t('patientProfile.ageInvalid'))
+      .required(t('patientProfile.ageRequired'))
+      .test('is-positive', t('patientProfile.agePositive'), value => {
+        return value ? parseInt(value) > 0 : true;
+      }),
+    address1: yup.string().required(t('patientProfile.address1Required')),
+    phoneNumber: yup.string().required(t('patientProfile.phoneNumberRequired')),
+    // Optional fields can be left without .required() or use .nullable()
+    address2: yup.string().nullable(),
+    occupation: yup.string().nullable(),
+    tribe: yup.string().nullable(),
+    religion: yup.string().nullable(),
   });
 
-  const pickDocument = async (setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void) => {
-    // Request media library permissions
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission required', 'Please grant media library permissions to upload documents.');
-      return;
-    }
-
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images, // Or .All to allow PDFs too if backend supports
-      allowsEditing: false,
-      quality: 1,
-      // base64: true, // Only if your backend expects base64 directly
-    });
-
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      const uri = result.assets[0].uri;
-      setPickedDocumentUri(uri);
-      setFieldValue('documents', uri, true); // Set formik field value and validate
-
-      // In a real application, you'd perform the actual file upload to your backend
-      // or a cloud storage (e.g., Cloudinary, AWS S3).
-      // This upload would return a public URL, which you'd then use in the `documents` field.
-      // For now, we're just storing the local URI.
-      // Example of what a real upload might look like (pseudo-code):
-      /*
-      try {
-        const uploadedUrl = await uploadFileToCloud(uri); // Your custom upload function
-        setFieldValue('documents', uploadedUrl, true);
-      } catch (uploadError) {
-        Alert.alert('Upload Failed', 'Could not upload document.');
-        setFieldValue('documents', '', true); // Clear field on upload failure
-      }
-      */
-    }
-  };
-
   const handleSubmit = async (
-    values: DoctorProfileValues,
-    actions: FormikHelpers<DoctorProfileValues>
+    values: PatientProfileValues,
+    actions: FormikHelpers<PatientProfileValues>
   ) => {
-    if (!pickedDocumentUri) {
-      Alert.alert('Document Missing', 'Please upload your professional documents (e.g., medical license, certificates).');
-      return;
-    }
+    // Convert age string to number
+    const ageAsNumber = parseInt(values.age);
 
-    // Convert fee string to number
-    const feeAsNumber = parseFloat(values.fee);
+    const dataToSend = {
+      ...values,
+      age: ageAsNumber,
+    };
 
-    // Dispatch the thunk with the data
-    const resultAction = await dispatch(createDoctorProfile({
-      specialization: values.specialization,
-      fee: feeAsNumber,
-      documents: pickedDocumentUri, // This should be the actual URL from a file upload service
-    }));
+    const resultAction = await dispatch(createPatientProfile(dataToSend));
 
-    if (createDoctorProfile.fulfilled.match(resultAction)) {
-      Alert.alert(t('common.success'), t('doctorProfile.submissionSuccess'));
-      // You might navigate to a "Pending Verification" screen or home
-      router.replace('/(tabs)/');
+    if (createPatientProfile.fulfilled.match(resultAction)) {
+      Alert.alert(t('common.success'), t('patientProfile.submissionSuccess'));
+      // OPTIONAL: If the backend updates the user's role/patientProfileId upon profile creation,
+      // you would dispatch an action here to update the user in the authSlice as well.
+      // Example: If backend returns updated user data:
+      // dispatch(updateUserRoleOrProfileId(resultAction.payload.data.user));
+      // Or, if your patientProfile response includes userId AND patientProfileId, you can update auth.user:
+      if (user && resultAction.payload.data?.id) {
+          dispatch(setAuthUser({ // Assuming you add setAuthUser action to authSlice
+              ...user,
+              patientProfileId: resultAction.payload.data.id,
+              // If patient profile creation implies a role change (e.g., from UNVERIFIED to PATIENT)
+              // role: 'PATIENT' // Only if this is how your backend/roles are structured
+          }));
+      }
+      router.replace('/(tabs)/'); // Navigate to home/dashboard
     }
     // Errors are handled by Redux state and displayed in the UI
   };
 
-  // Dummy specializations for the Picker
-  const specializations = [
-    { label: t('doctorProfile.selectSpecialization'), value: '' },
-    { label: t('doctorProfile.gp'), value: 'General Practitioner' },
-    { label: t('doctorProfile.pediatrician'), value: 'Pediatrician' },
-    { label: t('doctorProfile.cardiologist'), value: 'Cardiologist' },
-    { label: t('doctorProfile.dermatologist'), value: 'Dermatologist' },
-    { label: t('doctorProfile.gynecologist'), value: 'Gynecologist' },
-    { label: t('doctorProfile.neurologist'), value: 'Neurologist' },
-    { label: t('doctorProfile.orthopedist'), value: 'Orthopedist' },
-    { label: t('doctorProfile.psychiatrist'), value: 'Psychiatrist' },
-    { label: t('doctorProfile.oncologist'), value: 'Oncologist' },
+  const genders = [
+    { label: t('patientProfile.selectGender'), value: '' },
+    { label: t('patientProfile.male'), value: 'MALE' },
+    { label: t('patientProfile.female'), value: 'FEMALE' },
+    { label: t('patientProfile.other'), value: 'OTHER' },
   ];
 
   return (
@@ -543,10 +419,10 @@ const CreateDoctorProfileScreen = () => {
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <CustomText type="h1" style={styles.header}>
-          {t('doctorProfile.title')}
+          {t('patientProfile.title')}
         </CustomText>
         <CustomText type="body2" style={styles.subtitle}>
-          {t('doctorProfile.subtitle')}
+          {t('patientProfile.subtitle')}
         </CustomText>
 
         <Formik
@@ -556,61 +432,78 @@ const CreateDoctorProfileScreen = () => {
         >
           {({ handleSubmit, setFieldValue, values, errors, touched }) => (
             <View style={styles.form}>
-              {/* Specialization Picker */}
+              {/* Gender Picker */}
               <View style={styles.pickerContainer}>
                 <CustomText type="body4" style={styles.pickerLabel}>
-                  {t('doctorProfile.specializationLabel')}
+                  {t('patientProfile.genderLabel')}
                 </CustomText>
                 <Picker
-                  selectedValue={values.specialization}
-                  onValueChange={(itemValue) => setFieldValue('specialization', itemValue)}
+                  selectedValue={values.gender}
+                  onValueChange={(itemValue) => setFieldValue('gender', itemValue)}
                   style={styles.picker}
                 >
-                  {specializations.map((item, index) => (
+                  {genders.map((item, index) => (
                     <Picker.Item key={index} label={item.label} value={item.value} />
                   ))}
                 </Picker>
-                {touched.specialization && errors.specialization && (
-                  <Text style={styles.errorText}>{errors.specialization}</Text>
+                {touched.gender && errors.gender && (
+                  <Text style={styles.errorText}>{errors.gender}</Text>
                 )}
               </View>
 
               <AuthInputField
-                name="fee"
-                label={t('doctorProfile.feeLabel')}
-                placeholder={t('doctorProfile.feePlaceholder')}
+                name="age"
+                label={t('patientProfile.ageLabel')}
+                placeholder={t('patientProfile.agePlaceholder')}
                 keyboardType="numeric"
                 containerStyle={styles.inputField}
               />
-
-              {/* Document Upload */}
-              <View style={styles.documentUploadContainer}>
-                <AppButton
-                  title={t('doctorProfile.uploadDocumentsButton')}
-                  onPress={() => pickDocument(setFieldValue)}
-                  backgroundColor={COLORS.lightGray}
-                  textColor={COLORS.dark}
-                  containerStyle={styles.uploadButton}
-                />
-                {pickedDocumentUri ? (
-                  <Text style={styles.documentUriText}>
-                    {t('doctorProfile.documentSelected')}: {pickedDocumentUri.split('/').pop()}
-                  </Text>
-                ) : (
-                  touched.documents && errors.documents && (
-                    <Text style={styles.errorText}>{errors.documents}</Text>
-                  )
-                )}
-              </View>
+              <AuthInputField
+                name="address1"
+                label={t('patientProfile.address1Label')}
+                placeholder={t('patientProfile.address1Placeholder')}
+                containerStyle={styles.inputField}
+              />
+              <AuthInputField
+                name="address2"
+                label={t('patientProfile.address2Label')}
+                placeholder={t('patientProfile.address2Placeholder')}
+                containerStyle={styles.inputField}
+              />
+              <AuthInputField
+                name="occupation"
+                label={t('patientProfile.occupationLabel')}
+                placeholder={t('patientProfile.occupationPlaceholder')}
+                containerStyle={styles.inputField}
+              />
+              <AuthInputField
+                name="phoneNumber"
+                label={t('patientProfile.phoneNumberLabel')}
+                placeholder={t('patientProfile.phoneNumberPlaceholder')}
+                keyboardType="phone-pad"
+                containerStyle={styles.inputField}
+              />
+              <AuthInputField
+                name="tribe"
+                label={t('patientProfile.tribeLabel')}
+                placeholder={t('patientProfile.tribePlaceholder')}
+                containerStyle={styles.inputField}
+              />
+              <AuthInputField
+                name="religion"
+                label={t('patientProfile.religionLabel')}
+                placeholder={t('patientProfile.religionPlaceholder')}
+                containerStyle={styles.inputField}
+              />
 
               {error && <Text style={styles.errorText}>{error}</Text>}
 
               <AppButton
-                title={t('doctorProfile.submitButton')}
+                title={t('patientProfile.submitButton')}
                 onPress={handleSubmit}
                 backgroundColor={COLORS.primary}
                 loading={isLoading}
-                loadingText={t('doctorProfile.loading')}
+                loadingText={t('patientProfile.loading')}
                 containerStyle={styles.submitButton}
               />
             </View>
@@ -621,7 +514,7 @@ const CreateDoctorProfileScreen = () => {
   );
 };
 
-export default CreateDoctorProfileScreen;
+export default CreatePatientProfileScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -647,7 +540,7 @@ const styles = StyleSheet.create({
   },
   form: {
     width: '100%',
-    maxWidth: 450, // Max width for tablet views
+    maxWidth: 450,
     alignItems: 'center',
   },
   inputField: {
@@ -660,32 +553,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.lightGray,
     borderRadius: 8,
-    backgroundColor: COLORS.background, // A lighter background for the picker
+    backgroundColor: COLORS.background,
   },
   pickerLabel: {
     paddingLeft: 10,
     paddingTop: 8,
-    color: COLORS.dark, // A clear color for the label
+    color: COLORS.dark,
   },
   picker: {
     width: '100%',
     height: 50,
-    color: COLORS.text, // Text color inside the picker
-  },
-  documentUploadContainer: {
-    width: '100%',
-    marginBottom: 20,
-    alignItems: 'center',
-  },
-  uploadButton: {
-    width: '80%',
-    marginBottom: 10,
-  },
-  documentUriText: {
-    marginTop: 5,
-    color: COLORS.success,
-    textAlign: 'center',
-    fontSize: 12,
+    color: COLORS.text,
   },
   errorText: {
     color: COLORS.danger,
@@ -700,404 +578,576 @@ const styles = StyleSheet.create({
   },
 });
 ```
+**Note:** For `setAuthUser` to work, you'll need to add it to your `authSlice.ts` reducers:
+```typescript
+// src/redux/slices/authSlice.ts (add this to your reducers)
 
-**4.2. Admin KYC List Screen (`app/(tabs)/admin/kyc-list.tsx`)**
+// ... existing imports and initialState
 
-This screen will be accessible only to admin users and will list pending KYC requests.
+const authSlice = createSlice({
+  name: 'auth',
+  initialState,
+  reducers: {
+    // ... existing logout, clearAuthError
+    setAuthUser: (state, action: PayloadAction<User>) => {
+      state.user = action.payload; // Allows updating specific user fields like role, profile IDs
+    },
+  },
+  // ... extraReducers
+});
+
+export const { logout, clearAuthError, setAuthUser } = authSlice.actions; // Export it
+export default authSlice.reducer;
+```
+
+**4.2. General Profile View Screen (`app/(tabs)/profile/my-profile.tsx`)**
+
+This screen will intelligently display the user's profile based on their role and completed profiles. It will also be the entry point for "Become a Doctor" for patients.
 
 ```typescript
-// app/(tabs)/admin/kyc-list.tsx
+// app/(tabs)/profile/my-profile.tsx
 
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator, Text, RefreshControl, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
-import {
-  fetchPendingKycVerifications,
-  verifyDoctorProfile, // Specific thunk for doctor verification
-  // verifyKyc, // General KYC thunk if needed for other types of KYC
-  removeKycFromPending,
-  clearAdminError
-} from '@/redux/slices/adminSlice';
-import { KycVerification } from '@/types/admin';
-import { AppButton, CustomText } from '@/components';
+import { CustomText, AppButton } from '@/components';
 import { COLORS } from '@/constants/theme';
+import { logout, setAuthUser } from '@/redux/slices/authSlice';
 import { useRouter } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser'; // For opening document URLs
+import { useTranslation } from 'react-i18next';
+import { fetchPatientProfile, clearPatientProfileError } from '@/redux/slices/patientProfileSlice';
+import { fetchDoctorProfileById, clearDoctorProfileError, setDoctorProfile } from '@/redux/slices/doctorProfileSlice';
 
-const AdminKycListScreen = () => {
-  const dispatch: AppDispatch = useDispatch();
-  const { pendingKyc, isLoading, error } = useSelector((state: RootState) => state.admin);
-  const user = useSelector((state: RootState) => state.auth.user); // Get current user for role check
-
+const MyProfileScreen = () => {
   const router = useRouter();
-  const [refreshing, setRefreshing] = useState(false);
+  const { t } = useTranslation();
+  const dispatch: AppDispatch = useDispatch();
 
-  // Initial fetch and role check
+  const authUser = useSelector((state: RootState) => state.auth.user);
+  const authIsLoading = useSelector((state: RootState) => state.auth.isLoading); // For general auth loading
+  const patientProfile = useSelector((state: RootState) => state.patientProfile.profile);
+  const patientIsLoading = useSelector((state: RootState) => state.patientProfile.isLoading);
+  const patientError = useSelector((state: RootState) => state.patientProfile.error);
+  const doctorProfile = useSelector((state: RootState) => state.doctorProfile.profile);
+  const doctorIsLoading = useSelector((state: RootState) => state.doctorProfile.isLoading);
+  const doctorError = useSelector((state: RootState) => state.doctorProfile.error);
+
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+
+  // Fetch profiles based on role and existence
   useEffect(() => {
-    if (!user || user.role !== 'ADMIN') {
-      Alert.alert('Access Denied', 'You do not have permission to view this page.');
-      router.replace('/(tabs)/'); // Redirect non-admins
-      return;
+    const loadProfiles = async () => {
+      if (authUser && authUser.id) {
+        // Fetch patient profile if user is a patient or has a patient profile ID
+        if (authUser.role === 'PATIENT' && authUser.patientProfileId) {
+          await dispatch(fetchPatientProfile(authUser.id)).unwrap(); // Pass user ID as patient ID (assuming correlation)
+        } else if (authUser.role === 'DOCTOR' && authUser.doctorProfileId) {
+          // Fetch doctor profile if user is a doctor and has a doctor profile ID
+          await dispatch(fetchDoctorProfileById(authUser.doctorProfileId)).unwrap();
+        }
+      }
+      setInitialLoadComplete(true);
+    };
+    if (!initialLoadComplete) {
+        loadProfiles();
     }
-    dispatch(fetchPendingKycVerifications());
-  }, [dispatch, user, router]);
+  }, [authUser, dispatch, initialLoadComplete]);
 
-  // Handle Redux errors
+  // Handle errors from profile fetches
   useEffect(() => {
-    if (error) {
-      Alert.alert('Error', error);
-      dispatch(clearAdminError());
+    if (patientError) {
+      Alert.alert(t('common.error'), patientError);
+      dispatch(clearPatientProfileError());
     }
-  }, [error, dispatch]);
+    if (doctorError) {
+      Alert.alert(t('common.error'), doctorError);
+      dispatch(clearDoctorProfileError());
+    }
+  }, [patientError, doctorError, dispatch, t]);
 
-  const onRefresh = React.useCallback(async () => {
-    setRefreshing(true);
-    await dispatch(fetchPendingKycVerifications());
-    setRefreshing(false);
-  }, [dispatch]);
-
-  const handleVerify = async (kycId: string, userEmail: string, status: 'APPROVED' | 'REJECTED') => {
+  const handleLogout = () => {
     Alert.alert(
-      'Confirm Action',
-      `Are you sure you want to ${status.toLowerCase()} this doctor's verification?`,
+      t('profile.logoutConfirmTitle'),
+      t('profile.logoutConfirmMessage'),
       [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Confirm',
-          onPress: async () => {
-            // Use verifyDoctorProfile specifically
-            const resultAction = await dispatch(verifyDoctorProfile({
-              email: userEmail,
-              status: status,
-              notes: `Admin ${status.toLowerCase()} verification at ${new Date().toLocaleString()}`
-            }));
-
-            if (verifyDoctorProfile.fulfilled.match(resultAction)) {
-              Alert.alert('Success', `Doctor verification ${status.toLowerCase()} successfully.`);
-              dispatch(removeKycFromPending(kycId)); // Remove from list immediately
-            }
-          },
-        },
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('common.logout'), onPress: () => {
+          dispatch(logout());
+          router.replace('/auth/login'); // Redirect to login
+        }},
       ]
     );
   };
 
-  const openDocument = async (url: string) => {
-    if (url) {
-      const result = await WebBrowser.openBrowserAsync(url);
-      if (result.type === 'cancel') {
-        Alert.alert('Action Cancelled', 'Document view was cancelled.');
-      }
+  const handleCreatePatientProfile = () => {
+    router.push('/profile/create-patient'); // Adjust path as needed based on your routing
+  };
+
+  const handleCreateDoctorProfile = () => {
+    router.push('/profile/create-doctor'); // Adjust path as needed
+  };
+
+  const handleEditProfile = () => {
+    // Navigate to an edit screen, passing current profile data
+    if (authUser?.role === 'PATIENT' && patientProfile) {
+      router.push({ pathname: '/profile/edit-patient', params: patientProfile });
+    } else if (authUser?.role === 'DOCTOR' && doctorProfile) {
+      router.push({ pathname: '/profile/edit-doctor', params: doctorProfile });
     } else {
-      Alert.alert('No Document', 'No document URL available for this request.');
+      Alert.alert(t('common.info'), t('profile.noProfileToEdit'));
     }
   };
 
-  const renderItem = ({ item }: { item: KycVerification }) => (
-    <View style={styles.kycCard}>
-      <CustomText type="h4" style={styles.cardHeader}>{item.type} Verification Request</CustomText>
-      <CustomText type="body4">
-        User: {item.user.firstname} {item.user.lastname} ({item.user.email})
-      </CustomText>
-      {item.doctorProfile && (
-        <CustomText type="body4">
-          Specialization: {item.doctorProfile.specialization}, Fee: ${item.doctorProfile.fee}
-        </CustomText>
-      )}
-      <CustomText type="body4">Status: <Text style={{ color: item.status === 'PENDING' ? COLORS.warning : COLORS.gray }}>{item.status}</Text></CustomText>
-      <CustomText type="body4">Request Date: {new Date(item.createdAt).toLocaleDateString()}</CustomText>
-
-      {item.documents && item.documents.length > 0 && (
-        <AppButton
-          title={`View Document${item.documents.length > 1 ? 's' : ''}`}
-          onPress={() => openDocument(item.documents[0])} // Assuming one primary document or pick first
-          backgroundColor={COLORS.secondary}
-          textColor={COLORS.dark}
-          containerStyle={styles.viewDocButton}
-          titleStyle={styles.viewDocButtonTitle}
-        />
-      )}
-
-      {item.status === 'PENDING' && (
-        <View style={styles.buttonContainer}>
-          <AppButton
-            title="Approve"
-            onPress={() => handleVerify(item.id, item.user.email, 'APPROVED')}
-            backgroundColor={COLORS.success}
-            containerStyle={styles.actionButton}
-            loading={isLoading}
-          />
-          <AppButton
-            title="Reject"
-            onPress={() => handleVerify(item.id, item.user.email, 'REJECTED')}
-            backgroundColor={COLORS.danger}
-            containerStyle={styles.actionButton}
-            loading={isLoading}
-          />
-        </View>
-      )}
-    </View>
-  );
-
-  if (isLoading && pendingKyc.length === 0 && !error) { // Only show full loading indicator if no data and no error
+  if (!authUser || authIsLoading || !initialLoadComplete || patientIsLoading || doctorIsLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={styles.loadingText}>Loading pending verifications...</Text>
+        <CustomText type="body1" style={styles.loadingText}>{t('profile.loadingProfile')}</CustomText>
       </View>
     );
   }
 
+  // --- Render based on User Role and Profile Existence ---
+  const renderPatientProfile = () => (
+    <View style={styles.profileSection}>
+      <CustomText type="h3" style={styles.sectionHeader}>{t('profile.patientDetails')}</CustomText>
+      <CustomText type="body3">{t('patientProfile.genderLabel')}: {patientProfile?.gender}</CustomText>
+      <CustomText type="body3">{t('patientProfile.ageLabel')}: {patientProfile?.age}</CustomText>
+      <CustomText type="body3">{t('patientProfile.address1Label')}: {patientProfile?.address1}</CustomText>
+      {patientProfile?.address2 && <CustomText type="body3">{t('patientProfile.address2Label')}: {patientProfile?.address2}</CustomText>}
+      {patientProfile?.occupation && <CustomText type="body3">{t('patientProfile.occupationLabel')}: {patientProfile?.occupation}</CustomText>}
+      <CustomText type="body3">{t('patientProfile.phoneNumberLabel')}: {patientProfile?.phoneNumber}</CustomText>
+      {patientProfile?.tribe && <CustomText type="body3">{t('patientProfile.tribeLabel')}: {patientProfile?.tribe}</CustomText>}
+      {patientProfile?.religion && <CustomText type="body3">{t('patientProfile.religionLabel')}: {patientProfile?.religion}</CustomText>}
+      <AppButton
+        title={t('profile.editPatientProfile')}
+        onPress={handleEditProfile}
+        backgroundColor={COLORS.secondary}
+        textColor={COLORS.dark}
+        containerStyle={styles.editButton}
+      />
+    </View>
+  );
+
+  const renderDoctorProfile = () => (
+    <View style={styles.profileSection}>
+      <CustomText type="h3" style={styles.sectionHeader}>{t('profile.doctorDetails')}</CustomText>
+      <CustomText type="body3">{t('doctorProfile.specializationLabel')}: {doctorProfile?.specialization}</CustomText>
+      <CustomText type="body3">{t('doctorProfile.feeLabel')}: ${doctorProfile?.fee}</CustomText>
+      <CustomText type="body3">{t('profile.verificationStatus')}: {doctorProfile?.verificationStatus}</CustomText>
+      {doctorProfile?.documents && (
+        <TouchableOpacity onPress={() => Alert.alert('View Document', 'Implement document viewer here.')}>
+          <CustomText style={styles.viewDocLink}>{t('profile.viewDocuments')}</CustomText>
+        </TouchableOpacity>
+      )}
+      <AppButton
+        title={t('profile.editDoctorProfile')}
+        onPress={handleEditProfile}
+        backgroundColor={COLORS.secondary}
+        textColor={COLORS.dark}
+        containerStyle={styles.editButton}
+      />
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <CustomText type="h1" style={styles.header}>Pending KYC Verifications</CustomText>
-      {pendingKyc.length === 0 && !isLoading ? ( // Show empty message only if not loading and no items
-        <View style={styles.emptyContainer}>
-          <CustomText type="body1" style={styles.emptyText}>No pending KYC requests found.</CustomText>
-          <AppButton
-            title="Refresh"
-            onPress={onRefresh}
-            backgroundColor={COLORS.primary}
-            containerStyle={{ marginTop: 20, width: '50%' }}
-          />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <CustomText type="h1" style={styles.mainHeader}>{t('profile.myProfile')}</CustomText>
+
+        <View style={styles.profileSection}>
+          <CustomText type="h2" style={styles.sectionHeader}>{t('profile.basicInfo')}</CustomText>
+          <CustomText type="body3">{t('profile.name')}: {authUser?.firstname} {authUser?.lastname}</CustomText>
+          <CustomText type="body3">{t('profile.email')}: {authUser?.email}</CustomText>
+          <CustomText type="body3">{t('profile.role')}: {authUser?.role}</CustomText>
         </View>
-      ) : (
-        <FlatList
-          data={pendingKyc}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContent}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
-          }
+
+        {/* Conditional rendering for Patient profile */}
+        {authUser?.role === 'PATIENT' && !patientProfile && !patientIsLoading && (
+          <View style={styles.callToAction}>
+            <CustomText type="body2" style={styles.callToActionText}>
+              {t('profile.completePatientProfilePrompt')}
+            </CustomText>
+            <AppButton
+              title={t('profile.completePatientProfileButton')}
+              onPress={handleCreatePatientProfile}
+              backgroundColor={COLORS.primary}
+              containerStyle={styles.actionButton}
+            />
+            <CustomText type="body2" style={styles.callToActionText}>
+              {t('profile.wantToBeDoctorPrompt')}
+            </CustomText>
+            <AppButton
+              title={t('profile.becomeDoctorButton')}
+              onPress={handleCreateDoctorProfile}
+              backgroundColor={COLORS.accent}
+              textColor={COLORS.white}
+              containerStyle={styles.actionButton}
+            />
+          </View>
+        )}
+        {authUser?.role === 'PATIENT' && patientProfile && renderPatientProfile()}
+
+        {/* Conditional rendering for Doctor profile */}
+        {(authUser?.role === 'PENDING_DOCTOR' || (authUser?.role === 'PATIENT' && !patientProfile)) && (
+          <View style={styles.callToAction}>
+             <CustomText type="body2" style={styles.callToActionText}>
+              {t('profile.becomeDoctorPrompt')}
+            </CustomText>
+            <AppButton
+              title={t('profile.becomeDoctorButton')}
+              onPress={handleCreateDoctorProfile}
+              backgroundColor={COLORS.accent}
+              textColor={COLORS.white}
+              containerStyle={styles.actionButton}
+            />
+          </View>
+        )}
+        {authUser?.role === 'DOCTOR' && doctorProfile && renderDoctorProfile()}
+        {authUser?.role === 'DOCTOR' && !doctorProfile && !doctorIsLoading && (
+            <View style={styles.callToAction}>
+                <CustomText type="body2" style={styles.callToActionText}>
+                    {t('profile.doctorProfileMissing')}
+                </CustomText>
+                <AppButton
+                    title={t('profile.createDoctorProfileNow')}
+                    onPress={handleCreateDoctorProfile}
+                    backgroundColor={COLORS.primary}
+                    containerStyle={styles.actionButton}
+                />
+            </View>
+        )}
+        {/* If user is PENDING_DOCTOR and has submitted doctor profile, just show pending status */}
+        {authUser?.role === 'PENDING_DOCTOR' && doctorProfile && (
+            <View style={styles.profileSection}>
+                <CustomText type="h3" style={styles.sectionHeader}>{t('profile.doctorVerification')}</CustomText>
+                <CustomText type="body3">{t('profile.verificationStatus')}: {doctorProfile.verificationStatus}</CustomText>
+                <CustomText type="body3">{t('profile.pendingVerificationMessage')}</CustomText>
+            </View>
+        )}
+
+
+        <AppButton
+          title={t('common.logout')}
+          onPress={handleLogout}
+          backgroundColor={COLORS.danger}
+          containerStyle={styles.logoutButton}
         />
-      )}
+      </ScrollView>
     </View>
   );
 };
 
-export default AdminKycListScreen;
+export default MyProfileScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background || '#F7F7F7', // Assuming a background color from COLORS
-    paddingTop: 50, // Adjust for status bar/notch
-    paddingHorizontal: 16,
+    backgroundColor: COLORS.background || '#F7F7F7',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    paddingBottom: 30,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: COLORS.background || '#F7F7F7',
   },
   loadingText: {
     marginTop: 10,
     color: COLORS.text || '#333',
   },
-  header: {
-    marginBottom: 20,
+  mainHeader: {
+    marginBottom: 30,
     textAlign: 'center',
     color: COLORS.primary,
   },
-  listContent: {
-    paddingBottom: 20,
-  },
-  kycCard: {
+  profileSection: {
     backgroundColor: COLORS.white,
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: COLORS.lightGray || '#EEE',
+    borderRadius: 10,
+    padding: 20,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  cardHeader: {
-    marginBottom: 8,
+  sectionHeader: {
+    marginBottom: 10,
+    color: COLORS.dark || '#333',
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.lightGray || '#EEE',
+    paddingBottom: 5,
+  },
+  viewDocLink: {
+    color: COLORS.info,
+    textDecorationLine: 'underline',
+    marginTop: 10,
+  },
+  callToAction: {
+    backgroundColor: COLORS.infoLight || '#E0F7FA', // A light background for prompts
+    borderRadius: 10,
+    padding: 20,
+    marginBottom: 20,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.info || '#00BCD4',
+  },
+  callToActionText: {
+    textAlign: 'center',
+    marginBottom: 15,
     color: COLORS.dark || '#333',
   },
-  viewDocButton: {
-    marginTop: 10,
-    width: '60%', // narrower button
-    alignSelf: 'center',
-    height: 35, // smaller height
-    borderRadius: 18,
-    backgroundColor: COLORS.info || '#007BFF',
-  },
-  viewDocButtonTitle: {
-    fontSize: 14,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 15,
-  },
   actionButton: {
-    width: '45%',
-    height: 40,
-    borderRadius: 20,
+    width: '80%',
+    marginBottom: 10,
   },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  editButton: {
+    marginTop: 20,
+    width: '80%',
+    alignSelf: 'center',
+    backgroundColor: COLORS.accent || '#FFC107',
+    textColor: COLORS.dark,
   },
-  emptyText: {
-    color: COLORS.gray || '#666',
+  logoutButton: {
+    marginTop: 30,
+    marginBottom: 20,
+    width: '80%',
+    alignSelf: 'center',
+  },
+  // Re-use from other screens
+  pickerContainer: {
+    width: '100%',
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+    borderRadius: 8,
+    backgroundColor: COLORS.background,
+  },
+  pickerLabel: {
+    paddingLeft: 10,
+    paddingTop: 8,
+    color: COLORS.dark,
+  },
+  picker: {
+    width: '100%',
+    height: 50,
+    color: COLORS.text,
+  },
+  inputField: {
+    marginBottom: 15,
+    width: '100%',
+  },
+  errorText: {
+    color: COLORS.danger,
+    marginTop: 5,
     textAlign: 'center',
+    width: '100%',
+    fontSize: 12,
   },
 });
 ```
 
 ---
 
-### Step 5: Update Root Navigation (`app/(tabs)/_layout.tsx`)
+### Step 5: Update Root Navigation (`app/(tabs)/_layout.tsx`) & Conditional Redirect
 
-Ensure proper navigation setup for the new screens, especially for admin access.
+We need to ensure that after a user logs in, if they haven't completed their required profile (patient or doctor), they are redirected to the appropriate screen.
 
 ```typescript
-// app/(tabs)/_layout.tsx (updated to include admin tab)
+// app/(tabs)/_layout.tsx (updated to include profile completion logic)
 
-import { Tabs } from 'expo-router';
+import { Tabs, Redirect } from 'expo-router'; // Import Redirect
 import { FontAwesome } from '@expo/vector-icons';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/redux/store';
-import React from 'react'; // Make sure React is imported
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '@/redux/store';
+import React, { useEffect } from 'react';
+import { ActivityIndicator, View, Text, StyleSheet } from 'react-native';
+import { fetchPatientProfile } from '@/redux/slices/patientProfileSlice';
+import { fetchDoctorProfileById } from '@/redux/slices/doctorProfileSlice';
+import { COLORS } from '@/constants/theme'; // Assuming you have COLORS
 
 export default function TabLayout() {
-  const user = useSelector((state: RootState) => state.auth.user);
-  // Add a way to check if doctor profile exists and is approved, if needed for routing
-  // const doctorProfile = useSelector((state: RootState) => state.doctorProfile.profile);
+  const dispatch: AppDispatch = useDispatch();
+  const authUser = useSelector((state: RootState) => state.auth.user);
+  const authIsLoading = useSelector((state: RootState) => state.auth.isLoading);
+  const patientProfile = useSelector((state: RootState) => state.patientProfile.profile);
+  const patientIsLoading = useSelector((state: RootState) => state.patientProfile.isLoading);
+  const doctorProfile = useSelector((state: RootState) => state.doctorProfile.profile);
+  const doctorIsLoading = useSelector((state: RootState) => state.doctorProfile.isLoading);
 
-  const isAdmin = user?.role === 'ADMIN';
-  const isDoctor = user?.role === 'DOCTOR'; // Assuming 'DOCTOR' role is set after verification
-  const isPatient = user?.role === 'PATIENT'; // Default role, or after patient profile setup
+  const [hasCheckedProfiles, setHasCheckedProfiles] = React.useState(false);
 
-  return (
-    <Tabs>
-      <Tabs.Screen
-        name="index" // Home/Feed screen
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="home" color={color} />,
-          headerShown: false,
-        }}
-      />
-      {/* Example: Messages tab - visible for all */}
-      <Tabs.Screen
-        name="messages"
-        options={{
-          title: 'Messages',
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="comments" color={color} />,
-          headerShown: false,
-        }}
-      />
+  useEffect(() => {
+    const checkAndFetchProfiles = async () => {
+      if (authUser && !authIsLoading) {
+        // If user is a PATIENT and has a patientProfileId, try to fetch it
+        if (authUser.role === 'PATIENT' && authUser.patientProfileId) {
+          await dispatch(fetchPatientProfile(authUser.id)).unwrap(); // assuming patientId is userId
+        }
+        // If user is a DOCTOR and has a doctorProfileId, try to fetch it
+        else if (authUser.role === 'DOCTOR' && authUser.doctorProfileId) {
+          await dispatch(fetchDoctorProfileById(authUser.doctorProfileId)).unwrap();
+        }
+        setHasCheckedProfiles(true);
+      } else if (!authUser && !authIsLoading) {
+        // No authenticated user, so no profiles to check. Mark as checked to allow redirect to login.
+        setHasCheckedProfiles(true);
+      }
+    };
 
-      {/* Doctor-specific tabs */}
-      {isDoctor && (
-        <>
+    if (!hasCheckedProfiles && !authIsLoading && authUser) { // Only run if not already checked and authUser is loaded
+      checkAndFetchProfiles();
+    }
+  }, [authUser, authIsLoading, hasCheckedProfiles, dispatch]);
+
+  // If user data is still loading or initial profile checks are pending, show a loader
+  if (authIsLoading || !hasCheckedProfiles || patientIsLoading || doctorIsLoading) {
+    return (
+      <View style={layoutStyles.loadingContainer}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={{ marginTop: 10 }}>Loading user data...</Text>
+      </View>
+    );
+  }
+
+  // Determine redirection based on user role and profile completion
+  if (authUser) {
+    // Check if user has a basic profile (patient or doctor)
+    const hasPatientProfile = !!patientProfile;
+    const hasDoctorProfile = !!doctorProfile;
+
+    // --- Redirection Logic ---
+    // If user is logged in, but their main role's profile is not complete
+    if (authUser.role === 'PATIENT' && !hasPatientProfile) {
+      return <Redirect href="/profile/create-patient" />;
+    }
+    // If user is a DOCTOR but their doctor profile is missing
+    // Note: A user's role transitions from initial (e.g., PATIENT) -> PENDING_DOCTOR (after submission) -> DOCTOR (after admin approval)
+    // Here we handle the case where they are already DOCTOR but somehow profile data is missing in client state
+    if (authUser.role === 'DOCTOR' && !hasDoctorProfile) {
+      return <Redirect href="/profile/create-doctor" />; // Should not happen often if backend is consistent
+    }
+
+    // No redirection needed, proceed with normal tabs
+    const isAdmin = authUser?.role === 'ADMIN';
+    const isDoctor = authUser?.role === 'DOCTOR';
+    const isPatient = authUser?.role === 'PATIENT'; // Consider 'PENDING_DOCTOR' as well if you have it
+
+    return (
+      <Tabs>
+        <Tabs.Screen
+          name="index" // Home/Feed screen
+          options={{
+            title: 'Home',
+            tabBarIcon: ({ color }) => <FontAwesome size={28} name="home" color={color} />,
+            headerShown: false,
+          }}
+        />
+        <Tabs.Screen
+          name="messages"
+          options={{
+            title: 'Messages',
+            tabBarIcon: ({ color }) => <FontAwesome size={28} name="comments" color={color} />,
+            headerShown: false,
+          }}
+        />
+
+        {/* Doctor-specific tabs */}
+        {isDoctor && (
+          <>
+            <Tabs.Screen
+              name="doctor/my-appointments"
+              options={{
+                title: 'My Schedule',
+                tabBarIcon: ({ color }) => <FontAwesome size={28} name="calendar-check-o" color={color} />,
+                headerShown: false,
+              }}
+            />
+            <Tabs.Screen
+              name="doctor/my-patients"
+              options={{
+                title: 'My Patients',
+                tabBarIcon: ({ color }) => <FontAwesome size={28} name="group" color={color} />,
+                headerShown: false,
+              }}
+            />
+          </>
+        )}
+
+        {/* Patient-specific tabs (if needed, e.g., for booking) */}
+        {isPatient && (
           <Tabs.Screen
-            name="doctor/my-appointments" // Example, assuming a doctor specific appointments list
-            options={{
-              title: 'My Schedule',
-              tabBarIcon: ({ color }) => <FontAwesome size={28} name="calendar-check-o" color={color} />,
-              headerShown: false,
-            }}
-          />
-          <Tabs.Screen
-            name="doctor/my-patients" // Example, for viewing patient records etc.
-            options={{
-              title: 'My Patients',
-              tabBarIcon: ({ color }) => <FontAwesome size={28} name="group" color={color} />,
-              headerShown: false,
-            }}
-          />
-        </>
-      )}
-
-      {/* Patient-specific tabs */}
-      {isPatient && (
-        <>
-          <Tabs.Screen
-            name="book-appointment" // Example, for booking appointments
+            name="book-appointment"
             options={{
               title: 'Book',
               tabBarIcon: ({ color }) => <FontAwesome size={28} name="calendar-plus-o" color={color} />,
               headerShown: false,
             }}
           />
-          {/* Add more patient specific tabs here */}
-        </>
-      )}
+        )}
 
-      {/* Admin-specific tab */}
-      {isAdmin && (
+        {/* Admin-specific tab */}
+        {isAdmin && (
+          <Tabs.Screen
+            name="admin/kyc-list"
+            options={{
+              title: 'Admin KYC',
+              tabBarIcon: ({ color }) => <FontAwesome size={28} name="gavel" color={color} />,
+              headerShown: false,
+            }}
+          />
+        )}
+
         <Tabs.Screen
-          name="admin/kyc-list" // Path to your Admin KYC screen
+          name="profile/my-profile" // Corrected path to my-profile
           options={{
-            title: 'Admin KYC',
-            tabBarIcon: ({ color }) => <FontAwesome size={28} name="gavel" color={color} />, // Judge's gavel icon
+            title: 'Profile',
+            tabBarIcon: ({ color }) => <FontAwesome size={28} name="user" color={color} />,
             headerShown: false,
           }}
         />
-      )}
+        {/*
+          Hidden Screens: These screens are part of the navigation stack but not directly
+          accessible via tabs. They are typically pushed via router.push()
+        */}
+        <Tabs.Screen name="profile/create-patient" options={{ href: null }} />
+        <Tabs.Screen name="profile/create-doctor" options={{ href: null }} />
+        {/* Add edit screens here too if they are separate */}
+        <Tabs.Screen name="profile/edit-patient" options={{ href: null }} />
+        <Tabs.Screen name="profile/edit-doctor" options={{ href: null }} />
+      </Tabs>
+    );
+  }
 
-      <Tabs.Screen
-        name="profile" // User's general profile, where "Become a Doctor" might be
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="user" color={color} />,
-          headerShown: false,
-        }}
-      />
-    </Tabs>
-  );
+  // If no authUser, redirect to login
+  return <Redirect href="/auth/login" />;
 }
+
+const layoutStyles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.background || '#F7F7F7',
+  },
+});
 ```
 
----
+**Important Backend Interaction Notes for Profile Completion & Role Management:**
 
-### Key Considerations Before Running:
+*   **Initial Role:** Ensure that when a user first registers (via `POST /api/user/register`), the backend assigns them a default role like `PATIENT` or `UNVERIFIED_USER`.
+*   **Patient Profile Creation:** When `POST /api/patient/create` is successful, the backend should ideally update the corresponding `User` record to link the `patientProfileId` and, if your system uses it, perhaps set their role to `PATIENT` if it wasn't already. The API response for `createPatientProfile` should ideally return the updated `User` object, or at least the `patientProfile.id`.
+*   **Doctor Profile Creation:** When `POST /api/doctor/create` is successful, the backend should set the user's role to `PENDING_DOCTOR` (or `APPLICANT_DOCTOR`) and link the `doctorProfileId`.
+*   **Admin Verification:** When an admin approves a doctor's KYC (`POST /api/admin/doctor-verifications/verify`), the backend *must* update that user's role to `DOCTOR`.
+*   **Frontend User State Update:** After any profile creation or admin verification, if the `authUser` object in your Redux `authSlice` doesn't automatically reflect the latest `role` and `*ProfileId` changes, you will need to:
+    1.  Dispatch `setAuthUser` with the updated `User` object received from the backend (if the backend sends it back in the response).
+    2.  Or, if the backend doesn't send the updated user, you might dispatch `loadUserFromStorage()` again (which would re-fetch user data from SecureStore, assuming it was updated there, or from a `GET /api/user/me` endpoint if you implement one).
 
-1.  **Dependencies:** Ensure you have installed `@react-native-picker/picker` and `expo-image-picker`:
-    ```bash
-    npm install @react-native-picker/picker expo-image-picker
-    # Or if using Expo Go:
-    expo install @react-native-picker/picker expo-image-picker
-    ```
-    Also `expo install expo-web-browser` for the admin screen.
-
-2.  **`app.json` Permissions (for `expo-image-picker`):**
-    For Android and iOS, add the necessary permissions to your `app.json`:
-    ```json
-    {
-      "expo": {
-        "android": {
-          "permissions": ["READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE", "CAMERA"]
-        },
-        "ios": {
-          "infoPlist": {
-            "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos for document uploads.",
-            "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera for document uploads."
-          }
-        }
-      }
-    }
-    ```
-    Rebuild your dev client or standalone app if you change `app.json`.
-
-3.  **Backend Logic for Role Update:**
-    *   **Doctor Creation:** Your `POST /api/doctor/create` endpoint *must* be designed to handle the user's role. Typically, when a user creates a doctor profile, their `User` record's `role` field would be updated (e.g., from `PATIENT` to `APPLICANT_DOCTOR` or a `verificationStatus` added).
-    *   **Admin Verification:** When `POST /api/admin/doctor-verifications/verify` is called with `status: "APPROVED"`, the backend should change the corresponding `User`'s role to `"DOCTOR"`. This change is critical for the `isDoctor` check in the frontend to work correctly. The frontend might need to re-fetch the user's data (e.g., call `loadUserFromStorage` again or have a specific `fetchCurrentUserProfile` thunk) after an admin action to reflect the role change without requiring a full re-login.
-
-4.  **Actual Document Upload:** The `CreateDoctorProfileScreen` currently just takes the local URI of the picked document. **For a production app, you absolutely need to implement actual file upload to a cloud storage service (e.g., Cloudinary, AWS S3, Google Cloud Storage, Firebase Storage)**. Your backend would then store the *public URL* of this uploaded document. The current code passes the local `pickedDocumentUri` which will likely fail the backend validation if it expects a public URL.
-
-5.  **Role Handling:** The `_layout.tsx` uses `user?.role`. Ensure that when a user first registers, their default `role` is something like `PATIENT` (or `USER`), and it changes to `DOCTOR` *only after* admin approval. If the backend doesn't automatically send updated user data after admin approval, the doctor user will only see the role change after their next login (when `loadUserFromStorage` runs again). You might need a mechanism to `dispatch(loadUserFromStorage())` or a similar action after a doctor knows their profile is approved.
-
-6.  **Translation Keys:** Remember to add all new translation keys (`doctorProfile.title`, `doctorProfile.specializationRequired`, `admin.accessDenied`, etc.) to your `i18n` configuration.
-
-With these steps, you'll have robust Redux-managed flows for doctor profile creation and admin KYC verification.
+This comprehensive approach sets up profile completion for both patient and doctor roles, and handles the necessary navigation and state management around it. Remember to add the new translation keys to your i18n files!

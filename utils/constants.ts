@@ -16,4 +16,6 @@ export const COLORS = {
   warning: "#ff002b",
   secondary: "#544C4C",
   secondaryGray: "rgba(104,96,96,0.34)",
+  accent: "#6CC24A",
+  infoLight: "#E0F7FA",
 };
