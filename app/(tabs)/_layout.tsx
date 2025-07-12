@@ -122,7 +122,7 @@ export default function TabLayout() {
     const checkAndFetchProfiles = async () => {
       if (authUser && !authIsLoading) {
         if (authUser.role === "PATIENT" && authUser.patientProfileId) {
-          await dispatch(fetchPatientProfile(authUser.id)).unwrap(); // assuming patientId is userId
+          await dispatch(fetchPatientProfile(authUser.id)).unwrap();
         } else if (authUser.role === "DOCTOR" && authUser.doctorProfileId) {
           await dispatch(
             fetchDoctorProfileById(authUser.doctorProfileId)
@@ -131,14 +131,13 @@ export default function TabLayout() {
           authUser.role === "PENDING_DOCTOR" &&
           authUser.doctorProfileId
         ) {
-          // Also fetch for PENDING_DOCTOR to show status on profile page
           await dispatch(
             fetchDoctorProfileById(authUser.doctorProfileId)
           ).unwrap();
         }
         setHasCheckedProfiles(true);
       } else if (!authUser && !authIsLoading) {
-        setHasCheckedProfiles(true); // No authenticated user, ready to redirect to login
+        setHasCheckedProfiles(true);
       }
     };
 
@@ -180,8 +179,7 @@ export default function TabLayout() {
     // After ensuring profiles are complete, determine role-based tab visibility
     const isAdmin = authUser?.role === "ADMIN";
     const isDoctor = authUser?.role === "DOCTOR";
-    const isPatient = authUser?.role === "PATIENT"; // And ensure patient profile is complete
-    const isPendingDoctor = authUser?.role === "PENDING_DOCTOR";
+    const isPatient = authUser?.role === "PATIENT";
 
     return (
       <Tabs>
@@ -196,7 +194,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="messages"
+          name="messages/index" // Custom Messages tab
           options={{
             title: "Messages",
             tabBarIcon: ({ color }) => (
@@ -244,12 +242,12 @@ export default function TabLayout() {
               }}
             />
             <Tabs.Screen
-              name="doctor/my-prescriptions" // Assuming a screen for doctors to view their issued prescriptions
+              name="doctor/my-prescriptions"
               options={{
                 title: "My Presc.",
                 tabBarIcon: ({ color }) => (
                   <FontAwesome size={28} name="stethoscope" color={color} />
-                ), // Example icon
+                ),
                 headerShown: false,
               }}
             />
@@ -260,7 +258,7 @@ export default function TabLayout() {
         {isPatient && (
           <>
             <Tabs.Screen
-              name="book-appointment/doctor-list" // Entry point for booking
+              name="book-appointment/doctor-list"
               options={{
                 title: "Book Appt",
                 tabBarIcon: ({ color }) => (
@@ -316,7 +314,6 @@ export default function TabLayout() {
           />
         )}
 
-        {/* Profile tab, always visible after initial completion */}
         <Tabs.Screen
           name="profile/my-profile"
           options={{
@@ -328,8 +325,8 @@ export default function TabLayout() {
           }}
         />
 
-        {/* HIDDEN SCREENS (accessed via router.push) */}
-        {/* Profile Completion/Edit */}
+        {/* HIDDEN SCREENS (accessed via router.push - not directly in tabs) */}
+        {/* Profile Completion/Edit Screens */}
         <Tabs.Screen
           name="profile/create-patient"
           options={{ href: null, headerShown: false }}
@@ -347,7 +344,7 @@ export default function TabLayout() {
           options={{ href: null, headerShown: false }}
         />
 
-        {/* Doctor Specific Details */}
+        {/* Doctor Specific Detail Screens */}
         <Tabs.Screen
           name="doctor/record-consultation"
           options={{ href: null, headerShown: false }}
@@ -360,13 +357,12 @@ export default function TabLayout() {
           name="doctor/create-prescription"
           options={{ href: null, headerShown: false }}
         />
-        {/* You might also want a detail screen for doctor's own issued prescriptions */}
         <Tabs.Screen
           name="doctor/prescription-detail"
           options={{ href: null, headerShown: false }}
         />
 
-        {/* Patient Specific Details */}
+        {/* Patient Specific Detail Screens */}
         <Tabs.Screen
           name="book-appointment/doctor-detail"
           options={{ href: null, headerShown: false }}
@@ -375,11 +371,19 @@ export default function TabLayout() {
           name="my-records/consultation-detail-view"
           options={{ href: null, headerShown: false }}
         />
-        {/* You might also want a detail screen for patient's own prescriptions */}
         <Tabs.Screen
           name="my-records/prescription-detail-view"
           options={{ href: null, headerShown: false }}
         />
+
+        {/* Custom Messaging Detail Screen */}
+        <Tabs.Screen
+          name="messages/chat/[chatPartnerId]"
+          options={{ href: null, headerShown: false }}
+        />
+
+        {/* Call Screen (handled by root _layout.tsx as a modal) */}
+        {/* <Stack.Screen name="calls/[streamCallId]" ... /> is in root _layout.tsx */}
       </Tabs>
     );
   }

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Picker } from "@react-native-picker/picker";
 import {
   View,
   StyleSheet,
@@ -26,13 +25,15 @@ import {
   clearAppointmentError,
 } from "@/redux/slice/appointmentSlice";
 import { CustomText, AppButton, AuthInputField } from "@/components";
+import { COLORS } from "@/utils/constants";
 import { useTranslation } from "react-i18next";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
 import * as yup from "yup";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { format } from "date-fns";
-import { COLORS } from "@/utils/constants";
+import { Picker } from "@react-native-picker/picker";
+
 
 interface AppointmentFormValues {
   selectedDate: string; // YYYY-MM-DD
@@ -62,12 +63,13 @@ const DoctorDetailScreen = () => {
   const { isLoading: bookingLoading, error: bookingError } = useSelector(
     (state: RootState) => state.appointment
   );
+  const authUser = useSelector((state: RootState) => state.auth.user); // Current logged-in user
 
   const doctorSpecificTimeslots = doctorId ? allDoctorTimeslots[doctorId] : [];
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [currentDateFilter, setCurrentDateFilter] = useState(
     format(new Date(), "yyyy-MM-dd")
-  ); // Filter timeslots by selected date
+  );
 
   useEffect(() => {
     if (doctorId) {
@@ -116,11 +118,30 @@ const DoctorDetailScreen = () => {
     if (bookAppointment.fulfilled.match(resultAction)) {
       Alert.alert(t("common.success"), t("bookAppointment.bookingSuccess"));
       actions.resetForm();
-      // Optionally re-fetch timeslots to update availability
-      dispatch(fetchTimeslotsForSpecificDoctor(doctorId));
+      dispatch(fetchTimeslotsForSpecificDoctor(doctorId)); // Re-fetch timeslots to update availability
       // @ts-ignore
       router.replace("/my-appointments"); // Navigate to patient's own appointments
     }
+  };
+
+  const handleMessageDoctor = () => {
+    if (!authUser?.id || !doctorProfile?.userId) {
+      Alert.alert(t("common.error"), t("messages.chatNotAvailable"));
+      return;
+    }
+    if (authUser.id === doctorProfile.userId) {
+      Alert.alert(t("common.info"), t("messages.cannotChatSelf"));
+      return;
+    }
+    // Navigate to custom chat screen
+    router.push({
+      // @ts-ignore
+      pathname: `/messages/chat/[chatPartnerId]`,
+      params: {
+        chatPartnerId: doctorProfile.userId,
+        chatPartnerName: doctorName || `${doctorProfile.userId}'s Profile`,
+      },
+    });
   };
 
   const filteredTimeslots =
@@ -183,6 +204,21 @@ const DoctorDetailScreen = () => {
           {/* Add more doctor details if available */}
         </View>
 
+        {/* Message Doctor Button */}
+        {authUser?.id &&
+          doctorProfile?.userId &&
+          authUser.id !== doctorProfile.userId && (
+            <AppButton
+              title={t("doctorDetail.messageDoctor")}
+              onPress={handleMessageDoctor}
+              backgroundColor={COLORS.info}
+              textColor={COLORS.white}
+              containerStyle={styles.messageButton}
+              loading={bookingLoading} // Link to general screen loading if desired
+              loadingText={t("common.loading")}
+            />
+          )}
+
         {/* Appointment Booking Form */}
         <CustomText type="h2" style={styles.sectionHeader}>
           {t("bookAppointment.title")}
@@ -195,7 +231,7 @@ const DoctorDetailScreen = () => {
           }}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
-          enableReinitialize={true} // Reinitialize when currentDateFilter changes
+          enableReinitialize={true}
         >
           {({ handleSubmit, setFieldValue, values, errors, touched }) => (
             <View style={styles.form}>
@@ -223,7 +259,7 @@ const DoctorDetailScreen = () => {
                     }
                     mode="date"
                     display="default"
-                    minimumDate={new Date()} // Can't book in the past
+                    minimumDate={new Date()}
                     onChange={(event, selectedDate) => {
                       setShowDatePicker(Platform.OS === "ios");
                       if (selectedDate) {
@@ -232,8 +268,8 @@ const DoctorDetailScreen = () => {
                           "yyyy-MM-dd"
                         );
                         setFieldValue("selectedDate", formattedDate);
-                        setCurrentDateFilter(formattedDate); // Update filter to show timeslots for this date
-                        setFieldValue("selectedTimeslotId", ""); // Clear selected timeslot
+                        setCurrentDateFilter(formattedDate);
+                        setFieldValue("selectedTimeslotId", "");
                       }
                     }}
                   />
@@ -293,7 +329,7 @@ const DoctorDetailScreen = () => {
 
               {(doctorError || timeslotError || bookingError) && (
                 <Text style={styles.errorText}>
-                  {doctorError || timeslotError || bookingError}
+                  {doctorError || timeslotError || bookingLoading}
                 </Text>
               )}
 
@@ -366,6 +402,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: COLORS.dark,
   },
+  messageButton: {
+    // Style for the new message button
+    width: "100%",
+    marginTop: 15,
+  },
   sectionHeader: {
     marginTop: 20,
     marginBottom: 15,
@@ -400,9 +441,9 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 50,
     color: COLORS.text,
-    borderWidth: 1, // Added for visual consistency with AuthInputField
-    borderColor: COLORS.lightGray, // Added
-    borderRadius: 8, // Added
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+    borderRadius: 8,
   },
   inputField: {
     marginBottom: 15,

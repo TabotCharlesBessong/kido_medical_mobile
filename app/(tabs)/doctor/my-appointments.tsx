@@ -15,11 +15,13 @@ import {
   approveAppointment,
   clearAppointmentError,
 } from "@/redux/slice/appointmentSlice";
-import { Appointment, AppointmentStatus } from "@/constants/types/appointment";
+import { initiateCall } from "@/redux/slice/callSlice"; // NEW: Import initiateCall thunk
 import { AppButton, CustomText } from "@/components";
-import { useTranslation } from "react-i18next";
-import { useRouter } from "expo-router"; // Assuming navigation to consultation screen
 import { COLORS } from "@/utils/constants";
+import { useTranslation } from "react-i18next";
+import { useRouter } from "expo-router";
+import { format, isBefore, addMinutes } from "date-fns"; // For time window checks
+import { Appointment, AppointmentStatus } from "@/constants/types/appointment";
 
 const DoctorAppointmentsScreen = () => {
   const { t } = useTranslation();
@@ -28,6 +30,9 @@ const DoctorAppointmentsScreen = () => {
   const { doctorAppointments, isLoading, error } = useSelector(
     (state: RootState) => state.appointment
   );
+  const { callStatus: currentCallStatus, callError: callInitError } =
+    useSelector((state: RootState) => state.call); // Monitor call initiation status
+
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -39,7 +44,11 @@ const DoctorAppointmentsScreen = () => {
       Alert.alert(t("common.error"), error);
       dispatch(clearAppointmentError());
     }
-  }, [error, dispatch, t]);
+    if (callInitError) {
+      Alert.alert(t("common.error"), callInitError);
+      // You might want a clearCallError() here if you have one
+    }
+  }, [error, callInitError, dispatch, t]);
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
@@ -88,7 +97,7 @@ const DoctorAppointmentsScreen = () => {
           onPress: () =>
             router.push({
               // @ts-ignore
-              pathname: "/doctor/record-consultation/",
+              pathname: "/doctor/record-consultation",
               params: { appointmentId },
             }),
         },
@@ -96,9 +105,76 @@ const DoctorAppointmentsScreen = () => {
     );
   };
 
+  const handleStartCall = async (
+    appointmentId: string,
+    patientName: string
+  ) => {
+    // Optional: Add logic to check if it's too early/late for the call based on appointment time
+    const appointment = doctorAppointments.find(
+      (app) => app.id === appointmentId
+    );
+    if (!appointment || !appointment.timeslot) {
+      Alert.alert(t("common.error"), t("call.appointmentDetailsMissing"));
+      return;
+    }
+
+    const appointmentStart = new Date(
+      `${appointment.date}T${appointment.timeslot.startTime}:00`
+    );
+    const now = new Date();
+    const canStartBefore = addMinutes(appointmentStart, -5); // Can start 5 mins before
+    const canStartAfter = addMinutes(appointmentStart, 15); // Can start up to 15 mins after
+
+    if (isBefore(now, canStartBefore)) {
+      Alert.alert(
+        t("call.tooEarlyTitle"),
+        t("call.tooEarlyMessage", { time: format(appointmentStart, "p") })
+      );
+      return;
+    }
+    if (isBefore(canStartAfter, now)) {
+      Alert.alert(t("call.tooLateTitle"), t("call.tooLateMessage"));
+      return;
+    }
+
+    Alert.alert(
+      t("doctorAppointments.startCallTitle"),
+      t("doctorAppointments.startCallPrompt", { patientName }),
+      [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("common.proceed"),
+          onPress: async () => {
+            // Dispatch the action to initiate the call via backend
+            const resultAction = await dispatch(
+              initiateCall({ appointmentId })
+            );
+            if (
+              initiateCall.fulfilled.match(resultAction) &&
+              resultAction.payload.data
+            ) {
+              const { channelId } = resultAction.payload.data;
+              // Navigate to the Stream call screen with the Stream call ID (channelId)
+              router.push({
+                // @ts-ignore
+                pathname: `/calls/[streamCallId]`,
+                params: { streamCallId: channelId },
+              });
+            } else {
+              Alert.alert(
+                t("common.error"),
+                (resultAction.payload as string) || t("call.initiateFailed")
+              );
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const renderAppointmentItem = ({ item }: { item: Appointment }) => (
     <View style={styles.appointmentCard}>
-      <CustomText type="h4">
+      <CustomText type="h4" style={styles.cardHeader}>
         {t("doctorAppointments.appointmentWith")}
         {item.patient?.firstname} {item.patient?.lastname}
       </CustomText>
@@ -160,7 +236,21 @@ const DoctorAppointmentsScreen = () => {
         </View>
       )}
       {item.status === "APPROVED" && (
-        <View style={styles.buttonContainer}>
+        <View style={styles.buttonContainerTwo}>
+          {" "}
+          {/* Use a new style for these two buttons */}
+          {/* Start Call Button */}
+          <AppButton
+            title={t("doctorAppointments.startCallButton")}
+            onPress={() =>
+              handleStartCall(item.id, item.patient?.firstname || "Patient")
+            }
+            backgroundColor={COLORS.accent}
+            containerStyle={styles.actionButton}
+            loading={currentCallStatus === "initiating"} // Link to call initiation loading
+            loadingText={t("call.startingCall")}
+          />
+          {/* Record Consultation Button */}
           <AppButton
             title={t("doctorAppointments.recordConsultationButton")}
             onPress={() =>
@@ -170,7 +260,8 @@ const DoctorAppointmentsScreen = () => {
               )
             }
             backgroundColor={COLORS.primary}
-            containerStyle={styles.fullWidthButton} // Use a full-width button
+            containerStyle={styles.actionButton}
+            loading={isLoading} // Optional: link to general loading
           />
         </View>
       )}
@@ -181,7 +272,7 @@ const DoctorAppointmentsScreen = () => {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={COLORS.primary} />
-        <CustomText type="body1" >
+        <CustomText type="body1" style={styles.loadingText}>
           {t("common.loadingAppointments")}
         </CustomText>
       </View>
@@ -190,12 +281,12 @@ const DoctorAppointmentsScreen = () => {
 
   return (
     <View style={styles.container}>
-      <CustomText type="h1" >
+      <CustomText type="h1" style={styles.header}>
         {t("doctorAppointments.title")}
       </CustomText>
       {doctorAppointments.length === 0 && !isLoading ? (
         <View style={styles.emptyContainer}>
-          <CustomText type="body1">
+          <CustomText type="body1" style={styles.emptyText}>
             {t("doctorAppointments.noAppointments")}
           </CustomText>
           <AppButton
@@ -268,17 +359,19 @@ const styles = StyleSheet.create({
     color: COLORS.dark || "#333",
   },
   buttonContainer: {
+    // For Pending (Approve/Reject)
     flexDirection: "row",
     justifyContent: "space-around",
     marginTop: 15,
   },
-  actionButton: {
-    width: "45%",
-    height: 40,
-    borderRadius: 20,
+  buttonContainerTwo: {
+    // For Approved (Start Call/Record)
+    flexDirection: "row",
+    justifyContent: "space-between", // Changed to space-between
+    marginTop: 15,
   },
-  fullWidthButton: {
-    width: "100%", // For the record consultation button
+  actionButton: {
+    width: "48%", // Adjusted for two buttons side-by-side
     height: 40,
     borderRadius: 20,
   },

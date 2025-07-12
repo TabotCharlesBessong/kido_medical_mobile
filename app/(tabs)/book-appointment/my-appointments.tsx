@@ -14,13 +14,16 @@ import {
   fetchPatientAppointments,
   clearAppointmentError,
 } from "@/redux/slice/appointmentSlice";
-import { Appointment } from "@/constants/types/appointment";
 import { CustomText, AppButton } from "@/components";
 import { COLORS } from "@/utils/constants";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "expo-router";
+import { format, isBefore, addMinutes } from "date-fns"; // For checking appointment time proximity
+import { Appointment } from "@/constants/types/appointment";
 
 const PatientAppointmentsScreen = () => {
   const { t } = useTranslation();
+  const router = useRouter();
   const dispatch: AppDispatch = useDispatch();
   const { patientAppointments, isLoading, error } = useSelector(
     (state: RootState) => state.appointment
@@ -43,6 +46,40 @@ const PatientAppointmentsScreen = () => {
     await dispatch(fetchPatientAppointments());
     setRefreshing(false);
   }, [dispatch]);
+
+  const handleJoinCall = (appointment: Appointment) => {
+    if (!appointment.callRecord?.streamCallId) {
+      Alert.alert(t("common.error"), t("call.noCallId"));
+      return;
+    }
+
+    // Optional: Add logic to check if call is within a certain window (e.g., 15 mins before/after start)
+    const appointmentStart = new Date(
+      `${appointment.date}T${appointment.timeslot?.startTime}:00`
+    );
+    const now = new Date();
+    const canJoinBefore = addMinutes(appointmentStart, -15); // Can join 15 mins before
+    const canJoinAfter = addMinutes(appointmentStart, 30); // Can join up to 30 mins after
+
+    if (isBefore(now, canJoinBefore)) {
+      Alert.alert(
+        t("call.notTimeYetTitle"),
+        t("call.notTimeYetMessage", { time: format(appointmentStart, "p") })
+      );
+      return;
+    }
+    if (isBefore(canJoinAfter, now)) {
+      Alert.alert(t("call.tooLateTitle"), t("call.tooLateMessage"));
+      return;
+    }
+
+    // Navigate to the Stream call screen using the streamCallId from the backend call record
+    router.push({
+      // @ts-ignore
+      pathname: `/calls/[streamCallId]`,
+      params: { streamCallId: appointment.callRecord.streamCallId },
+    });
+  };
 
   const renderAppointmentItem = ({ item }: { item: Appointment }) => (
     <View style={styles.appointmentCard}>
@@ -86,6 +123,19 @@ const PatientAppointmentsScreen = () => {
           {item.status}
         </Text>
       </CustomText>
+
+      {item.status === "APPROVED" &&
+        item.callRecord?.streamCallId && ( // Check if record is approved AND has a streamCallId
+          <View style={styles.callButtonContainer}>
+            <AppButton
+              title={t("patientAppointments.joinCallButton")}
+              onPress={() => handleJoinCall(item)}
+              backgroundColor={COLORS.accent}
+              textColor={COLORS.white}
+              containerStyle={styles.joinCallButton}
+            />
+          </View>
+        )}
       {/* Optional: Button to cancel appointment if status is PENDING/APPROVED */}
       {/* {item.status === 'PENDING' && (
         <AppButton
@@ -196,6 +246,16 @@ const styles = StyleSheet.create({
   emptyText: {
     color: COLORS.gray || "#666",
     textAlign: "center",
+  },
+  callButtonContainer: {
+    marginTop: 15,
+    width: "100%",
+    alignItems: "center",
+  },
+  joinCallButton: {
+    width: "80%",
+    height: 45,
+    borderRadius: 25,
   },
   cancelButton: {
     marginTop: 15,
