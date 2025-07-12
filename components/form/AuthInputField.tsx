@@ -23,10 +23,13 @@ interface Props {
   containerStyle?: StyleProp<ViewStyle>;
   rightIcon?: ReactNode;
   onRightIconPress?(): void;
+  multiline?: boolean;
+  numberOfLines?: number;
+  style?: StyleProp<ViewStyle>;
+  editable?: boolean;
 }
 
 const AuthInputField: FC<Props> = (props) => {
-
   const { handleChange, values, errors, handleBlur, touched } =
     useFormikContext<{
       [key: string]: string;
@@ -42,13 +45,16 @@ const AuthInputField: FC<Props> = (props) => {
     name,
     rightIcon,
     onRightIconPress,
+    multiline,
+    numberOfLines,
+    style,
+    editable,
   } = props;
 
   const errorMsg = touched[name] && errors[name] ? errors[name] : "";
 
-
   return (
-    <View style={[containerStyle,{width:"100%"}]}>
+    <View style={[containerStyle, style, { width: "100%" }]}>
       <View style={styles.labelContainer}>
         <Text style={styles.label}>{label}</Text>
         <Text style={styles.errorMsg}>{errorMsg}</Text>
@@ -62,6 +68,9 @@ const AuthInputField: FC<Props> = (props) => {
           onChangeText={handleChange(name)}
           value={values[name]}
           onBlur={handleBlur(name)}
+          multiline={multiline}
+          numberOfLines={numberOfLines}
+          editable={editable}
         />
 
         {rightIcon ? (
