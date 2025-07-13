@@ -55,6 +55,10 @@ import timeslotReducer from "./slice/timeslotSlice";
 import appointmentReducer from "./slice/appointmentSlice";
 import consultationReducer from "./slice/consultationSlice";
 import prescriptionReducer from "./slice/prescriptionSlice";
+import streamReducer from "./slice/streamSlice"
+import callReducer from "./slice/callSlice"
+import messageReducer from "./slice/messageSlice"
+import postsReducer from "./slice/postsSlice"
 
 
 export const store = configureStore({
@@ -67,6 +71,10 @@ export const store = configureStore({
     appointment: appointmentReducer,
     consultation: consultationReducer,
     prescription: prescriptionReducer,
+    stream: streamReducer,
+    call: callReducer,
+    message: messageReducer,
+    posts: postsReducer
   },
   // `middleware` is automatically added by `configureStore` to include redux-thunk
 });
