@@ -51,6 +51,14 @@ import authReducer from "./slice/authSlice";
 import doctorProfileReducer from './slice/doctorProfileSlice';
 import adminReducer from './slice/adminSlice';
 import patientProfileReducer from './slice/patientProfileSlice';
+import timeslotReducer from "./slice/timeslotSlice";
+import appointmentReducer from "./slice/appointmentSlice";
+import consultationReducer from "./slice/consultationSlice";
+import prescriptionReducer from "./slice/prescriptionSlice";
+import streamReducer from "./slice/streamSlice"
+import callReducer from "./slice/callSlice"
+import messageReducer from "./slice/messageSlice"
+import postsReducer from "./slice/postsSlice"
 
 
 export const store = configureStore({
@@ -58,7 +66,15 @@ export const store = configureStore({
     auth: authReducer, // Add your auth reducer here
     admin: adminReducer,
     doctorProfile: doctorProfileReducer,
-    patientProfile: patientProfileReducer
+    patientProfile: patientProfileReducer,
+    timeslot: timeslotReducer,
+    appointment: appointmentReducer,
+    consultation: consultationReducer,
+    prescription: prescriptionReducer,
+    stream: streamReducer,
+    call: callReducer,
+    message: messageReducer,
+    posts: postsReducer
   },
   // `middleware` is automatically added by `configureStore` to include redux-thunk
 });

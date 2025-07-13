@@ -1,3 +1,5 @@
+import { User } from "./auth";
+
 export interface DoctorProfile {
   id: string; // The ID of the doctor's profile (distinct from userId in some schemas)
   userId: string; // The ID of the associated user account
@@ -17,9 +19,19 @@ export interface CreateDoctorProfilePayload {
   documents: string; // URL of the uploaded document
 }
 
+export interface DoctorListItem extends User {
+  doctorProfile?: DoctorProfile; // Optional, as it might be null for unverified/pending doctors
+}
+
 // API response structure for creating/fetching a doctor profile
 export interface DoctorProfileApiResponse {
   success: boolean;
   message: string;
   data?: DoctorProfile; // `data` field might contain the DoctorProfile on success
+}
+
+export interface AllDoctorsApiResponse {
+  success: boolean;
+  message: string;
+  data: DoctorListItem[]; // Array of DoctorListItem
 }
