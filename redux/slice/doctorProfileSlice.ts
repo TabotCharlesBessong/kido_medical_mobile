@@ -1,4 +1,4 @@
-import { CreateDoctorProfilePayload, DoctorProfile, DoctorProfileApiResponse } from "@/constants/types/doctor";
+import { AllDoctorsApiResponse, CreateDoctorProfilePayload, DoctorListItem, DoctorProfile, DoctorProfileApiResponse } from "@/constants/types/doctor";
 import axiosInstance from "@/utils/api/axiosInstance";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 
@@ -7,12 +7,14 @@ interface DoctorProfileState {
   profile: DoctorProfile | null; // Stores the current doctor's profile
   isLoading: boolean;
   error: string | null;
+  allDoctors: DoctorListItem[]
 }
 
 const initialState: DoctorProfileState = {
   profile: null,
   isLoading: false,
   error: null,
+  allDoctors: []
 };
 
 // Async Thunk for creating/completing a doctor profile
@@ -67,6 +69,29 @@ export const fetchDoctorProfileById = createAsyncThunk<
   }
 });
 
+export const fetchAllDoctors = createAsyncThunk<
+  AllDoctorsApiResponse,
+  void,
+  { rejectValue: string }
+>("doctor/fetchAllDoctors", async (_, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.get<AllDoctorsApiResponse>(
+      "/doctor/all"
+    ); // Postman: /api/doctor/all
+    const data = response.data;
+
+    if (data.success && Array.isArray(data.data)) {
+      return data;
+    } else {
+      return rejectWithValue(data.message || "Failed to fetch all doctors.");
+    }
+  } catch (error: any) {
+    const errorMessage =
+      error.response?.data?.message || error.message || "Network Error";
+    return rejectWithValue(errorMessage);
+  }
+});
+
 const doctorProfileSlice = createSlice({
   name: "doctorProfile",
   initialState,
@@ -112,6 +137,21 @@ const doctorProfileSlice = createSlice({
         state.isLoading = false;
         state.profile = null;
         state.error = action.payload || "Failed to fetch doctor profile.";
+      })
+      // NEW: Handle fetchAllDoctors
+      .addCase(fetchAllDoctors.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllDoctors.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.allDoctors = action.payload.data; // Store the list of all doctors
+        state.error = null;
+      })
+      .addCase(fetchAllDoctors.rejected, (state, action) => {
+        state.isLoading = false;
+        state.allDoctors = []; // Clear list on error
+        state.error = action.payload || 'Failed to fetch all doctors.';
       });
   },
 });
