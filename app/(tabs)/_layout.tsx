@@ -184,7 +184,7 @@ export default function TabLayout() {
     return (
       <Tabs>
         <Tabs.Screen
-          name="index" // Home/Feed screen
+          name="index" // Home/Posts Feed screen
           options={{
             title: "Home",
             tabBarIcon: ({ color }) => (
@@ -379,6 +379,16 @@ export default function TabLayout() {
         {/* Custom Messaging Detail Screen */}
         <Tabs.Screen
           name="messages/chat/[chatPartnerId]"
+          options={{ href: null, headerShown: false }}
+        />
+
+        {/* Post related screens */}
+        <Tabs.Screen
+          name="posts/create-post"
+          options={{ href: null, headerShown: false }}
+        />
+        <Tabs.Screen
+          name="posts/post-detail"
           options={{ href: null, headerShown: false }}
         />
 

@@ -58,6 +58,7 @@ import prescriptionReducer from "./slice/prescriptionSlice";
 import streamReducer from "./slice/streamSlice"
 import callReducer from "./slice/callSlice"
 import messageReducer from "./slice/messageSlice"
+import postsReducer from "./slice/postsSlice"
 
 
 export const store = configureStore({
@@ -72,7 +73,8 @@ export const store = configureStore({
     prescription: prescriptionReducer,
     stream: streamReducer,
     call: callReducer,
-    message: messageReducer
+    message: messageReducer,
+    posts: postsReducer
   },
   // `middleware` is automatically added by `configureStore` to include redux-thunk
 });
