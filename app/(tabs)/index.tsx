@@ -440,17 +440,364 @@
 // });
 
 
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState, useCallback } from "react";
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  Text,
+  RefreshControl,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import {
+  fetchAllPosts,
+  likePost,
+  unlikePost,
+  clearPostsError,
+  removeOptimisticPost,
+  toggleOptimisticLike,
+} from "@/redux/slice/postsSlice";
+import { Post } from "@/constants/types/post";
+import { CustomText, AppButton } from "@/components";
+import { COLORS } from "@/utils/constants";
+import { useTranslation } from "react-i18next";
+import { useRouter } from "expo-router";
+import { FontAwesome } from "@expo/vector-icons";
+import { formatDistanceToNow, parseISO } from "date-fns"; // For timestamp formatting
 
-const index = () => {
+const PostsListScreen = () => {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const dispatch: AppDispatch = useDispatch();
+  const { allPosts, isLoading, error } = useSelector(
+    (state: RootState) => state.posts
+  );
+  const authUser = useSelector((state: RootState) => state.auth.user); // Current logged-in user
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    dispatch(fetchAllPosts());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (error) {
+      Alert.alert(t("common.error"), error);
+      dispatch(clearPostsError());
+    }
+  }, [error, dispatch, t]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await dispatch(fetchAllPosts());
+    setRefreshing(false);
+  }, [dispatch]);
+
+  const handleCreatePost = () => {
+    // @ts-ignore
+    router.push("/posts/create-post"); // Navigate to create post screen
+  };
+
+  const handleViewPostDetails = (postId: string) => {
+    // @ts-ignore
+    router.push({ pathname: "/posts/post-detail", params: { postId } });
+  };
+
+  const handleLikeToggle = async (post: Post) => {
+    if (!authUser?.id) return;
+
+    const userLiked = post.likes?.some((like) => like.userId === authUser.id);
+    // Use the Like type directly instead of Post["likes"][0]
+    const like: import("@/constants/types/post").Like | undefined = userLiked
+      ? undefined
+      : {
+          // Create a dummy like for optimistic update
+          id: `optimistic-like-${Date.now()}`,
+          userId: authUser.id,
+          postId: post.id,
+          createdAt: new Date().toISOString(),
+          user: authUser, // Attach user for display
+        };
+
+    dispatch(
+      toggleOptimisticLike({
+        postId: post.id,
+        userId: authUser.id,
+        liked: !userLiked,
+        like,
+      })
+    );
+
+    try {
+      if (userLiked) {
+        await dispatch(unlikePost(post.id)).unwrap();
+      } else {
+        await dispatch(likePost(post.id)).unwrap();
+      }
+    } catch (err: any) {
+      Alert.alert(t("common.error"), err.message || t("posts.likeFailed"));
+      // Revert optimistic update if API fails
+      dispatch(
+        toggleOptimisticLike({
+          postId: post.id,
+          userId: authUser.id,
+          liked: !userLiked,
+          like,
+        })
+      );
+    }
+  };
+
+  const renderPostItem = ({ item }: { item: Post }) => {
+    const userLiked = item.likes?.some((like) => like.userId === authUser?.id);
+    const isMyPost = item.userId === authUser?.id;
+
+    return (
+      <TouchableOpacity
+        style={styles.postCard}
+        onPress={() => handleViewPostDetails(item.id)}
+        activeOpacity={0.8}
+      >
+        <View style={styles.postHeader}>
+          {/* User Avatar/Name */}
+          <View style={styles.userInfo}>
+            <FontAwesome
+              name="user-circle"
+              size={30}
+              color={COLORS.gray}
+              style={styles.userAvatar}
+            />
+            <CustomText type="body3" style={styles.userName}>
+              {item.user?.firstname} {item.user?.lastname}{" "}
+              {isMyPost && `(${t("posts.myPost")})`}
+            </CustomText>
+          </View>
+          <CustomText type="body5" style={styles.postTime}>
+            {formatDistanceToNow(parseISO(item.createdAt), { addSuffix: true })}
+          </CustomText>
+        </View>
+
+        <CustomText type="h4" style={styles.postTitle}>
+          {item.title}
+        </CustomText>
+        {item.image && (
+          <Image source={{ uri: item.image }} style={styles.postImage} />
+        )}
+        <CustomText
+          type="body3"
+          // numberOfLines={3}
+          style={styles.postDescription}
+        >
+          {item.description}
+        </CustomText>
+
+        <View style={styles.postActions}>
+          <TouchableOpacity
+            onPress={() => handleLikeToggle(item)}
+            style={styles.actionButton}
+          >
+            <FontAwesome
+              name={userLiked ? "heart" : "heart-o"}
+              size={20}
+              color={userLiked ? COLORS.danger : COLORS.gray}
+            />
+            <CustomText type="body2" style={styles.actionText}>
+              {item.likesCount || 0}
+            </CustomText>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => handleViewPostDetails(item.id)}
+            style={styles.actionButton}
+          >
+            <FontAwesome name="comment-o" size={20} color={COLORS.gray} />
+            <CustomText type="body2" style={styles.actionText}>
+              {item.commentsCount || 0}
+            </CustomText>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  if (isLoading && allPosts.length === 0 && !error) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <CustomText type="body1" style={styles.loadingText}>
+          {t("common.loadingPosts")}
+        </CustomText>
+      </View>
+    );
+  }
+
   return (
-    <View>
-      <Text>index</Text>
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <CustomText type="h1" style={styles.header}>
+          {t("posts.title")}
+        </CustomText>
+        {authUser?.role === "DOCTOR" && ( // Only doctors can create posts
+          <AppButton
+            title={t("posts.createPostButton")}
+            onPress={handleCreatePost}
+            backgroundColor={COLORS.primary}
+            containerStyle={styles.createPostButton}
+            titleStyle={styles.createPostButtonTitle}
+          />
+        )}
+      </View>
+
+      {allPosts.length === 0 && !isLoading ? (
+        <View style={styles.emptyContainer}>
+          <CustomText type="body1" style={styles.emptyText}>
+            {t("posts.noPosts")}
+          </CustomText>
+          <AppButton
+            title={t("common.refresh")}
+            onPress={onRefresh}
+            backgroundColor={COLORS.primary}
+            containerStyle={{ marginTop: 20, width: "50%" }}
+          />
+        </View>
+      ) : (
+        <FlatList
+          data={allPosts}
+          keyExtractor={(item) => item.id}
+          renderItem={renderPostItem}
+          contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[COLORS.primary]}
+            />
+          }
+        />
+      )}
     </View>
-  )
-}
+  );
+};
 
-export default index
+export default PostsListScreen;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    paddingTop: 50,
+  },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    marginBottom: 20,
+  },
+  header: {
+    color: COLORS.primary,
+  },
+  createPostButton: {
+    width: 120, // Adjust width
+    height: 35, // Adjust height
+    borderRadius: 18,
+  },
+  createPostButtonTitle: {
+    fontSize: 14,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 10,
+    color: COLORS.text,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  emptyText: {
+    color: COLORS.gray,
+    textAlign: "center",
+  },
+  listContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 20,
+  },
+  postCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  postHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  userInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  userAvatar: {
+    marginRight: 8,
+  },
+  userName: {
+    color: COLORS.dark,
+    fontWeight: "bold",
+  },
+  postTime: {
+    color: COLORS.gray,
+    fontSize: 12,
+  },
+  postTitle: {
+    color: COLORS.dark,
+    marginBottom: 10,
+    fontWeight: "bold",
+  },
+  postImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 10,
+    resizeMode: "cover",
+  },
+  postDescription: {
+    color: COLORS.text,
+    marginBottom: 10,
+  },
+  postActions: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    borderTopWidth: 1,
+    borderTopColor: COLORS.lightGray,
+    paddingTop: 10,
+    marginTop: 10,
+  },
+  actionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 15,
+  },
+  actionText: {
+    marginLeft: 8,
+    color: COLORS.gray,
+    fontSize: 16,
+  },
+});

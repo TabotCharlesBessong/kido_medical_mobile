@@ -3,7 +3,7 @@ export interface RegisterValues {
   lastname: string;
   email: string;
   password: string;
-  role: string;
+  role: 'PATIENT' | 'ADMIN' | 'PATIENT';
   id: string;
   isVerified: boolean;
 }
@@ -24,6 +24,9 @@ export interface User {
   role: string;
   id: string;
   isVerified: boolean;
+  patientProfileId?: string | null; // ID of the associated patient profile
+  doctorProfileId?: string | null; // ID of the associated doctor profile
+  profilePic?: string
 }
 
 export interface LoginValues {

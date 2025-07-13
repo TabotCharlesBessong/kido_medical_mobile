@@ -48,18 +48,33 @@
 
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./slice/authSlice";
-// Import other reducers as you create them for other parts of the app
-// import patientProfileReducer from './slices/patientProfileSlice';
-// import doctorProfileReducer from './slices/doctorProfileSlice';
-// import postsReducer from './slices/postsSlice';
+import doctorProfileReducer from './slice/doctorProfileSlice';
+import adminReducer from './slice/adminSlice';
+import patientProfileReducer from './slice/patientProfileSlice';
+import timeslotReducer from "./slice/timeslotSlice";
+import appointmentReducer from "./slice/appointmentSlice";
+import consultationReducer from "./slice/consultationSlice";
+import prescriptionReducer from "./slice/prescriptionSlice";
+import streamReducer from "./slice/streamSlice"
+import callReducer from "./slice/callSlice"
+import messageReducer from "./slice/messageSlice"
+import postsReducer from "./slice/postsSlice"
+
 
 export const store = configureStore({
   reducer: {
     auth: authReducer, // Add your auth reducer here
-    // Add other feature reducers here:
-    // patientProfile: patientProfileReducer,
-    // doctorProfile: doctorProfileReducer,
-    // posts: postsReducer,
+    admin: adminReducer,
+    doctorProfile: doctorProfileReducer,
+    patientProfile: patientProfileReducer,
+    timeslot: timeslotReducer,
+    appointment: appointmentReducer,
+    consultation: consultationReducer,
+    prescription: prescriptionReducer,
+    stream: streamReducer,
+    call: callReducer,
+    message: messageReducer,
+    posts: postsReducer
   },
   // `middleware` is automatically added by `configureStore` to include redux-thunk
 });

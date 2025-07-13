@@ -89,39 +89,323 @@
 // export default TabLayout;
 
 
-import { Tabs } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons"; // Example icon library
-import React from "react";
+import { Tabs, Redirect } from "expo-router";
+import { FontAwesome } from "@expo/vector-icons";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "@/redux/store";
+import React, { useEffect } from "react";
+import { ActivityIndicator, View, Text, StyleSheet } from "react-native";
+import { fetchPatientProfile } from "@/redux/slice/patientProfileSlice";
+import { fetchDoctorProfileById } from "@/redux/slice/doctorProfileSlice";
+import { COLORS } from "@/utils/constants";
 
 export default function TabLayout() {
-  return (
-    <Tabs>
-      <Tabs.Screen
-        name="index" // This maps to app/(tabs)/index.tsx for your home screen
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => (
-            <FontAwesome size={28} name="home" color={color} />
-          ),
-          headerShown: false, // Hide header if you prefer custom header or no header
-        }}
-      />
-      {/* Add other main app tabs here */}
-      {/* Example: */}
-      {/* <Tabs.Screen
-        name="messages"
-        options={{
-          title: 'Messages',
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="comments" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="user" color={color} />,
-        }}
-      /> */}
-    </Tabs>
+  const dispatch: AppDispatch = useDispatch();
+  const authUser = useSelector((state: RootState) => state.auth.user);
+  const authIsLoading = useSelector((state: RootState) => state.auth.isLoading);
+  const patientProfile = useSelector(
+    (state: RootState) => state.patientProfile.profile
   );
+  const patientIsLoading = useSelector(
+    (state: RootState) => state.patientProfile.isLoading
+  );
+  const doctorProfile = useSelector(
+    (state: RootState) => state.doctorProfile.profile
+  );
+  const doctorIsLoading = useSelector(
+    (state: RootState) => state.doctorProfile.isLoading
+  );
+
+  const [hasCheckedProfiles, setHasCheckedProfiles] = React.useState(false);
+
+  useEffect(() => {
+    const checkAndFetchProfiles = async () => {
+      if (authUser && !authIsLoading) {
+        if (authUser.role === "PATIENT" && authUser.patientProfileId) {
+          await dispatch(fetchPatientProfile(authUser.id)).unwrap();
+        } else if (authUser.role === "DOCTOR" && authUser.doctorProfileId) {
+          await dispatch(
+            fetchDoctorProfileById(authUser.doctorProfileId)
+          ).unwrap();
+        } else if (
+          authUser.role === "PENDING_DOCTOR" &&
+          authUser.doctorProfileId
+        ) {
+          await dispatch(
+            fetchDoctorProfileById(authUser.doctorProfileId)
+          ).unwrap();
+        }
+        setHasCheckedProfiles(true);
+      } else if (!authUser && !authIsLoading) {
+        setHasCheckedProfiles(true);
+      }
+    };
+
+    if (!hasCheckedProfiles && !authIsLoading && authUser) {
+      checkAndFetchProfiles();
+    }
+  }, [authUser, authIsLoading, hasCheckedProfiles, dispatch]);
+
+  if (
+    authIsLoading ||
+    !hasCheckedProfiles ||
+    patientIsLoading ||
+    doctorIsLoading
+  ) {
+    return (
+      <View style={layoutStyles.loadingContainer}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={{ marginTop: 10 }}>Loading user data...</Text>
+      </View>
+    );
+  }
+
+  // --- Redirect to Profile Completion if needed ---
+  if (authUser) {
+    const hasPatientProfile = !!patientProfile;
+    const hasDoctorProfile = !!doctorProfile;
+
+    if (authUser.role === "PATIENT" && !hasPatientProfile) {
+      // @ts-ignore
+      return <Redirect href="/profile/create-patient" />;
+    }
+    if (
+      (authUser.role === "DOCTOR" || authUser.role === "PENDING_DOCTOR") &&
+      !hasDoctorProfile
+    ) {
+      return <Redirect href="/profile/create-doctor" />;
+    }
+
+    // After ensuring profiles are complete, determine role-based tab visibility
+    const isAdmin = authUser?.role === "ADMIN";
+    const isDoctor = authUser?.role === "DOCTOR";
+    const isPatient = authUser?.role === "PATIENT";
+
+    return (
+      <Tabs>
+        <Tabs.Screen
+          name="index" // Home/Posts Feed screen
+          options={{
+            title: "Home",
+            tabBarIcon: ({ color }) => (
+              <FontAwesome size={28} name="home" color={color} />
+            ),
+            headerShown: false,
+          }}
+        />
+        <Tabs.Screen
+          name="messages/index" // Custom Messages tab
+          options={{
+            title: "Messages",
+            tabBarIcon: ({ color }) => (
+              <FontAwesome size={28} name="comments" color={color} />
+            ),
+            headerShown: false,
+          }}
+        />
+
+        {/* Doctor-specific tabs (only for APPROVED doctors) */}
+        {isDoctor && (
+          <>
+            <Tabs.Screen
+              name="doctor/create-timeslot"
+              options={{
+                title: "Timeslots",
+                tabBarIcon: ({ color }) => (
+                  <FontAwesome size={28} name="clock-o" color={color} />
+                ),
+                headerShown: false,
+              }}
+            />
+            <Tabs.Screen
+              name="doctor/my-appointments"
+              options={{
+                title: "Doc Apps",
+                tabBarIcon: ({ color }) => (
+                  <FontAwesome
+                    size={28}
+                    name="calendar-check-o"
+                    color={color}
+                  />
+                ),
+                headerShown: false,
+              }}
+            />
+            <Tabs.Screen
+              name="doctor/my-consultations"
+              options={{
+                title: "My Consults",
+                tabBarIcon: ({ color }) => (
+                  <FontAwesome size={28} name="file-text-o" color={color} />
+                ),
+                headerShown: false,
+              }}
+            />
+            <Tabs.Screen
+              name="doctor/my-prescriptions"
+              options={{
+                title: "My Presc.",
+                tabBarIcon: ({ color }) => (
+                  <FontAwesome size={28} name="stethoscope" color={color} />
+                ),
+                headerShown: false,
+              }}
+            />
+          </>
+        )}
+
+        {/* Patient-specific tabs (only for patients with completed profile) */}
+        {isPatient && (
+          <>
+            <Tabs.Screen
+              name="book-appointment/doctor-list"
+              options={{
+                title: "Book Appt",
+                tabBarIcon: ({ color }) => (
+                  <FontAwesome size={28} name="calendar-plus-o" color={color} />
+                ),
+                headerShown: false,
+              }}
+            />
+            <Tabs.Screen
+              name="my-appointments"
+              options={{
+                title: "My Apps",
+                tabBarIcon: ({ color }) => (
+                  <FontAwesome size={28} name="calendar" color={color} />
+                ),
+                headerShown: false,
+              }}
+            />
+            <Tabs.Screen
+              name="my-records/consultations"
+              options={{
+                title: "My Consults",
+                tabBarIcon: ({ color }) => (
+                  <FontAwesome size={28} name="history" color={color} />
+                ),
+                headerShown: false,
+              }}
+            />
+            <Tabs.Screen
+              name="my-records/prescriptions"
+              options={{
+                title: "My Presc.",
+                tabBarIcon: ({ color }) => (
+                  <FontAwesome size={28} name="medkit" color={color} />
+                ),
+                headerShown: false,
+              }}
+            />
+          </>
+        )}
+
+        {/* Admin-specific tab */}
+        {isAdmin && (
+          <Tabs.Screen
+            name="admin/kyc-list"
+            options={{
+              title: "Admin KYC",
+              tabBarIcon: ({ color }) => (
+                <FontAwesome size={28} name="gavel" color={color} />
+              ),
+              headerShown: false,
+            }}
+          />
+        )}
+
+        <Tabs.Screen
+          name="profile/my-profile"
+          options={{
+            title: "Profile",
+            tabBarIcon: ({ color }) => (
+              <FontAwesome size={28} name="user" color={color} />
+            ),
+            headerShown: false,
+          }}
+        />
+
+        {/* HIDDEN SCREENS (accessed via router.push - not directly in tabs) */}
+        {/* Profile Completion/Edit Screens */}
+        <Tabs.Screen
+          name="profile/create-patient"
+          options={{ href: null, headerShown: false }}
+        />
+        <Tabs.Screen
+          name="profile/create-doctor"
+          options={{ href: null, headerShown: false }}
+        />
+        <Tabs.Screen
+          name="profile/edit-patient"
+          options={{ href: null, headerShown: false }}
+        />
+        <Tabs.Screen
+          name="profile/edit-doctor"
+          options={{ href: null, headerShown: false }}
+        />
+
+        {/* Doctor Specific Detail Screens */}
+        <Tabs.Screen
+          name="doctor/record-consultation"
+          options={{ href: null, headerShown: false }}
+        />
+        <Tabs.Screen
+          name="doctor/consultation-detail"
+          options={{ href: null, headerShown: false }}
+        />
+        <Tabs.Screen
+          name="doctor/create-prescription"
+          options={{ href: null, headerShown: false }}
+        />
+        <Tabs.Screen
+          name="doctor/prescription-detail"
+          options={{ href: null, headerShown: false }}
+        />
+
+        {/* Patient Specific Detail Screens */}
+        <Tabs.Screen
+          name="book-appointment/doctor-detail"
+          options={{ href: null, headerShown: false }}
+        />
+        <Tabs.Screen
+          name="my-records/consultation-detail-view"
+          options={{ href: null, headerShown: false }}
+        />
+        <Tabs.Screen
+          name="my-records/prescription-detail-view"
+          options={{ href: null, headerShown: false }}
+        />
+
+        {/* Custom Messaging Detail Screen */}
+        <Tabs.Screen
+          name="messages/chat/[chatPartnerId]"
+          options={{ href: null, headerShown: false }}
+        />
+
+        {/* Post related screens */}
+        <Tabs.Screen
+          name="posts/create-post"
+          options={{ href: null, headerShown: false }}
+        />
+        <Tabs.Screen
+          name="posts/post-detail"
+          options={{ href: null, headerShown: false }}
+        />
+
+        {/* Call Screen (handled by root _layout.tsx as a modal) */}
+        {/* <Stack.Screen name="calls/[streamCallId]" ... /> is in root _layout.tsx */}
+      </Tabs>
+    );
+  }
+
+  return <Redirect href="/auth/login" />;
 }
+
+const layoutStyles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: COLORS.background || "#F7F7F7",
+  },
+});
