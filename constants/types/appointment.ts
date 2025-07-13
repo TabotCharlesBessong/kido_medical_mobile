@@ -1,4 +1,5 @@
 import { User } from "./auth";
+import { CallRecord } from "./call";
 import { Timeslot } from "./timeslot";
 
 export type AppointmentStatus = "PENDING" | "APPROVED" | "REJECTED";
@@ -14,6 +15,8 @@ export interface Appointment {
   timeslotId: string;
   timeslot?: Timeslot; // Full timeslot object
   status: AppointmentStatus;
+  callRecordId?: string; // NEW: ID of the backend's CallRecord associated with this appointment
+  callRecord?: CallRecord; // NEW: Populated CallRecord if available
   createdAt: string;
   updatedAt: string;
 }

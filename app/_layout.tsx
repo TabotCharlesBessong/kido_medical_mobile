@@ -228,22 +228,51 @@
 import React, { useEffect } from "react";
 import { Stack } from "expo-router";
 import { Provider } from "react-redux";
-import { store, AppDispatch, RootState } from "@/redux/store"; // Import your Redux store
-import { loadUserFromStorage } from "@/redux/slice/authSlice"; // Import the thunk to load user data
+import { store, AppDispatch, RootState } from "@/redux/store";
+import { loadUserFromStorage } from "@/redux/slice/authSlice";
+import {
+  connectStreamUser,
+  disconnectStreamUser,
+} from "@/redux/slice/streamSlice"; // Stream Video client management
 import { useDispatch, useSelector } from "react-redux";
 import { StatusBar } from "expo-status-bar";
-import { Text, View, ActivityIndicator, StyleSheet } from "react-native"; // For loading indicator
+import { Text, View, ActivityIndicator, StyleSheet, Alert } from "react-native";
 
-// Create a component that wraps your navigation logic
-// This allows us to use Redux hooks for conditional rendering
-function RootNavigator() {
+// Stream Video SDK components
+import {
+  StreamVideo,
+  StreamVideoClient,
+} from "@stream-io/video-react-native-sdk";
+// Removed Stream Chat SDK imports
+
+// Required polyfills (ensure these are at the very top of your entry file like App.tsx or index.js/ts)
+// For Expo Router, often best placed directly here or in a separate polyfills.ts imported early.
+import "react-native-url-polyfill/auto";
+import "core-js/full/symbol/iterator";
+// If you encounter `TextEncoder` or `Buffer` issues:
+// import 'fast-text-encoding';
+// import { Buffer } from 'buffer';
+// (global as any).Buffer = Buffer;
+
+function RootNavigatorWrapper() {
   const dispatch: AppDispatch = useDispatch();
-  const { token, isLoading } = useSelector((state: RootState) => state.auth);
+  const {
+    user,
+    token: appAuthToken,
+    isLoading: authLoading,
+    error: authError,
+  } = useSelector((state: RootState) => state.auth);
+  const {
+    videoClient,
+    isConnected: streamConnected,
+    isLoading: streamLoading,
+    error: streamError,
+  } = useSelector((state: RootState) => state.stream);
 
   const [isAppReady, setIsAppReady] = React.useState(false);
 
+  // 1. Load app user from storage
   useEffect(() => {
-    // Load user token and data from SecureStore when the app starts
     const prepareApp = async () => {
       try {
         await dispatch(loadUserFromStorage()).unwrap();
@@ -254,28 +283,81 @@ function RootNavigator() {
       }
     };
     prepareApp();
-  }, [dispatch]);
 
-  // If the app is still loading user data from storage, show a splash/loading screen
-  if (!isAppReady || isLoading) {
+    // Cleanup: Disconnect Stream user on app close or if session ends externally
+    return () => {
+      if (streamConnected) {
+        dispatch(disconnectStreamUser());
+      }
+    };
+  }, [dispatch, streamConnected]);
+
+  // 2. Connect to Stream Video client once app user is loaded and authenticated
+  useEffect(() => {
+    if (
+      isAppReady &&
+      user &&
+      appAuthToken &&
+      !streamConnected &&
+      !streamLoading
+    ) {
+      dispatch(connectStreamUser(user.id));
+    }
+    // Handle disconnection if user logs out or appAuthToken disappears
+    if (isAppReady && !user && streamConnected) {
+      dispatch(disconnectStreamUser());
+    }
+  }, [
+    isAppReady,
+    user,
+    appAuthToken,
+    streamConnected,
+    streamLoading,
+    dispatch,
+  ]);
+
+  // Handle Stream errors
+  useEffect(() => {
+    if (streamError) {
+      Alert.alert("Stream Error", streamError);
+    }
+  }, [streamError]);
+
+  // If the app is still loading user data or connecting to Stream, show a splash/loading screen
+  if (!isAppReady || authLoading || streamLoading) {
     return (
       <View style={layoutStyles.loadingContainer}>
         <ActivityIndicator size="large" color="#0000ff" />
-        <Text style={{ marginTop: 10 }}>Loading app...</Text>
+        <Text style={{ marginTop: 10 }}>
+          {authLoading
+            ? "Authenticating..."
+            : "Connecting to video services..."}
+        </Text>
       </View>
     );
   }
 
+  // If authenticated and Stream Video client is connected, render the main app
+  if (user && appAuthToken && streamConnected && videoClient) {
+    return (
+      // Only Stream Video Context Provider
+      <StreamVideo client={videoClient}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          {/* Global call screen outside tabs, presented as a full-screen modal */}
+          <Stack.Screen
+            name="calls/[streamCallId]"
+            options={{ headerShown: false, presentation: "fullScreenModal" }}
+          />
+        </Stack>
+      </StreamVideo>
+    );
+  }
+
+  // If not authenticated or Stream failed to connect, redirect to auth flow
   return (
     <Stack>
-      {token ? (
-        // User is logged in, show the main application tabs
-        <Stack.Screen name="auth" options={{ headerShown: false }} />
-      ) : (
-        // User is not logged in, show authentication screens
-        <Stack.Screen name="auth" options={{ headerShown: false }} />
-      )}
-      {/* Fallback for any unmatched routes */}
+      <Stack.Screen name="auth" options={{ headerShown: false }} />
       <Stack.Screen name="+not-found" />
     </Stack>
   );
@@ -285,7 +367,7 @@ function RootNavigator() {
 export default function App() {
   return (
     <Provider store={store}>
-      <RootNavigator />
+      <RootNavigatorWrapper />
       <StatusBar style="auto" />
     </Provider>
   );
@@ -298,3 +380,4 @@ const layoutStyles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
