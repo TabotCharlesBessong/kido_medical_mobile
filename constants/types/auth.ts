@@ -26,6 +26,7 @@ export interface User {
   isVerified: boolean;
   patientProfileId?: string | null; // ID of the associated patient profile
   doctorProfileId?: string | null; // ID of the associated doctor profile
+  profilePic?: string
 }
 
 export interface LoginValues {
