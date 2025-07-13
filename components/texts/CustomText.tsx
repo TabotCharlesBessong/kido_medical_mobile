@@ -1,6 +1,6 @@
 import { COLORS, FONTS } from "@/constants/theme";
 import React, { FC } from "react";
-import { Text, StyleSheet } from "react-native";
+import { Text, StyleSheet, TextStyle, StyleProp } from "react-native";
 
 interface CustomTextProps {
   type:
@@ -13,37 +13,59 @@ interface CustomTextProps {
     | "body2"
     | "body3"
     | "body4"
-    | "body5"
+    | "body5";
   children: React.ReactNode;
   textColor?: string;
+  style?: StyleProp<TextStyle>;
 }
 
-const CustomText: FC<CustomTextProps> = ({ type, children, textColor }) => {
+const CustomText: FC<CustomTextProps> = ({
+  type,
+  children,
+  textColor,
+  style,
+}) => {
   const getStyle = (): any => {
+    let baseStyle;
     switch (type) {
       case "larger":
-        return [styles.larger,textColor];
+        baseStyle = styles.larger;
+        break;
       case "h1":
-        return styles.h1;
+        baseStyle = styles.h1;
+        break;
       case "h2":
-        return styles.h2;
+        baseStyle = styles.h2;
+        break;
       case "h3":
-        return styles.h3;
+        baseStyle = styles.h3;
+        break;
       case "h4":
-        return styles.h4;
+        baseStyle = styles.h4;
+        break;
       case "body1":
-        return styles.body1;
+        baseStyle = styles.body1;
+        break;
       case "body2":
-        return [styles.body2,textColor];
+        baseStyle = styles.body2;
+        break;
       case "body3":
-        return styles.body3;
+        baseStyle = styles.body3;
+        break;
       case "body4":
-        return styles.body4;
+        baseStyle = styles.body4;
+        break;
       case "body5":
-        return styles.body5;
+        baseStyle = styles.body5;
+        break;
       default:
-        return styles.body1;
+        baseStyle = styles.body1;
     }
+
+    // Apply textColor if provided
+    const colorStyle = textColor ? { color: textColor } : {};
+
+    return [baseStyle, colorStyle, style];
   };
 
   return <Text style={getStyle()}>{children}</Text>;
@@ -58,7 +80,7 @@ const styles = StyleSheet.create({
   h1: {
     color: COLORS.black,
     ...FONTS.h1,
-    textTransform:"capitalize"
+    textTransform: "capitalize",
   },
   h2: {
     color: COLORS.black,
@@ -77,7 +99,7 @@ const styles = StyleSheet.create({
     ...FONTS.body1,
   },
   body2: {
-    color:  COLORS.black,
+    color: COLORS.black,
     ...FONTS.body2,
   },
   body3: {
@@ -91,7 +113,7 @@ const styles = StyleSheet.create({
   body5: {
     color: COLORS.primary,
     ...FONTS.body5,
-    textAlign:"right"
+    textAlign: "right",
   },
 });
 
