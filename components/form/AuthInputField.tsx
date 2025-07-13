@@ -1,3 +1,4 @@
+// AuthInputField.tsx
 import { useFormikContext } from "formik";
 import { FC, ReactNode, useEffect } from "react";
 import {
@@ -11,6 +12,7 @@ import {
 } from "react-native";
 import AppInput from "../ui/form/AppInput";
 import { COLORS } from "@/constants/theme";
+import React from "react";
 
 interface Props {
   name: string;
@@ -22,14 +24,19 @@ interface Props {
   containerStyle?: StyleProp<ViewStyle>;
   rightIcon?: ReactNode;
   onRightIconPress?(): void;
+  multiline?: boolean;
+  numberOfLines?: number;
+  style?: StyleProp<ViewStyle>;
+  editable?: boolean;
+  // New props for direct value control
+  value?: string;
+  onChangeText?: (text: string) => void;
 }
 
 const AuthInputField: FC<Props> = (props) => {
-
-  const { handleChange, values, errors, handleBlur, touched } =
-    useFormikContext<{
-      [key: string]: string;
-    }>();
+  const formikContext = useFormikContext<{
+    [key: string]: string;
+  }>();
 
   const {
     label,
@@ -41,13 +48,33 @@ const AuthInputField: FC<Props> = (props) => {
     name,
     rightIcon,
     onRightIconPress,
+    multiline,
+    numberOfLines,
+    style,
+    editable,
+    value,
+    onChangeText,
   } = props;
 
-  const errorMsg = touched[name] && errors[name] ? errors[name] : "";
+  // Use direct value/onChangeText if provided, otherwise use Formik
+  const isControlled = value !== undefined && onChangeText !== undefined;
 
+  const inputValue = isControlled ? value : formikContext?.values[name] || "";
+  const handleTextChange = isControlled
+    ? onChangeText
+    : formikContext?.handleChange(name);
+  const handleInputBlur = isControlled
+    ? undefined
+    : formikContext?.handleBlur(name);
+
+  // Only show error messages when using Formik
+  const errorMsg =
+    !isControlled && formikContext?.touched[name] && formikContext?.errors[name]
+      ? formikContext.errors[name]
+      : "";
 
   return (
-    <View style={[containerStyle,{width:"100%"}]}>
+    <View style={[containerStyle, style, { width: "100%" }]}>
       <View style={styles.labelContainer}>
         <Text style={styles.label}>{label}</Text>
         <Text style={styles.errorMsg}>{errorMsg}</Text>
@@ -58,9 +85,12 @@ const AuthInputField: FC<Props> = (props) => {
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
           secureTextEntry={secureTextEntry}
-          onChangeText={handleChange(name)}
-          value={values[name]}
-          onBlur={handleBlur(name)}
+          onChangeText={handleTextChange}
+          value={inputValue}
+          onBlur={handleInputBlur}
+          multiline={multiline}
+          numberOfLines={numberOfLines}
+          editable={editable}
         />
 
         {rightIcon ? (

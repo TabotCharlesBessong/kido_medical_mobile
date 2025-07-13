@@ -1,0 +1,1438 @@
+{
+	"info": {
+		"_postman_id": "5126c9d8-fb85-497e-bbf9-db28161db943",
+		"name": "maido",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16211226"
+	},
+	"item": [
+		{
+			"name": "authentication",
+			"item": [
+				{
+					"name": "signup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstname\":\"Beatrice\",\r\n    \"lastname\":\"Ebeze\",\r\n    \"email\":\"ebezebeatrice@gmail.com\",\r\n    \"password\":\"Hello#123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/user/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verify user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"ebezebeatrice@gmail.com\",\r\n    \"code\":\"P2EUL4\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/user/verify-account",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user",
+								"verify-account"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"ebezebeatrice@gmail.com\",\r\n    \"password\":\"Hello#123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/user/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "posts",
+			"item": [
+				{
+					"name": "reactions",
+					"item": [
+						{
+							"name": "create comment",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"content\":\"Just forgot to let you know that my wife is pregnant\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5000/api/posts/1edc1696-acd3-44c8-9622-fb6cc8995682/comment",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"posts",
+										"1edc1696-acd3-44c8-9622-fb6cc8995682",
+										"comment"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "like post",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5000/api/posts/1edc1696-acd3-44c8-9622-fb6cc8995682/like",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"posts",
+										"1edc1696-acd3-44c8-9622-fb6cc8995682",
+										"like"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "unlike a post",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5000/api/posts/3d6d5e84-ae32-4bdf-864e-92439777250a/like",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"posts",
+										"3d6d5e84-ae32-4bdf-864e-92439777250a",
+										"like"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "get all posts",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/posts/post/all",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"posts",
+								"post",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\":\"Pregnancy\",\r\n    \"image\":\"https://womenshealth.gov/sites/default/files/heading-images/Bodychangesanddiscomforts.jpg\",\r\n    \"description\":\"A pregnant woman is in a state of gestation, where a fetus develops within her uterus for about 40 weeks. This period is characterized by various physical and hormonal changes in the mother, along with the growth and development of the fetus. \"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/posts/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"posts",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"description\":\"A pregnant woman is in a state of gestation, where a fetus develops within her uterus for about 40 weeks. This period is characterized by various physical and hormonal changes in the mother, along with the growth and development of the fetus. So take good care of her\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/posts/1edc1696-acd3-44c8-9622-fb6cc8995682",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"posts",
+								"1edc1696-acd3-44c8-9622-fb6cc8995682"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "fetching a single post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/posts/1edc1696-acd3-44c8-9622-fb6cc8995682",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"posts",
+								"1edc1696-acd3-44c8-9622-fb6cc8995682"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleting a post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/posts/c0567e20-a95d-4091-82ff-d28710387086",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"posts",
+								"c0567e20-a95d-4091-82ff-d28710387086"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getting single post by a doctor",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/posts/doctor/e9221072-e711-4742-8767-bb17ebc77dc3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"posts",
+								"doctor",
+								"e9221072-e711-4742-8767-bb17ebc77dc3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "messages",
+			"item": [
+				{
+					"name": "fetching a conversation",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/message/conversation/d231fe67-e33d-4323-b939-b458c420dd5f/c59951f6-9d4f-4cc7-b99a-e255fdd76005",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"message",
+								"conversation",
+								"d231fe67-e33d-4323-b939-b458c420dd5f",
+								"c59951f6-9d4f-4cc7-b99a-e255fdd76005"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "send amessage",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"receiverId\": \"05bc8431-e661-40ac-88dc-a137a30e5a02\",\r\n  \"content\": \"Hello! I sent your new prescriptions.\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/message/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"message",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getting all users message",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/message/d231fe67-e33d-4323-b939-b458c420dd5f/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"message",
+								"d231fe67-e33d-4323-b939-b458c420dd5f",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "doctor",
+			"item": [
+				{
+					"name": "profile",
+					"item": [
+						{
+							"name": "getting doctor's profile",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJLYXJzb24iLCJsYXN0bmFtZSI6Ik1hbm4iLCJpZCI6IjliOWQ3NGQ5LTkwMjUtNDQxNS1hZWI2LTE3YWI4YzM1OWQzZiIsImVtYWlsIjoiVGhlcmVzaWEwQHlhaG9vLmNvbSIsInJvbGUiOiJET0NUT1IiLCJpYXQiOjE3NDc4NDYxOTgsImV4cCI6MTc1MDQzODE5OH0.vH1ICminK6aXLtDP-bpOt8kSqxH0UwmGi0rgJGlhJPw",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5000/api/doctor/1f2fb0b8-8419-4898-99d3-85803460ea70",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"doctor",
+										"1f2fb0b8-8419-4898-99d3-85803460ea70"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getting all doctors",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJLYXJzb24iLCJsYXN0bmFtZSI6Ik1hbm4iLCJpZCI6IjliOWQ3NGQ5LTkwMjUtNDQxNS1hZWI2LTE3YWI4YzM1OWQzZiIsImVtYWlsIjoiVGhlcmVzaWEwQHlhaG9vLmNvbSIsInJvbGUiOiJET0NUT1IiLCJpYXQiOjE3NDc4NDYxOTgsImV4cCI6MTc1MDQzODE5OH0.vH1ICminK6aXLtDP-bpOt8kSqxH0UwmGi0rgJGlhJPw",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5000/api/doctor/all",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"doctor",
+										"all"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create doctor",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJCZWF0cmljZSIsImxhc3RuYW1lIjoiRWJlemUiLCJpZCI6ImE1YWQxMzkyLTdmNTItNDhkMy1iNGFiLTc0YTNhNTEzODQxYyIsImVtYWlsIjoiZWJlemViZWF0cmljZUBnbWFpbC5jb20iLCJyb2xlIjoiUEFUSUVOVCIsImlhdCI6MTc1MTM0NzMwMSwiZXhwIjoxNzUzOTM5MzAxfQ.zhFcphV5o3VgENrDre2zmd3qr9DLCr4Vq-b3EwG51qg",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"specialization\":\"Dermachologue\",\r\n    \"fee\":\"23000\",\r\n    \"documents\":\"https://www.facebook.com/photo/?fbid=1237491408042226&set=a.701402568317782&__cft__[0]\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5000/api/doctor/create",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"doctor",
+										"create"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "timeslots",
+					"item": [
+						{
+							"name": "create time slot",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJDaGFybGVzIiwibGFzdG5hbWUiOiJUYWJvdCIsImlkIjoiZGU3ZTg0NmEtMmUzZS00NDdkLTkzMTYtZjVkMzIyOGRiODRkIiwiZW1haWwiOiJjaGFybGVzQG5leHRpc2UuZGUiLCJyb2xlIjoiUEFUSUVOVCIsImlhdCI6MTc0OTIyMjc4OSwiZXhwIjoxNzUxODE0Nzg5fQ.ItHwSlJJy0eaN0j11y86Er496x5MNwdZoNtkbfxB6qU",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"startTime\": \"2025-05-24T08:30:00Z\",\r\n  \"endTime\": \"2025-05-24T12:45:00Z\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5000/api/doctor/create-time-slot",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"doctor",
+										"create-time-slot"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "fetching all doctros timeslots",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJCdWRkeSIsImxhc3RuYW1lIjoiTGVmZmxlciIsImlkIjoiODM3Y2VkODktZTIyOS00MGVhLWFjNWMtY2M5M2RkZDI1ZjUwIiwiZW1haWwiOiJCcm9va3M0QGdtYWlsLmNvbSIsInJvbGUiOiJET0NUT1IiLCJpYXQiOjE3NDgwOTc5NTksImV4cCI6MTc1MDY4OTk1OX0.sOHLNT6v6MUF889qCMc3EzqTnizy0WD2PUDvQBL0JaM",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5000/api/doctor/time/all",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"doctor",
+										"time",
+										"all"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getting all doctors timeslot",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": ""
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "appointments",
+					"item": [
+						{
+							"name": "approve appointment",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5000/api/doctor/approve/5e5547f6-0a90-4053-900e-31d2cac9ea4c",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"doctor",
+										"approve",
+										"5e5547f6-0a90-4053-900e-31d2cac9ea4c"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "consultation",
+					"item": [
+						{
+							"name": "consult",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"presentingComplaints\":\"My head is aching especially when am mot talking  to someone\",\r\n    \"diagnosticImpression\":\"Patient needs to start playing tennis\",\r\n    \"investigations\":\"Well still need to run some tests\",\r\n    \"treatment\":\"Hello Dr\",\r\n    \"appointmentId\":\"49ff60d4-55cb-49fc-b143-ef1efa51f3b5\",\r\n    \"pastHistory\":\"cerebral malaria\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5000/api/doctor/record/consultation",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"doctor",
+										"record",
+										"consultation"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getting all consultation",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5000/api/doctor/record/consultation/all",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"doctor",
+										"record",
+										"consultation",
+										"all"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "fetching a single consultation",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5000/api/doctor/record/consultation/d3b04f97-91cf-4eac-9aef-3617e722c47f",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"doctor",
+										"record",
+										"consultation",
+										"d3b04f97-91cf-4eac-9aef-3617e722c47f"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update consultation",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pastHistory\":\"I am allergic to people\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5000/api/doctor/record/consultation/fd7bda0f-57d3-42d9-846c-bb4cf76f224f",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"doctor",
+										"record",
+										"consultation",
+										"fd7bda0f-57d3-42d9-846c-bb4cf76f224f"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "remove",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5000/api/doctor/record/consultation/2985dcb7-1507-4e63-a123-ebd53d1a3608",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"doctor",
+										"record",
+										"consultation",
+										"2985dcb7-1507-4e63-a123-ebd53d1a3608"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "prescription",
+					"item": [
+						{
+							"name": "create prescription",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJQYXR0aWUiLCJsYXN0bmFtZSI6IkJlcm5oYXJkIiwiaWQiOiJkMjMxZmU2Ny1lMzNkLTQzMjMtYjkzOS1iNDU4YzQyMGRkNWYiLCJlbWFpbCI6IkJyZW5kYS5DaHJpc3RpYW5zZW44NUB5YWhvby5jb20iLCJyb2xlIjoiRE9DVE9SIiwiaWF0IjoxNzQ4MTg4MzY5LCJleHAiOjE3NTA3ODAzNjl9.uy1BNsQRDWDTxIzn98ovByhTezA7_xvbo2L8JpcuuFo",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"consultationId\": \"899cc894-6c16-498f-913d-8c633669410d\",\r\n  \"instructions\": \"Take after meals\",\r\n  \"investigation\": \"Blood test required\",\r\n  \"medications\": [\r\n    {\r\n      \"name\": \"Amoxicillin\",\r\n      \"dosage\": \"500mg\",\r\n      \"frequency\": \"THRICE_A_DAY\",\r\n      \"duration\": 7\r\n    },\r\n    {\r\n      \"name\": \"Paracetamol\",\r\n      \"dosage\": \"650mg\",\r\n      \"frequency\": \"TWICE_A_DAY\",\r\n      \"duration\": 5\r\n    }\r\n  ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5000/api/doctor/record/prescription",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"doctor",
+										"record",
+										"prescription"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "get all signs",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJCdWRkeSIsImxhc3RuYW1lIjoiTGVmZmxlciIsImlkIjoiODM3Y2VkODktZTIyOS00MGVhLWFjNWMtY2M5M2RkZDI1ZjUwIiwiZW1haWwiOiJCcm9va3M0QGdtYWlsLmNvbSIsInJvbGUiOiJET0NUT1IiLCJpYXQiOjE3NDgwOTc5NTksImV4cCI6MTc1MDY4OTk1OX0.sOHLNT6v6MUF889qCMc3EzqTnizy0WD2PUDvQBL0JaM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/doctor/record/consultation/all",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"doctor",
+								"record",
+								"consultation",
+								"all"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "patient",
+			"item": [
+				{
+					"name": "appointment",
+					"item": [
+						{
+							"name": "book appointment",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJDaGFybGVzIiwibGFzdG5hbWUiOiJUYWJvdCIsImlkIjoiOWEzODA5NTQtZjU5NS00N2RjLWE5YzMtYmE3ZjJkZWVkOGRlIiwiZW1haWwiOiJjaGFybGVzYmVzc29uZ3RhYm90QGdtYWlsLmNvbSIsInJvbGUiOiJQQVRJRU5UIiwiaWF0IjoxNzQ5MjIzNzMxLCJleHAiOjE3NTE4MTU3MzF9.G-jseGa3aRqhvZ8hXsJPW-V83mzpky4OCVwjrioyyng",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"date\":\"5/30/2025\",\r\n    \"reason\":\"Just need someone to talk to\",\r\n    \"doctorId\":\"3aacedcd-cbfb-488d-95c4-efb574c38449\",\r\n    \"timeslotId\":\"d52836b3-46fb-4838-86ef-8ab3fa7dcdb0\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5000/api/patient/appointment/create",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"patient",
+										"appointment",
+										"create"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "fetching all appointments",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJMYWlsYSIsImxhc3RuYW1lIjoiTWFydmluIiwiaWQiOiIzNTkxNzYzZS1mY2JkLTQ4M2QtOGQ0Mi1kZTZkNjdhMWQ3NjgiLCJlbWFpbCI6Ikt5bGVpZ2g5NkBnbWFpbC5jb20iLCJyb2xlIjoiUEFUSUVOVCIsImlhdCI6MTc0ODEwNDQ4OCwiZXhwIjoxNzUwNjk2NDg4fQ.O2ibHwjUDjorxbRFCpa1rlr9ErpzwiqtRwZ3gghASV4",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5000/api/patient/appointment/all",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"patient",
+										"appointment",
+										"all"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getting an appointment",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": ""
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getting patient appointments",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJMYWlsYSIsImxhc3RuYW1lIjoiTWFydmluIiwiaWQiOiIzNTkxNzYzZS1mY2JkLTQ4M2QtOGQ0Mi1kZTZkNjdhMWQ3NjgiLCJlbWFpbCI6Ikt5bGVpZ2g5NkBnbWFpbC5jb20iLCJyb2xlIjoiUEFUSUVOVCIsImlhdCI6MTc0ODEwNDQ4OCwiZXhwIjoxNzUwNjk2NDg4fQ.O2ibHwjUDjorxbRFCpa1rlr9ErpzwiqtRwZ3gghASV4",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5000/api/patient/appointments",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"patient",
+										"appointments"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "patient login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"charlesbessongtabot@gmail.com\",\r\n    \"password\":\"Hello#123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/user/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "like post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJMYWlsYSIsImxhc3RuYW1lIjoiTWFydmluIiwiaWQiOiIzNTkxNzYzZS1mY2JkLTQ4M2QtOGQ0Mi1kZTZkNjdhMWQ3NjgiLCJlbWFpbCI6Ikt5bGVpZ2g5NkBnbWFpbC5jb20iLCJyb2xlIjoiUEFUSUVOVCIsImlhdCI6MTc0ODEwNDQ4OCwiZXhwIjoxNzUwNjk2NDg4fQ.O2ibHwjUDjorxbRFCpa1rlr9ErpzwiqtRwZ3gghASV4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/posts/1edc1696-acd3-44c8-9622-fb6cc8995682/like",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"posts",
+								"1edc1696-acd3-44c8-9622-fb6cc8995682",
+								"like"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create patient",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJDaGFybGVzIiwibGFzdG5hbWUiOiJUYWJvdCIsImlkIjoiOWEzODA5NTQtZjU5NS00N2RjLWE5YzMtYmE3ZjJkZWVkOGRlIiwiZW1haWwiOiJjaGFybGVzYmVzc29uZ3RhYm90QGdtYWlsLmNvbSIsInJvbGUiOiJQQVRJRU5UIiwiaWF0IjoxNzQ5MjIzNzMxLCJleHAiOjE3NTE4MTU3MzF9.G-jseGa3aRqhvZ8hXsJPW-V83mzpky4OCVwjrioyyng",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"gender\":\"MALE\",\r\n    \"age\":\"23\",\r\n    \"address1\":\"Tarred Malingo\",\r\n    \"address2\":\"Molyko, Buea\",\r\n    \"occupation\":\"Software Engineer\",\r\n    \"phoneNumber\":\"00237670203775\",\r\n    \"tribe\":\"Bayangi\",\r\n    \"religion\":\"christian\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/patient/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"patient",
+								"create"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "kyc",
+			"item": [
+				{
+					"name": "kyc veriifcation",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJDaGFybGVzIiwibGFzdG5hbWUiOiJUYWJvdCIsImlkIjoiNTZhMGU3NjktZDkyMi00MGZiLTg2MDAtODU3OGVlMjc0ZmQxIiwiZW1haWwiOiJjaGFybGVzYmVzc29uZ3RhYm90QGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc1MTM0ODE2OSwiZXhwIjoxNzUzOTQwMTY5fQ.edlTEoR6qdvN39PP4Hqs36xMVQ78IOlXPp2pBWc2kOY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/admin/kyc-verifications/pending",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"admin",
+								"kyc-verifications",
+								"pending"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "admin login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"charlesbessongtabot@gmail.com\",\r\n    \"password\":\"Hello#123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/user/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verifiy doctor",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJDaGFybGVzIiwibGFzdG5hbWUiOiJUYWJvdCIsImlkIjoiNTZhMGU3NjktZDkyMi00MGZiLTg2MDAtODU3OGVlMjc0ZmQxIiwiZW1haWwiOiJjaGFybGVzYmVzc29uZ3RhYm90QGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc1MTM0ODE2OSwiZXhwIjoxNzUzOTQwMTY5fQ.edlTEoR6qdvN39PP4Hqs36xMVQ78IOlXPp2pBWc2kOY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"status\": \"APPROVED\",\r\n  \"notes\": \"Doctor credentials verified successfully\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/admin/doctor-verifications/verify?email=ebezebeatrice@gmail.com",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"admin",
+								"doctor-verifications",
+								"verify"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "ebezebeatrice@gmail.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verify kyc",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdG5hbWUiOiJDaGFybGVzIiwibGFzdG5hbWUiOiJUYWJvdCIsImlkIjoiNTZhMGU3NjktZDkyMi00MGZiLTg2MDAtODU3OGVlMjc0ZmQxIiwiZW1haWwiOiJjaGFybGVzYmVzc29uZ3RhYm90QGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc1MTM0ODE2OSwiZXhwIjoxNzUzOTQwMTY5fQ.edlTEoR6qdvN39PP4Hqs36xMVQ78IOlXPp2pBWc2kOY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"status\": \"approved\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/admin/kyc-verifications/a5ad1392-7f52-48d3-b4ab-74a3a513841c/verify",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"admin",
+								"kyc-verifications",
+								"a5ad1392-7f52-48d3-b4ab-74a3a513841c",
+								"verify"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "entery point",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000"
+				}
+			},
+			"response": []
+		}
+	]
+}
