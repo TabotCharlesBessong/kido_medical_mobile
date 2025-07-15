@@ -225,66 +225,68 @@
 // }
 
 
+// app/_layout.tsx
+
 import React, { useEffect } from "react";
-import { Stack } from "expo-router";
+import { Stack, Redirect } from "expo-router"; // Import Redirect for unauthenticated users
 import { Provider } from "react-redux";
 import { store, AppDispatch, RootState } from "@/redux/store";
-import { loadUserFromStorage } from "@/redux/slice/authSlice";
+import {
+  loadUserFromStorage,
+  logout as authLogout, // Alias logout to avoid conflict if needed
+} from "@/redux/slice/authSlice";
 import {
   connectStreamUser,
   disconnectStreamUser,
-} from "@/redux/slice/streamSlice"; // Stream Video client management
+  getGlobalStreamVideoClient,
+} from "@/redux/slice/streamSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { StatusBar } from "expo-status-bar";
 import { Text, View, ActivityIndicator, StyleSheet, Alert } from "react-native";
 
 // Stream Video SDK components
-import {
-  StreamVideo,
-  StreamVideoClient,
-} from "@stream-io/video-react-native-sdk";
-// Removed Stream Chat SDK imports
+import { StreamVideo } from "@stream-io/video-react-native-sdk";
 
-// Required polyfills (ensure these are at the very top of your entry file like App.tsx or index.js/ts)
-// For Expo Router, often best placed directly here or in a separate polyfills.ts imported early.
+// Polyfills - ensure these are at the very top of your project's entry point
+// For Expo Router, placing them here in app/_layout.tsx is usually effective.
 import "react-native-url-polyfill/auto";
 import "core-js/full/symbol/iterator";
-// If you encounter `TextEncoder` or `Buffer` issues:
+// If you encounter `TextEncoder` or `Buffer` issues, uncomment these:
 // import 'fast-text-encoding';
 // import { Buffer } from 'buffer';
 // (global as any).Buffer = Buffer;
 
-function RootNavigatorWrapper() {
+// This component handles the core app logic, Redux state loading, and Stream.io connection.
+function AppRootLayout() {
   const dispatch: AppDispatch = useDispatch();
   const {
     user,
-    token: appAuthToken,
+    token: appAuthToken, // JWT token from your backend
     isLoading: authLoading,
     error: authError,
   } = useSelector((state: RootState) => state.auth);
   const {
-    videoClient,
-    isConnected: streamConnected,
-    isLoading: streamLoading,
-    error: streamError,
+    isConnected: streamConnected, // Stream Video client connected status
+    isLoading: streamLoading, // Stream Video client connection loading
+    error: streamError, // Stream Video client connection error
   } = useSelector((state: RootState) => state.stream);
 
-  const [isAppReady, setIsAppReady] = React.useState(false);
+  const [isAppReady, setIsAppReady] = React.useState(false); // Tracks if initial app data is loaded
 
-  // 1. Load app user from storage
+  // 1. Load user authentication data from secure storage on app launch
   useEffect(() => {
     const prepareApp = async () => {
       try {
-        await dispatch(loadUserFromStorage()).unwrap();
+        await dispatch(loadUserFromStorage()).unwrap(); // Attempt to load user from SecureStore
       } catch (e) {
         console.warn("No existing user session or failed to load:", e);
       } finally {
-        setIsAppReady(true);
+        setIsAppReady(true); // Mark app as ready to proceed with routing
       }
     };
     prepareApp();
 
-    // Cleanup: Disconnect Stream user on app close or if session ends externally
+    // Cleanup: Disconnect Stream user if component unmounts (e.g., app closes fully)
     return () => {
       if (streamConnected) {
         dispatch(disconnectStreamUser());
@@ -301,6 +303,7 @@ function RootNavigatorWrapper() {
       !streamConnected &&
       !streamLoading
     ) {
+      // If app is ready, user is logged in, and Stream is not yet connected/loading, connect it
       dispatch(connectStreamUser(user.id));
     }
     // Handle disconnection if user logs out or appAuthToken disappears
@@ -316,14 +319,16 @@ function RootNavigatorWrapper() {
     dispatch,
   ]);
 
-  // Handle Stream errors
+  // Handle Stream connection errors
   useEffect(() => {
     if (streamError) {
       Alert.alert("Stream Error", streamError);
+      // Optionally, you might want to log out or redirect on persistent Stream errors
+      // dispatch(authLogout());
     }
-  }, [streamError]);
+  }, [streamError, dispatch]); // Added dispatch to dependency array for useEffect safety
 
-  // If the app is still loading user data or connecting to Stream, show a splash/loading screen
+  // Show a global loading screen while authenticating or connecting to Stream
   if (!isAppReady || authLoading || streamLoading) {
     return (
       <View style={layoutStyles.loadingContainer}>
@@ -337,37 +342,48 @@ function RootNavigatorWrapper() {
     );
   }
 
-  // If authenticated and Stream Video client is connected, render the main app
+  // Get the StreamVideoClient instance from the global getter function
+  const videoClient = getGlobalStreamVideoClient();
+
+  // If user is authenticated AND Stream Video client is successfully connected,
+  // render the main application (tabs, call screens) wrapped in StreamVideo Provider.
   if (user && appAuthToken && streamConnected && videoClient) {
     return (
-      // Only Stream Video Context Provider
+      // StreamVideo Provider must wrap all screens that use Stream Video functionalities
       <StreamVideo client={videoClient}>
         <Stack>
+          {/* This is the main authenticated part of your app, usually a Tab Navigator */}
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          {/* Global call screen outside tabs, presented as a full-screen modal */}
+          {/* This is your global call screen, shown as a modal over other content */}
           <Stack.Screen
             name="calls/[streamCallId]"
             options={{ headerShown: false, presentation: "fullScreenModal" }}
           />
+          {/* Catch-all for undefined routes within the authenticated flow */}
+          <Stack.Screen name="+not-found" />
         </Stack>
       </StreamVideo>
     );
   }
 
-  // If not authenticated or Stream failed to connect, redirect to auth flow
+  // If user is NOT authenticated, redirect them to the authentication flow
+  // (e.g., login, register, verify, forgot password screens)
   return (
     <Stack>
+      {/* This Stack is for your authentication-related screens */}
       <Stack.Screen name="auth" options={{ headerShown: false }} />
+      {/* Catch-all for undefined routes within the unauthenticated flow */}
       <Stack.Screen name="+not-found" />
     </Stack>
   );
 }
 
-// Main App component wrapping with Redux Provider
+// This is the actual default export of your app/_layout.tsx file.
+// It wraps the entire application with the Redux Provider.
 export default function App() {
   return (
     <Provider store={store}>
-      <RootNavigatorWrapper />
+      <AppRootLayout />
       <StatusBar style="auto" />
     </Provider>
   );
@@ -380,4 +396,3 @@ const layoutStyles = StyleSheet.create({
     alignItems: "center",
   },
 });
-

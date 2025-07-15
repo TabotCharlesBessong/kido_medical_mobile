@@ -12,12 +12,12 @@ import {
   useCall,
   useCallStateHooks,
 } from '@stream-io/video-react-native-sdk';
-import { useAppDispatch } from '../../../redux/store';
+import { AppDispatch } from '../../../redux/store';
 import { updateAppointment } from '../../../redux/slice/appointment.slice';
 
 export default function VideoCall() {
   const router = useRouter();
-  const dispatch = useAppDispatch();
+  const dispatch = AppDispatch();
   const { appointmentId } = useLocalSearchParams();
   const [client, setClient] = useState<StreamVideoClient | null>(null);
   const [call, setCall] = useState<Call | null>(null);

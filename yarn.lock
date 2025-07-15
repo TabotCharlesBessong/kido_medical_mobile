@@ -1737,10 +1737,10 @@
     debug "4.3.4"
     event-target-shim "6.0.2"
 
-"@stream-io/video-client@1.25.3":
-  version "1.25.3"
-  resolved "https://registry.yarnpkg.com/@stream-io/video-client/-/video-client-1.25.3.tgz#79568e52485136af35eea3625e2872549e6b4b25"
-  integrity sha512-fHfEhf9UOrLGZcY9nDdMUrc8+3yeF55Yi4TPMbkJIB5fFpz8kQ4wkb215c+R8KUPbSWwyriyHywCso2BpQF0Kw==
+"@stream-io/video-client@1.26.0":
+  version "1.26.0"
+  resolved "https://registry.yarnpkg.com/@stream-io/video-client/-/video-client-1.26.0.tgz#414019419cb768412d52db5dbbe372e97552bba8"
+  integrity sha512-1eFdFBGwpqHDlpwgPQiDBcux8apAkD3hWvKz1SFB/VxlsgBoSyR9yUOpd1HAIXKLgtxJzr1P74dxnmwIY4MzQg==
   dependencies:
     "@protobuf-ts/runtime" "^2.9.4"
     "@protobuf-ts/runtime-rpc" "^2.9.4"
@@ -1751,21 +1751,21 @@
     ua-parser-js "^1.0.40"
     webrtc-adapter "^8.2.3"
 
-"@stream-io/video-react-bindings@1.7.4":
-  version "1.7.4"
-  resolved "https://registry.yarnpkg.com/@stream-io/video-react-bindings/-/video-react-bindings-1.7.4.tgz#7e59a3d3bd7eea8271e2bcddaa6d429eae506555"
-  integrity sha512-U0YYm0153JTrTYM0A/sS/8LRwpfLNYB6EiBWONFHkOD56YR+fXP4s+29H4HKmthIipaNkwCL7rVTEc0oYtzrbA==
+"@stream-io/video-react-bindings@1.7.7":
+  version "1.7.7"
+  resolved "https://registry.yarnpkg.com/@stream-io/video-react-bindings/-/video-react-bindings-1.7.7.tgz#da9ac8208925c3da720645da7714a7d441f11e8f"
+  integrity sha512-1bqcbA9X94HG1FHkbnrUIgKUyl3gf/uCABeE61IfSfS9xAz1h5t/XmQNOcu2Ddb9EItLTPJdntrmbblcVHtqXQ==
   dependencies:
     i18next "^25.2.1"
     rxjs "~7.8.1"
 
-"@stream-io/video-react-native-sdk@^1.17.4":
-  version "1.17.4"
-  resolved "https://registry.yarnpkg.com/@stream-io/video-react-native-sdk/-/video-react-native-sdk-1.17.4.tgz#e3897545972acb757bb0765c7dd5d7b12181d19f"
-  integrity sha512-0Nv59DEPv0XqMU2yqcnSMYgYPKEDCYi25PM2BxHBeznPowOUi3oBIEWCzG8a0OLmym8qg1wJGlViC+5n1TOhQw==
+"@stream-io/video-react-native-sdk@^1.18.0":
+  version "1.18.0"
+  resolved "https://registry.yarnpkg.com/@stream-io/video-react-native-sdk/-/video-react-native-sdk-1.18.0.tgz#de26a589a29833521bc7e4d29c5d4a04fe0e0285"
+  integrity sha512-5n83nfraJlYdGpBuU8H4yWsARDkVOfSXR07YBEvW7kIqv5rljK9IoOK1vyRGQPKhGtWs+swFGS67BjzqQ2zn1A==
   dependencies:
-    "@stream-io/video-client" "1.25.3"
-    "@stream-io/video-react-bindings" "1.7.4"
+    "@stream-io/video-client" "1.26.0"
+    "@stream-io/video-react-bindings" "1.7.7"
     intl-pluralrules "2.0.1"
     lodash.merge "^4.6.2"
     react-native-url-polyfill "1.3.0"
@@ -2704,6 +2704,11 @@ core-js-compat@^3.40.0:
   integrity sha512-bQasjMfyDGyaeWKBIu33lHh9qlSR0MFE/Nmc6nMjf/iU9b3rSMdAYz1Baxrv4lPdGUsTqZudHA4jIGSJy0SWZQ==
   dependencies:
     browserslist "^4.24.4"
+
+core-js@^3.44.0:
+  version "3.44.0"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.44.0.tgz#db4fd4fa07933c1d6898c8b112a1119a9336e959"
+  integrity sha512-aFCtd4l6GvAXwVEh3XbbVqJGHDJt0OZRa+5ePGx3LLwi12WfexqQxcsohb2wgsa/92xtl19Hd66G/L+TaAxDMw==
 
 cosmiconfig@^5.0.5:
   version "5.2.1"
@@ -3741,9 +3746,9 @@ i18next@^23.11.5:
     "@babel/runtime" "^7.23.2"
 
 i18next@^25.2.1:
-  version "25.3.1"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-25.3.1.tgz#bfb1cb6ef464a0bc89172c45b1d23c8fa48ba73e"
-  integrity sha512-S4CPAx8LfMOnURnnJa8jFWvur+UX/LWcl6+61p9VV7SK2m0445JeBJ6tLD0D5SR0H29G4PYfWkEhivKG5p4RDg==
+  version "25.3.2"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-25.3.2.tgz#3d6a7d1dc058caa1b9bdca47fd585483e2e7a637"
+  integrity sha512-JSnbZDxRVbphc5jiptxr3o2zocy5dEqpVm9qCGdJwRNO+9saUJS0/u4LnM/13C23fUEWxAylPqKU/NpMV/IjqA==
   dependencies:
     "@babel/runtime" "^7.27.6"
 
@@ -5688,6 +5693,15 @@ react-native-web@^0.20.0:
     nullthrows "^1.1.1"
     postcss-value-parser "^4.2.0"
     styleq "^0.1.3"
+
+react-native-webrtc@^124.0.5:
+  version "124.0.5"
+  resolved "https://registry.yarnpkg.com/react-native-webrtc/-/react-native-webrtc-124.0.5.tgz#9cb6174c2dcf63b61d15a99755fa498f7bbb8b73"
+  integrity sha512-LIQJKst+t53bJOcQef9VXuz3pVheSBUA4olQGkxosbF4pHW1gsWoXYmf6wmI2zrqOA+aZsjjB6aT9AKLyr6a0Q==
+  dependencies:
+    base64-js "1.5.1"
+    debug "4.3.4"
+    event-target-shim "6.0.2"
 
 react-native@*, react-native@0.79.2:
   version "0.79.2"
