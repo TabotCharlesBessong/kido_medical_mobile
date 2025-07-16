@@ -1,41 +1,57 @@
+import React, { useState, useEffect } from "react";
+import { KeyboardAvoidingView, StyleSheet, Text, View } from "react-native";
+import { Formik, FormikHelpers } from "formik";
+import * as yup from "yup";
+import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux"; // Import Redux hooks for state and dispatch
+
 import {
   AppButton,
   AppLink,
   AuthInputField,
   CustomText,
   PasswordVisibilityIcon,
-  SubmitButton
 } from "@/components";
 import { COLORS } from "@/constants/theme";
-import { baseUrl } from "@/utils/constants";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
-import { Formik, FormikHelpers } from "formik";
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { KeyboardAvoidingView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useDispatch } from "react-redux";
-import * as yup from "yup"
+import { loginUser, clearAuthError } from "@/redux/slice/authSlice"; // Import login thunk and error clearer
+import { AppDispatch, RootState } from "@/redux/store"; // Import RootState and AppDispatch types
 
 interface SigninValues {
   email: string;
   password: string;
 }
 
-const login = () => {
-  const [secureTextEntry, setSecureTextEntry] = useState<boolean>(false);
+const LoginScreen = () => {
+  const [secureTextEntry, setSecureTextEntry] = useState<boolean>(true); // Default to true for secure password input
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const { t } = useTranslation();
 
-  const dispatch = useDispatch();
-  const {t} = useTranslation()
+  const dispatch: AppDispatch = useDispatch(); // Get the dispatch function
+  const { isLoading, error, token, user } = useSelector(
+    (state: RootState) => state.auth
+  ); // Get relevant state from Redux
+
+  // Clear authentication error when component mounts or user interaction implies new attempt
+  useEffect(() => {
+    dispatch(clearAuthError());
+  }, [dispatch]);
+
+  // Effect to navigate after successful login (when token becomes available)
+  useEffect(() => {
+    if (token && user) {
+      // Ensure both token and user data are present
+      router.replace("/(tabs)"); // Use replace to prevent going back to login screen after successful login
+    }
+  }, [token, user, router]); // Re-run effect when token or user changes
+
   const initialValues: SigninValues = {
     email: "",
     password: "",
   };
 
-  const signupSchema = yup.object({
+  const loginSchema = yup.object({
+    // Renamed from signupSchema for clarity
     email: yup
       .string()
       .trim(t("login.yup.email.trim"))
@@ -52,73 +68,38 @@ const login = () => {
       .required(t("login.yup.password.required")),
   });
 
-  // const saveUserData = async (data:any) => {
-  //   try {
-  //     await AsyncStorage.setItem("userToken",data.data.token)
-  //     await AsyncStorage.setItem("userData",JSON.stringify(data.user))
-  //   } catch (error) {
-  //     console.log("Error saving data",(error as TypeError).message)
-  //   }
-  // }
-
   const handleSubmit = async (
     values: SigninValues,
     actions: FormikHelpers<SigninValues>
   ) => {
-    console.log(values);
-    try {
-      setLoading(true);
-      // dispatch(signInStart());
-      setErrorMessage("");
-      const res = await fetch(`${baseUrl}/user/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-      // 
-      console.log(res);
-      const data = await res.json();
-      console.log(data);
-      if (data.success === false) return setErrorMessage(data.message);
-
-      await AsyncStorage.setItem("userToken", data.data.token);
-      await AsyncStorage.setItem("userData", JSON.stringify(data.data.user));
-      setLoading(false);
-      if (res.ok) {
-        // dispatch(signInSuccess(data));
-        router.push({pathname: "/(tabs)"})
-      }
-    } catch (error) {
-      console.log(error);
-      setErrorMessage((error as TypeError).message);
-      setLoading(false);
-    }
+    // Dispatch the loginUser async thunk
+    dispatch(loginUser(values));
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container}>
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
       <CustomText type="h1">{t("login.title")}</CustomText>
       <Formik
         initialValues={initialValues}
-        validationSchema={signupSchema}
+        validationSchema={loginSchema}
         onSubmit={handleSubmit}
       >
         {({ handleSubmit }) => (
-          <KeyboardAvoidingView style={styles.container}>
+          <View style={styles.formContainer}>
             <AuthInputField
               name="email"
               placeholder={t("login.form.placeholder1")}
               label={t("login.form.label1")}
-              containerStyle={{ marginBottom: 16 }}
+              containerStyle={styles.inputField}
+              keyboardType="email-address" // Recommended for email inputs
+              autoCapitalize="none" // Prevents auto-capitalization for email
             />
             <AuthInputField
               name="password"
               placeholder={t("login.form.placeholder2")}
               label={t("login.form.label2")}
-              containerStyle={{ marginBottom: 16 }}
-              secureTextEntry={!secureTextEntry}
+              containerStyle={styles.inputField}
+              secureTextEntry={secureTextEntry} // Controlled by local state
               rightIcon={
                 <PasswordVisibilityIcon privateIcon={secureTextEntry} />
               }
@@ -126,40 +107,38 @@ const login = () => {
                 setSecureTextEntry(!secureTextEntry);
               }}
             />
-            <Text>{errorMessage}</Text>
+            {error && <Text style={styles.errorText}>{error}</Text>}{" "}
+            {/* Display Redux error */}
             <View style={styles.bottomLinks}>
-              <CustomText type="body5">
-                {t("login.forgotText")}
-              </CustomText>
+              <CustomText type="body5">{t("login.forgotText")}</CustomText>
               <AppLink
                 title={t("login.forgotLink")}
-                onPress={() => router.push({pathname: "/auth/forgot"})}
+                onPress={() => router.push({ pathname: "/auth/forgot" })}
               />
             </View>
             <AppButton
               backgroundColor={COLORS.primary}
               onPress={handleSubmit}
               title={t("login.button")}
-              loading={loading}
+              loading={isLoading} // Use Redux isLoading state
               loadingText={t("login.loading")}
+              containerStyle={styles.appButton}
             />
             <View style={styles.bottomLinks}>
-              <CustomText type="body5">
-                {t("login.registerText")}
-              </CustomText>
+              <CustomText type="body5">{t("login.registerText")}</CustomText>
               <AppLink
                 title={t("login.registerLink")}
-                onPress={() => router.push({pathname: "/auth/register"})}
+                onPress={() => router.push({ pathname: "/auth/register" })}
               />
             </View>
-          </KeyboardAvoidingView>
+          </View>
         )}
       </Formik>
     </KeyboardAvoidingView>
   );
 };
 
-export default login;
+export default LoginScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -168,13 +147,32 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flex: 1,
     width: "100%",
+    paddingHorizontal: 16, // Added horizontal padding for overall container
+  },
+  formContainer: {
+    width: "100%", // Ensures Formik content takes full width
+    alignItems: "center", // Center items within the form
+  },
+  inputField: {
+    marginBottom: 16,
+    width: "100%", // Ensures input fields take full width of formContainer
   },
   bottomLinks: {
-    display: "flex",
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     marginVertical: 16,
-    flexDirection: "row",
-    width: "90%",
+    width: "100%", // Ensure links take full width of formContainer
+    paddingHorizontal: 5, // Add some padding for the links
+  },
+  appButton: {
+    width: "100%", // Ensures button takes full width of formContainer
+  },
+  errorText: {
+    color: COLORS.danger, // Use defined danger color
+    marginBottom: 10,
+    alignSelf: "center", // Center the error text if it's there
+    textAlign: "center",
+    width: "100%",
   },
 });

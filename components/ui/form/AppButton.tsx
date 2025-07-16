@@ -43,6 +43,7 @@ const AppButton: FC<AppButtonProps> = ({
   return (
     <Pressable
       onPress={onPress}
+      // @ts-ignore
       style={[styles.container, dynamicContainerStyle, containerStyle]}
     >
       <Text style={[styles.title, dynamicTitleStyle, titleStyle]}>{loading ? loadingText : title}</Text>

@@ -8,6 +8,8 @@ const Layout = () => {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="complete" options={{ headerShown: false }} />
       <Stack.Screen name="register" options={{ headerShown: false }} />
+      <Stack.Screen name="create-doctor" options={{ headerShown: false }} />
+      <Stack.Screen name="create-patient" options={{ headerShown: false }} />
     </Stack>
   );
 };

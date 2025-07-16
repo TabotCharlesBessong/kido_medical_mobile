@@ -1,105 +1,98 @@
+import React, { useEffect } from "react";
+import { KeyboardAvoidingView, StyleSheet, Text, View } from "react-native";
+import { Formik, FormikHelpers } from "formik";
+import * as yup from "yup";
+import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
+
 import { AppButton, AuthInputField, CustomText } from "@/components";
 import { COLORS } from "@/constants/theme";
-import { baseUrl } from "@/utils/constants";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
-import { Formik, FormikHelpers } from "formik";
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { KeyboardAvoidingView, StyleSheet } from "react-native";
-import { useDispatch } from "react-redux";
-import * as yup from "yup";
+import { forgotPassword, clearAuthError } from "@/redux/slice/authSlice"; // Import the thunk
+import { AppDispatch, RootState } from "@/redux/store"; // Import types
 
 interface ForgotValues {
   email: string;
 }
 
-const forgot = () => {
+const ForgotPasswordScreen = () => {
+  // Renamed for clarity
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const dispatch = useDispatch();
+  const { t } = useTranslation();
+
+  const dispatch: AppDispatch = useDispatch();
+  const { isLoading, error } = useSelector((state: RootState) => state.auth); // Use Redux state
+
+  useEffect(() => {
+    // Clear any previous authentication errors when component mounts
+    dispatch(clearAuthError());
+  }, [dispatch]);
+
   const initialValues: ForgotValues = {
     email: "",
   };
-  const {t} = useTranslation()
 
-  const signupSchema = yup.object({
+  const validationSchema = yup.object({
+    // Renamed from signupSchema for clarity
     email: yup
       .string()
-      .trim(t("login.yup.email.trim"))
-      .email(t("login.yup.email.email"))
-      .required(t("login.yup.email.required")),
+      .trim(t("forgotPassword.yup.email.trim"))
+      .email(t("forgotPassword.yup.email.email"))
+      .required(t("forgotPassword.yup.email.required")),
   });
 
   const handleSubmit = async (
     values: ForgotValues,
     actions: FormikHelpers<ForgotValues>
   ) => {
-    console.log(values);
-    try {
-      setLoading(true);
-      setErrorMessage("");
-      const res = await fetch(
-        `${baseUrl}/user/forgot-password`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(values),
-        }
-      );
-      console.log(res);
-      const data = await res.json();
-      console.log(data);
-      if (data.success === false) return setErrorMessage(data.message);
+    const resultAction = await dispatch(forgotPassword(values));
 
-      // storring the code
-      await AsyncStorage.setItem("resetCode",data.data.token.code)
-      const rcode = data.data.token.code
-      console.log(rcode)
-      setLoading(false);
-      if (res.ok) router.push("auth/reset");
-    } catch (error) {
-      console.log(error);
-      setErrorMessage((error as TypeError).message);
-      setLoading(false);
+    if (forgotPassword.fulfilled.match(resultAction)) {
+      // On success, navigate to the reset password screen
+      // Optionally show a success message (e.g., "Reset code sent to your email")
+      router.push("/auth/reset");
     }
+    // Errors are handled by Redux state and displayed in the UI.
   };
+
   return (
-    <KeyboardAvoidingView style={styles.container}>
-      <CustomText type="h2">
-        You forgot your password, no problem you can reset it
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
+      <CustomText type="h2" >
+        {t("forgotPassword.title")}
       </CustomText>
       <Formik
         initialValues={initialValues}
-        validationSchema={signupSchema}
+        validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
         {({ handleSubmit }) => (
-          <KeyboardAvoidingView style={styles.container}>
+          <View style={styles.formContainer}>
             <AuthInputField
               name="email"
               placeholder={t("forgotPassword.emailPlaceholder")}
               label={t("forgotPassword.emailLabel")}
-              containerStyle={{ marginBottom: 16 }}
+              containerStyle={styles.inputField}
+              keyboardType="email-address"
+              autoCapitalize="none"
             />
+            {error && <Text style={styles.errorText}>{error}</Text>}{" "}
+            {/* Display Redux error */}
             <AppButton
               backgroundColor={COLORS.primary}
               onPress={handleSubmit}
               title={t("forgotPassword.submitButton")}
-              loading={loading}
+              loading={isLoading} // Use Redux isLoading state
               loadingText={t("forgotPassword.loadingText")}
+              containerStyle={styles.appButton}
             />
-          </KeyboardAvoidingView>
+          </View>
         )}
       </Formik>
     </KeyboardAvoidingView>
   );
 };
 
-export default forgot;
+export default ForgotPasswordScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -107,6 +100,30 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flex: 1,
+    width: "100%",
+    paddingHorizontal: 16,
+  },
+  title: {
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  formContainer: {
+    width: "100%",
+    alignItems: "center",
+  },
+  inputField: {
+    marginBottom: 16,
+    width: "100%",
+  },
+  appButton: {
+    width: "100%",
+    marginTop: 10,
+  },
+  errorText: {
+    color: COLORS.danger,
+    marginBottom: 10,
+    alignSelf: "center",
+    textAlign: "center",
     width: "100%",
   },
 });

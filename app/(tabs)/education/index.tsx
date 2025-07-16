@@ -23,7 +23,7 @@ import { Ionicons } from '@expo/vector-icons';
 export default function EducationalFeed() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const posts = useSelector(selectEducationalPosts);
+  const posts = useSelector(fetchEducationalPosts);
   const loading = useSelector(selectEducationalLoading);
   const error = useSelector(selectEducationalError);
   const [commentText, setCommentText] = useState('');
